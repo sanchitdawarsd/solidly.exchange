@@ -1,0 +1,138 @@
+.container {
+  width: calc(100%);
+  margin: 0;
+  margin-top: 0px;
+  position: relative;
+  right: 0 !important;
+}
+
+.container:hover {
+}
+
+.title {
+  font-size: 20px !important;
+  margin-bottom: 24px !important;
+  margin-top: 0 !important;
+}
+
+.lpOptionsContainer {
+  /* border: 1px solid rgba(104, 108, 122, 0.2); */
+  border: 1px solid rgba(104,108,122,0.2);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  cursor: pointer;
+  -webkit-transition: all 300ms ease-out !important;
+  -moz-transition: all 300ms ease-out !important;
+  -ms-transition: all 300ms ease-out !important;
+  -o-transition: all 600ms ease-out !important;
+  transition: all 300ms ease-out !important;
+}
+
+.lpOptionsContainer:hover {
+  border-radius: 10px;
+  box-sizing: border-box !important;
+  -webkit-box-shadow: 0px 3px 0px 0 #4aa166 !important;
+  box-shadow: 0px 3px 0px 0 #4aa166 !important;
+  transform: translate(0px, -3px);
+}
+
+@keyframes gradient {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
+
+.lpOption {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0px;
+  transition: background 0.5s ease;
+}
+
+.lpOptionTitle {
+  display: flex;
+  align-items: center;
+  background: none;
+  border-bottom: 1px solid rgba(104,108,122,0.2);
+  padding: 17px 30px 20px 30px;
+  border-radius: 10px 10px 0px 0px;
+}
+
+.lpOptionName {
+  font-size: 20px !important;
+  margin: 0 !important;
+  font-weight: 700 !important;
+}
+
+.lpOptionDescription {
+  font-size: 15px !important;
+  opacity: 0.7;
+  margin-top: 5px !important;
+}
+
+.lpOptionIcon {
+  margin-right: 15px;
+  margin-left: -5px;
+  transform: scale(.6);
+}
+
+.activeIcon {
+  height: 10px;
+  width: 10px;
+  background-color: #0ba360;
+  border-radius: 50%;
+  display: inline-block;
+  position: absolute;
+  right: 12px;
+  top: 12px;
+}
+
+.center {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0px 30px 30px 30px;
+  text-align: center !important;
+}
+
+.amountText {
+  font-size: 34px !important;
+  font-weight: bold !important;
+  padding: 10px 30px 0px 30px;
+  text-align: center !important;
+}
+
+.iHazRewardz {
+  background: gold !important;
+  opacity: 1 !important;
+  width: 100%;
+  color: #000 !important;
+  padding: 15px 25px !important;
+  text-align: center !important;
+  border-radius: 10px;
+}
+
+.iHazNoRewardz {
+  width: 100%;
+  text-align: center !important;
+  opacity: 0.5 !important;
+}
+
+.dollarValue {
+  width: 100%;
+  text-align: center !important;
+  opacity: 0.5 !important;
+  margin: 10px 0 !important;
+  display: none;
+}

@@ -1,0 +1,139 @@
+.container {
+  width: calc(100% - 180px);
+  margin: 40px auto;
+  border-radius: 20px;
+  background: linear-gradient(-45deg, DarkViolet, DarkSlateBlue);
+	background-size: 600% 600%;
+	animation: gradient 35s ease infinite;
+}
+
+@keyframes gradient {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
+
+.fieldsContainer {
+  max-width: 1356px;
+  display: flex;
+  margin: 0 auto;
+  padding: 40px 30px;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 100px;
+}
+
+.field {
+  display: flex;
+  position: relative;
+  min-width: 300px;
+}
+
+.title {
+  /* background: rgba(256, 256, 256, 0.2); */
+  border-radius: 30px;
+  padding: 4px 0px;
+  width: fit-content;
+  color: #fff !important;
+  font-size: 14px !important;
+}
+
+.value {
+  font-size: 40px !important;
+  font-weight: bold !important;
+  color: #fff !important;
+}
+
+.inline {
+  display: flex;
+  align-items: flex-end;
+}
+
+.valueSymbol {
+  font-size: 20px !important;
+  font-weight: bold !important;
+  color: #fff !important;
+  margin-bottom: 4px !important;
+  margin-left: 3px !important;
+}
+
+.overviewIcon {
+  color: #fff;
+  font-size: 30px !important;
+}
+
+.iconWrap {
+  min-width: 80px !important;
+  min-height: 80px !important;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 24px !important;
+}
+
+.balanceIcon {
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 50%;
+  padding: 16px;
+  font-size: 70px !important;
+  margin-right: 24px !important;
+}
+
+.pieField {
+  position: absolute;
+  right: 0px;
+  top: -115px;
+}
+
+@media screen and (max-width: 1200px) {
+  .container {
+    width: calc(100%);
+    margin: 60px auto 40px auto;
+    border-radius: 0px;
+  }
+}
+
+@media screen and (max-width: 960px) {
+  .pieField {
+    left: 0px;
+    top: -90px;
+  }
+
+  .container {
+    min-height: 355px;
+    overflow: hidden;
+  }
+
+  .value {
+    font-size: 26px !important;
+    font-weight: bold !important;
+    color: #fff !important;
+  }
+
+  .overviewIcon {
+    color: #fff;
+    font-size: 24px !important;
+  }
+
+  .iconWrap {
+    min-width: 60px !important;
+    min-height: 60px !important;
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 24px !important;
+  }
+}
