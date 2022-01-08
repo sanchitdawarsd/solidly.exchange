@@ -1,6 +1,6 @@
 .headerContainer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
   padding: 0 10px;
@@ -12,7 +12,6 @@
   width: calc(100%);
   border: 0;
   border-radius: 0 !important;
-  border-bottom: 1px solid rgba(128, 128, 128, 0.2) !important;
 }
 
 .networkIcon {
@@ -76,9 +75,9 @@
   align-items: center;
   margin-left: 14px !important;
   min-height: 40px;
-  background-color: rgba(0,0,0,0) !important;
+  background-color: rgb(33, 43, 72) !important;
   border: 1px solid rgba(108,108,123, 0.2) !important;
-  border-radius: 60px !important;
+  border-radius: 12px !important;
   /* color: #FFF !important; */
 }
 
@@ -251,10 +250,6 @@
   border-bottom: 2px solid #1c46f5 ;
   margin-right: 24px !important;
   cursor: pointer;
-}
-
-.pageTitle {
-  flex: 1;
 }
 
 @media screen and (max-width: 1200px) {

@@ -316,9 +316,6 @@ function Setup({ theme }) {
     return (
       <div className={ classes.textField}>
         <div className={ classes.inputTitleContainer }>
-          <div className={ classes.inputTitle }>
-            <Typography variant='h5' noWrap className={ classes.inputTitleWithIcon }>{ type }</Typography>
-          </div>
           <div className={ classes.inputBalance }>
             <Typography variant='h5' noWrap onClick={ () => {
               if(type === 'AssetA') {
@@ -358,9 +355,6 @@ function Setup({ theme }) {
   return (
     <div className={ classes.swapInputs }>
       { renderMassiveInput('AssetA', assetAAmountValue, assetAAmountError, assetAAmountChanged, assetAAssetValue, assetAAssetError, assetAAssetOptions, onAssetSelect) }
-      <div className={ classes.swapIconContainer }>
-        <ArrowDownwardIcon className={ classes.swapIcon } />
-      </div>
       { renderMassiveInput('AssetB', assetBAmountValue, assetBAmountError, assetBAmountChanged, assetBAssetValue, assetBAssetError, assetBAssetOptions, onAssetSelect) }
 
       { (!pair || pair.address === '') &&

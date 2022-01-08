@@ -17,7 +17,7 @@ import { ACTIONS } from '../stores/constants';
 export default function MyApp({ Component, pageProps }) {
   const router = useRouter();
 
-  const [themeConfig, setThemeConfig] = useState(lightTheme);
+  const [themeConfig, setThemeConfig] = useState(darkTheme);
   const [stalbeSwapConfigured, setStableSwapConfigured] = useState(false);
   const [accountConfigured, setAccountConfigured] = useState(false);
 
@@ -30,8 +30,8 @@ export default function MyApp({ Component, pageProps }) {
   }, []);
 
   const changeTheme = (dark) => {
-    setThemeConfig(dark ? darkTheme : lightTheme);
-    localStorage.setItem('yearn.finance-dark-mode', dark ? 'dark' : 'light');
+    // setThemeConfig(dark ? darkTheme : lightTheme);
+    // localStorage.setItem('yearn.finance-dark-mode', dark ? 'dark' : 'light');
   };
 
   const accountConfigureReturned = () => {

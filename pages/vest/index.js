@@ -86,7 +86,6 @@ function Vest({ changeTheme }) {
         {
           account && account.address ?
             <div className={classes.connected}>
-              <Overview />
               <Grid container spacing={0} className={classes.gridWrapper}>
                 <Grid item lg={8} md={12} sm={12} xs={12}>
                   <Vesting />

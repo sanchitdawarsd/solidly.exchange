@@ -168,7 +168,7 @@ class Store {
       this.setStore({ veToken: this._getVeTokenBase() })
 
       this.emitter.emit(ACTIONS.UPDATED)
-      this.emitter.emit(ACTIONS.CONFIGURED)
+      this.emitter.emit(ACTIONS.CONFIGURED_SS)
 
       setTimeout(() => {
         this.dispatcher.dispatch({ type: ACTIONS.GET_BALANCES })

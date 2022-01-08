@@ -233,9 +233,6 @@ function Setup({ theme }) {
     return (
       <div className={ classes.textField}>
         <div className={ classes.inputTitleContainer }>
-          <div className={ classes.inputTitle }>
-            <Typography variant='h5' noWrap className={ classes.inputTitleWithIcon }>{ type }</Typography>
-          </div>
           <div className={ classes.inputBalance }>
             <Typography variant='h5' noWrap onClick={ () => {
               if(type === 'From') {
@@ -289,7 +286,9 @@ function Setup({ theme }) {
     <div className={ classes.swapInputs }>
       { renderMassiveInput('From', fromAmountValue, fromAmountError, fromAmountChanged, fromAssetValue, fromAssetError, fromAssetOptions, onAssetSelect) }
       <div className={ classes.swapIconContainer }>
-        <ArrowDownwardIcon className={ classes.swapIcon } />
+        <div className={ classes.swapIconSubContainer }>
+          <ArrowDownwardIcon className={ classes.swapIcon } />
+        </div>
       </div>
       { renderMassiveInput('To', toAmountValue, toAmountError, toAmountChanged, toAssetValue, toAssetError, toAssetOptions, onAssetSelect) }
       <div className={ classes.actionsContainer }>

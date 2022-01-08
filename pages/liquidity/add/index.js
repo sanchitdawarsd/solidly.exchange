@@ -65,7 +65,6 @@ function AddLiquidity({ changeTheme }) {
       <div className={classes.ffContainer}>
         {account && account.address ?
           <div className={classes.connected}>
-            <Overview />
             <div className={ classes.liquidityControls}>
               <Button
                 className={ classes.buttonOverride }

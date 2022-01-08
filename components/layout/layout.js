@@ -31,9 +31,6 @@ export default function Layout({
         <meta name="og:title" content="Solid Swap" />
         <meta name="twitter:card" content="summary_large_image" />
       </Head>
-      {!configure && (
-        <Navigation backClicked={backClicked} changeTheme={changeTheme} />
-      )}
       <div className={classes.content}>
         {!configure && (
           <Header backClicked={backClicked} changeTheme={changeTheme} title={ title } />

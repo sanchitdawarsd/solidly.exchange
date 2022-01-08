@@ -214,6 +214,23 @@ const coreTheme = {
         padding: "12px 24px",
         borderBottom: "none"
       }
+    },
+    MuiInput: {
+      underline: {
+        '&:before': { //underline color when textfield is inactive
+          borderBottom: 'none'
+        },
+        '&:hover:not($disabled):before': { //underline color when hovered
+          borderBottom: 'none'
+        },
+      }
+    },
+    Mui: {
+      disabled: {
+        '&:before': {
+          borderBottom: 'none'
+        }
+      }
     }
   }
 };

@@ -4,7 +4,7 @@
   align-items: center;
   width: 100%;
   height: 100%;
-  min-height: calc(100vh - 72px);
+  min-height: calc(100vh - 423px);
   align-items: center;
 }
 
@@ -27,9 +27,9 @@
   display: flex;
   flex-wrap: wrap;
   border-radius: 10px;
-  border: 1px solid rgba(128, 128, 128, 0.5);
   width: 100%;
   align-items: center;
+  background: rgb(33, 43, 72);
 }
 
 .error {
@@ -110,7 +110,7 @@
 .displayAssetIcon {
   border: 1px solid rgba(128, 128, 128, 0.5);
   border-radius: 50px;
-  background: #fff;
+  background: rgb(33, 43, 72);
   width: 100px;
   height: 100px;
   padding: 10px;
@@ -119,7 +119,7 @@
 .displayAssetIconSmall {
   border: 1px solid rgba(128, 128, 128, 0.5);
   border-radius: 30px;
-  background: #fff;
+  background: rgb(33, 43, 72);
   padding: 6px;
 }
 
@@ -129,7 +129,7 @@
   position: absolute;
   top: 60px;
   right: 0px;
-  background: #fff;
+  background: rgb(33, 43, 72);
 }
 
 .displayChainIconSmall {
@@ -138,14 +138,16 @@
   position: absolute;
   top: 30px;
   right: -5px;
-  background: #fff;
+  background: rgb(33, 43, 72);
 }
 
 .inputTitleContainer {
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
+  position: absolute;
+  top: 8px;
 }
 
 .inputTitle {
@@ -162,8 +164,9 @@
 }
 
 .textField {
-  margin-top: 12px;
-  margin-bottom: 12px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  position: relative;
 }
 
 .largeInput {
@@ -298,12 +301,23 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 9;
+  height: 0px;
+}
+
+.swapIconSubContainer {
+  background: #161B2C;
+  border-radius: 9px;
+  height: 38px;
 }
 
 .swapIcon {
   cursor: pointer;
-  padding: 12px;
-  font-size: 60px !important;
+  padding: 6px;
+  font-size: 30px !important;
+  background: rgb(33, 43, 72);
+  margin: 4px;
+  border-radius: 6px;
 }
 
 .swapInfoContainer {
@@ -431,6 +445,15 @@
   display: grid;
   grid-gap: 12px;
   grid-template-columns: 1fr 1fr;
+  width: 100%;
+  height: 100%;
+  margin-top: 10px;
+}
+
+.actionsContainerSingle {
+  display: grid;
+  grid-gap: 12px;
+  grid-template-columns: 1fr;
   width: 100%;
   height: 100%;
   margin-top: 10px;

@@ -64,7 +64,6 @@ function Home({ changeTheme }) {
 
         {account && account.address ?
           <div className={classes.connected}>
-            <Overview />
             <Assets />
           </div>
            :

@@ -1,14 +1,11 @@
 .navigationContainer {
-  position: fixed;
-  top: 60px;
-  min-height: calc(100vh - 60px);
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  width: 210px;
-  padding: 24px 0px 24px 0px;
-  border-radius: 0px !important;
-  border-right: 1px solid rgba(128,128,128, 0.2);
+  width: 510px;
+  background: rgb(33, 43, 72);
+  border-radius: 12px;
+  border: 1px solid rgba(108,108,123, 0.2) !important;
 }
 
 a.linkz { cursor: pointer !important; }
@@ -30,11 +27,10 @@ a.linkz { cursor: pointer !important; }
 .navigationContent {
   flex: 1;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: flex-start;
   justify-content: flex-start;
   width: 100%;
-  margin-top: 15px;
 }
 
 .ffTitle {
@@ -185,7 +181,8 @@ a.linkz { cursor: pointer !important; }
   padding-bottom: 6px;
   width: 100%;
   cursor: pointer;
-  /* background: blue; */
+  position: relative;
+  height: 38px;
 }
 
 .subtitleText {
@@ -195,8 +192,8 @@ a.linkz { cursor: pointer !important; }
 }
 
 .sectionDivider {
-  width: calc(100% - 52px);
-  height: 1px;
+  height: 100%;
+  width: 1px;
   background: rgba(104,108,122,0.15);
   margin: 16px 0 15px 26px;
 }
@@ -219,10 +216,11 @@ a.linkz { cursor: pointer !important; }
 }
 
 .navigationOptionSelectedWhite {
-  border-left: 3px solid rgba(256, 256, 256, 1);
-  border-radius: 0px 8px 8px 0px;
-  height: 32px;
-  margin-right: 13px;
+  border-radius: 20px;
+  background: #fff;
+  width: 8px;
+  height: 8px;
+  margin-left: 12px;
 }
 
 .navigationOptionNotSelected {
