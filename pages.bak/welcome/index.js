@@ -11,7 +11,7 @@ function Welcome({ changeTheme }) {
   return (
     <Layout changeTheme={changeTheme} title={ '' }>
       <Head>
-        <title>Welcome to Stable Swap</title>
+        <title>Welcome to Solid Swap</title>
       </Head>
       <div className={classes.ffContainer}>
         <Overview />

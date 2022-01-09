@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
+
 .ffContainer {
   height: 100%;
   width: 100%;
@@ -5,7 +7,6 @@
   flex-direction: column;
   margin-top: 0px;
   padding-top: 60px;
-  position: relative;
   position: relative;
 }
 
@@ -37,8 +38,6 @@
   width: calc(100% - 180px) !important;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
-
 .mainDesc {
   margin: 20px auto 0px auto !important;
   text-align: left !important;
@@ -47,6 +46,7 @@
   font-family: 'Roboto', sans-serif !important;
   font-weight: 300 !important;
   width: calc(100% - 180px) !important;
+  display: none;
 }
 
 .mainHeadingNC {
@@ -61,6 +61,7 @@
   font-size: 18px !important;
   max-width: 800px;
   line-height: 1.8rem !important;
+  display: none;
 }
 
 .buttonConnect {
@@ -72,18 +73,12 @@
   padding: 12px 24px !important;
   font-weight: 700 !important;
   text-transform: none !important;
+  margin: 30px auto 0 auto !important;
 }
 
-@keyframes gradient {
-	0% {
-		background-position: 0% 50%;
-	}
-	50% {
-		background-position: 100% 50%;
-	}
-	100% {
-		background-position: 0% 50%;
-	}
+.liquidityControls {
+  margin: 40px auto;
+  width: calc(100% - 180px);
 }
 
 @media screen and (max-width: 1600px) {
@@ -91,6 +86,7 @@
 }
 
 @media screen and (max-width: 1200px) {
+
   .notConnectedContent {
     width: calc(100% - 80px) !important;
     margin: 100px auto 0 auto;
@@ -102,19 +98,14 @@
   }
 
   .mainHeading {
-    margin-top: 280px !important;
-    width: calc(100% - 80px) !important;
-  }
-
-  .mainDesc {
-    margin: 20px auto 40px auto !important;
+    margin: 290px auto 40px auto !important;
     width: calc(100% - 80px) !important;
   }
 }
 
 @media screen and (max-width: 960px) {
   .mainHeading {
-    margin-top: 480px !important;
+    margin: 490px auto 40px auto !important;
     width: calc(100% - 80px) !important;
   }
 }

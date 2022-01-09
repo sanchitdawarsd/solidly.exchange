@@ -3,7 +3,7 @@
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  padding: 0 10px;
+  padding: 0 90px;
   min-height: 60px;
   position: fixed;
   top: 0;
@@ -12,6 +12,7 @@
   width: calc(100%);
   border: 0;
   border-radius: 0 !important;
+  margin-bottom: 60px;
 }
 
 .networkIcon {

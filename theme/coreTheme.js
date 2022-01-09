@@ -218,15 +218,15 @@ const coreTheme = {
     MuiInput: {
       underline: {
         '&:before': { //underline color when textfield is inactive
-          borderBottom: 'none'
+          borderBottom: 'none !important'
         },
         '&:hover:not($disabled):before': { //underline color when hovered
-          borderBottom: 'none'
+          borderBottom: 'none !important'
         },
       }
     },
     Mui: {
-      disabled: {
+      '&$disabled': {
         '&:before': {
           borderBottom: 'none'
         }

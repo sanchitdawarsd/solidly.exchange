@@ -1,15 +1,15 @@
 import Head from 'next/head';
 import { Typography, Button, Paper, SvgIcon } from "@material-ui/core";
-import Layout from '../../components/layout/layout.js';
-import ClaimAll from '../../components/ssClaimAll';
-import Overview from '../../components/ssOverview';
+import Layout from '../../../components/layout/layout.js';
+import Overview from '../../../components/ssOverview';
 
-import classes from './claim.module.css';
+import classes from './liquidity.module.css';
 
 import React, { useState, useEffect } from 'react';
-import { ACTIONS } from '../../stores/constants';
-import stores from '../../stores';
-import Unlock from '../../components/unlock';
+import { ACTIONS } from '../../../stores/constants';
+import stores from '../../../stores';
+import { useRouter } from "next/router";
+import Unlock from '../../../components/unlock';
 
 function BalanceIcon(props) {
   const { color, className } = props;
@@ -20,8 +20,9 @@ function BalanceIcon(props) {
   );
 }
 
-function Claim({ changeTheme }) {
+function AddLiquidity({ changeTheme }) {
 
+  const router = useRouter();
   const [account, setAccount] = useState(stores.accountStore.getStore('account'));
   const [unlockOpen, setUnlockOpen] = useState(false);
 
@@ -51,6 +52,10 @@ function Claim({ changeTheme }) {
     setUnlockOpen(false);
   };
 
+  const onBack = () => {
+    router.push(`/liquidity`)
+  }
+
   return (
     <Layout changeTheme={changeTheme}>
       <Head>
@@ -59,17 +64,22 @@ function Claim({ changeTheme }) {
       <div className={classes.ffContainer}>
         {account && account.address ?
           <div className={classes.connected}>
-            <Typography className={classes.mainHeading} variant='h1'>Claim Rewards</Typography>
-            <Typography className={classes.mainDesc} variant='body2'>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.
-            </Typography>
-            <Overview />
-            <ClaimAll />
+            <div className={ classes.liquidityControls}>
+              <Button
+                className={ classes.buttonOverride }
+                variant='contained'
+                size='large'
+                color='primary'
+                onClick={ onBack }
+                >
+                <Typography className={ classes.actionButtonText }>{ `Back` }</Typography>
+              </Button>
+            </div>
           </div>
           :
           <Paper className={classes.notConnectedContent}>
             <BalanceIcon className={ classes.overviewIcon } />
-            <Typography className={classes.mainHeadingNC} variant='h1'>Claim Rewards</Typography>
+            <Typography className={classes.mainHeadingNC} variant='h1'>Manage Liquidity</Typography>
             <Typography className={classes.mainDescNC} variant='body2'>
               Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.
             </Typography>
@@ -89,4 +99,4 @@ function Claim({ changeTheme }) {
   );
 }
 
-export default Claim;
+export default AddLiquidity;

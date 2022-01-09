@@ -25,7 +25,7 @@ export const walletconnect = new WalletConnectConnector({
 
 export const walletlink = new WalletLinkConnector({
   url: RPC_URLS[4002],
-  appName: "Stable Swap"
+  appName: "Solid Swap"
 });
 
 // export const fortmatic = new FortmaticConnector({

@@ -24,8 +24,8 @@ export const ROUTER_ABI = abis.routerABI
 // export const PAIR_ADDRESS = '' per pair we will have a address once created. get from factory.
 export const PAIR_ABI = abis.pairABI
 export const ERC20_ABI = abis.erc20ABI
-
-
+export const GAUGE_ABI = abis.gaugeABI
+export const BRIBE_ABI = abis.bribeABI
 
 
 

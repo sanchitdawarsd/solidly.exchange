@@ -4,6 +4,8 @@ import { factoryABI } from './factoryABI'
 import { pairABI } from './pairABI'
 import { routerABI } from './routerABI'
 import { gaugesABI } from './gaugesABI'
+import { gaugeABI } from './gaugeABI'
+import { bribeABI } from './bribeABI'
 
 export default {
   erc20ABI,
@@ -11,5 +13,7 @@ export default {
   factoryABI,
   pairABI,
   routerABI,
-  gaugesABI
+  gaugesABI,
+  bribeABI,
+  gaugeABI,
 }

@@ -80,7 +80,7 @@ function Vest({ changeTheme }) {
   return (
     <Layout changeTheme={changeTheme} title={ '' }>
       <Head>
-        <title>Stable Swap</title>
+        <title>Solid Swap</title>
       </Head>
       <div className={classes.ffContainer}>
         {
@@ -105,7 +105,7 @@ function Vest({ changeTheme }) {
               <BalanceIcon className={ classes.overviewIcon } />
               <Typography className={classes.mainHeadingNC} variant='h1'>Vest</Typography>
               <Typography className={classes.mainDescNC} variant='body2'>
-                Vesting your kp3r in the Stable Swap gauge means that you will be locking up your assets in order to gain a voting right in how the protocol emits rewards.
+                Vesting your kp3r in the Solid Swap gauge means that you will be locking up your assets in order to gain a voting right in how the protocol emits rewards.
               </Typography>
               <Button
                 disableElevation

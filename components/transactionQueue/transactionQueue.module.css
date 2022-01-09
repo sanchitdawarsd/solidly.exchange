@@ -1,0 +1,22 @@
+.headingContainer {
+
+}
+
+.heading {
+
+}
+
+.transactionsContainer {
+  border-radius: 12px;
+  background: rgb(33, 43, 72);
+  border: 1px solid rgba(108,108,123, 0.2);
+  padding: 24px;
+}
+
+
+.transaction {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0px 12px;
+}

@@ -1,15 +1,16 @@
 import Head from 'next/head';
 import { Typography, Button, Paper, SvgIcon } from "@material-ui/core";
-import Layout from '../../../components/layout/layout.js';
-import Overview from '../../../components/ssOverview';
+import Layout from '../../components/layout/layout.js';
+import SSLiquidity from '../../components/ssLiquidity';
+import Overview from '../../components/ssOverview';
 
 import classes from './liquidity.module.css';
 
 import React, { useState, useEffect } from 'react';
-import { ACTIONS } from '../../../stores/constants';
-import stores from '../../../stores';
+import { ACTIONS } from '../../stores/constants';
+import stores from '../../stores';
 import { useRouter } from "next/router";
-import Unlock from '../../../components/unlock';
+import Unlock from '../../components/unlock';
 
 function BalanceIcon(props) {
   const { color, className } = props;
@@ -20,7 +21,7 @@ function BalanceIcon(props) {
   );
 }
 
-function AddLiquidity({ changeTheme }) {
+function Liquidity({ changeTheme }) {
 
   const router = useRouter();
   const [account, setAccount] = useState(stores.accountStore.getStore('account'));
@@ -52,14 +53,14 @@ function AddLiquidity({ changeTheme }) {
     setUnlockOpen(false);
   };
 
-  const onBack = () => {
-    router.push(`/liquidity`)
+  const onAdd = () => {
+    router.push(`${router.asPath}/add`)
   }
 
   return (
     <Layout changeTheme={changeTheme}>
       <Head>
-        <title>Stable Swap</title>
+        <title>Solid Swap</title>
       </Head>
       <div className={classes.ffContainer}>
         {account && account.address ?
@@ -70,11 +71,12 @@ function AddLiquidity({ changeTheme }) {
                 variant='contained'
                 size='large'
                 color='primary'
-                onClick={ onBack }
+                onClick={ onAdd }
                 >
-                <Typography className={ classes.actionButtonText }>{ `Back` }</Typography>
+                <Typography className={ classes.actionButtonText }>{ `Add Liquidity` }</Typography>
               </Button>
             </div>
+            <SSLiquidity />
           </div>
           :
           <Paper className={classes.notConnectedContent}>
@@ -99,4 +101,4 @@ function AddLiquidity({ changeTheme }) {
   );
 }
 
-export default AddLiquidity;
+export default Liquidity;

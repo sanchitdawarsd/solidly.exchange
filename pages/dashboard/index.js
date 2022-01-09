@@ -65,7 +65,7 @@ function Rewards({ changeTheme }) {
   return (
     <Layout changeTheme={changeTheme}>
       <Head>
-        <title>Dashboard - Stable Swap</title>
+        <title>Dashboard - Solid Swap</title>
       </Head>
       <div className={classes.ffContainer}>
         {account && account.address ?

@@ -132,7 +132,10 @@ function Navigation(props) {
           'Swap',
           'swap',
         )}
-        <div className={classes.sectionDivier}></div>
+        {renderSubNav(
+          'Liquidity',
+          'liquidity',
+        )}
         {renderSubNav(
           'Vest',
           'vest',
@@ -140,11 +143,6 @@ function Navigation(props) {
         {renderSubNav(
           'Vote',
           'vote',
-        )}
-        <div className={classes.sectionDivier}></div>
-        {renderSubNav(
-          'Stake',
-          'liquidity',
         )}
       </React.Fragment>
     );

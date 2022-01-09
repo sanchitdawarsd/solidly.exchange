@@ -37,7 +37,7 @@ function stableSort(array, comparator) {
 }
 
 const headCells = [
-  { id: 'asset', numeric: false, disablePadding: false, label: 'Asset' },
+  { id: 'pair', numeric: false, disablePadding: false, label: 'Pair' },
   {
     id: 'balance',
     numeric: true,
@@ -48,25 +48,13 @@ const headCells = [
     id: 'poolBalance',
     numeric: true,
     disablePadding: false,
-    label: 'Curve LP',
+    label: 'Pool',
   },
   {
     id: 'stakedBalance',
     numeric: true,
     disablePadding: false,
-    label: 'Staked in Curve',
-  },
-  {
-    id: 'convexBalance',
-    numeric: true,
-    disablePadding: false,
-    label: 'Staked in Convex',
-  },
-  {
-    id: 'yearnBalance',
-    numeric: true,
-    disablePadding: false,
-    label: 'Staked in Yearn',
+    label: 'Staked',
   },
   {
     id: '',
@@ -215,15 +203,29 @@ const useStyles = makeStyles((theme) => ({
   statusSafe: {
     color: 'green',
   },
-  imgLogo: {
-    marginRight: '12px',
+  img1Logo: {
+    position: 'absolute',
+    left: '0px',
+    top: '0px'
+  },
+  img2Logo: {
+    position: 'absolute',
+    left: '20px',
+    zIndex: '1',
+    top: '0px'
   },
   overrideTableHead: {
     borderBottom: '1px solid rgba(104,108,122,0.2) !important',
   },
+  doubleImages: {
+    display: 'flex',
+    position: 'relative',
+    width: '70px',
+    height: '35px'
+  }
 }));
 
-export default function EnhancedTable({ assets }) {
+export default function EnhancedTable({ pairs }) {
   const classes = useStyles();
   const router = useRouter();
 
@@ -236,7 +238,7 @@ export default function EnhancedTable({ assets }) {
     setOrderBy(property);
   };
 
-  if (!assets) {
+  if (!pairs) {
     return (
       <div className={classes.root}>
         <Skeleton variant="rect" width={'100%'} height={40} className={classes.skelly1} />
@@ -249,8 +251,8 @@ export default function EnhancedTable({ assets }) {
     );
   }
 
-  const onView = (asset) => {
-    router.push(`/asset/${asset.address}`);
+  const onView = (pair) => {
+    router.push(`/liquidity/${pair.address}`);
   };
 
   return (
@@ -259,7 +261,7 @@ export default function EnhancedTable({ assets }) {
         <Table className={classes.table} aria-labelledby='tableTitle' size={'medium'} aria-label='enhanced table'>
           <EnhancedTableHead classes={classes} order={order} orderBy={orderBy} onRequestSort={handleRequestSort} />
           <TableBody>
-            {stableSort(assets, getComparator(order, orderBy)).map((row, index) => {
+            {stableSort(pairs, getComparator(order, orderBy)).map((row, index) => {
               if (!row) {
                 return null;
               }
@@ -269,23 +271,33 @@ export default function EnhancedTable({ assets }) {
                 <TableRow
                   key={labelId}
                   className={classes.assetTableRow}
-                  onClick={() => {
-                    onView(row);
-                  }}
                 >
                   <TableCell className={classes.cell}>
                     <div className={classes.inline}>
-                      <img
-                        className={classes.imgLogo}
-                        src={`https://raw.githubusercontent.com/yearn/yearn-assets/master/icons/multichain-tokens/1/${row.address}/logo-128.png`}
-                        width='35'
-                        height='35'
-                        alt=''
-                        onError={(e) => {
-                          e.target.onerror = null;
-                          e.target.src = '/tokens/unknown-logo.png';
-                        }}
-                      />
+                      <div className={ classes.doubleImages}>
+                        <img
+                          className={classes.img1Logo}
+                          src={``}
+                          width='35'
+                          height='35'
+                          alt=''
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = '/tokens/unknown-logo.png';
+                          }}
+                        />
+                        <img
+                          className={classes.img2Logo}
+                          src={``}
+                          width='35'
+                          height='35'
+                          alt=''
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = '/tokens/unknown-logo.png';
+                          }}
+                        />
+                      </div>
                       <div>
                         <Typography variant='h2' className={classes.textSpaced}>
                           {row.symbol}
@@ -302,6 +314,22 @@ export default function EnhancedTable({ assets }) {
                     </Typography>
                     <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
                       {row.symbol}
+                    </Typography>
+                  </TableCell>
+                  <TableCell className={classes.cell} align='right'>
+                    <Typography variant='h2' className={classes.textSpaced}>
+                      {formatCurrency(row.poolBalance)}
+                    </Typography>
+                    <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                      0.00%
+                    </Typography>
+                  </TableCell>
+                  <TableCell className={classes.cell} align='right'>
+                    <Typography variant='h2' className={classes.textSpaced}>
+                      {formatCurrency(row.stakedBalance)}
+                    </Typography>
+                    <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                      0.00%
                     </Typography>
                   </TableCell>
                   <TableCell className={classes.cell} align='right'>

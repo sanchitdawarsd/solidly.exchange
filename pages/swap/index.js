@@ -43,7 +43,7 @@ function Swap({ changeTheme }) {
   return (
     <Layout changeTheme={changeTheme}>
       <Head>
-        <title>Stable Swap</title>
+        <title>Solid Swap</title>
       </Head>
       <div className={classes.ffContainer}>
         {account && account.address ?
@@ -51,9 +51,9 @@ function Swap({ changeTheme }) {
            :
            <Paper className={classes.notConnectedContent}>
              <UniswapIcon className={ classes.overviewIcon } />
-             <Typography className={classes.mainHeadingNC} variant='h1'>Stable Swap</Typography>
+             <Typography className={classes.mainHeadingNC} variant='h1'>Solid Swap</Typography>
              <Typography className={classes.mainDescNC} variant='body2'>
-               Swap between Stable Swap supported assets
+               Swap between Solid Swap supported assets
              </Typography>
              <Button
                disableElevation
