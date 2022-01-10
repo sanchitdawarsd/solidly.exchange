@@ -227,6 +227,28 @@ function Setup({ theme }) {
     calculateReceiveAmount(fromAssetValue.balance, toAssetValue)
   }
 
+  const renderSwapInformation = () => {
+    return (
+      <div className={ classes.depositInfoContainer }>
+        <Typography className={ classes.depositInfoHeading } >Price Info</Typography>
+        <div className={ classes.priceInfos}>
+          <div className={ classes.priceInfo }>
+            <Typography className={ classes.title } >0.000</Typography>
+            <Typography className={ classes.text } >{ `${fromAssetValue?.symbol} per ${toAssetValue?.symbol}` }</Typography>
+          </div>
+          <div className={ classes.priceInfo }>
+            <Typography className={ classes.title } >0.000</Typography>
+            <Typography className={ classes.text } >{ `${toAssetValue?.symbol} per ${fromAssetValue?.symbol}` }</Typography>
+          </div>
+          <div className={ classes.priceInfo }>
+            <Typography className={ classes.title } >0.000</Typography>
+            <Typography className={ classes.text } >{ `Something` }</Typography>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   const renderMassiveInput = (type, amountValue, amountError, amountChanged, assetValue, assetError, assetOptions, onAssetSelect) => {
     const isDark = theme?.palette?.type === 'dark'
 
@@ -234,13 +256,14 @@ function Setup({ theme }) {
       <div className={ classes.textField}>
         <div className={ classes.inputTitleContainer }>
           <div className={ classes.inputBalance }>
-            <Typography variant='h5' noWrap onClick={ () => {
+            <Typography className={ classes.inputBalanceText } noWrap onClick={ () => {
               if(type === 'From') {
                 setBalance100()
               }
             }}>
+              Balance:
               { (assetValue && assetValue.balance) ?
-                formatCurrency(assetValue.balance) + ' ' + assetValue.symbol :
+                ' ' +   formatCurrency(assetValue.balance) :
                 ''
               }
             </Typography>
@@ -291,6 +314,7 @@ function Setup({ theme }) {
         </div>
       </div>
       { renderMassiveInput('To', toAmountValue, toAmountError, toAmountChanged, toAssetValue, toAssetError, toAssetOptions, onAssetSelect) }
+      { renderSwapInformation() }
       <div className={ classes.actionsContainer }>
         <Button
           className={ classes.actionButton }

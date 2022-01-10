@@ -2,29 +2,14 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  border: 3px solid #2b47cd;
   margin: auto;
-  padding: 0 0 0px 0px;
-  -webkit-transition: all 300ms ease-out !important;
-  -moz-transition: all 300ms ease-out !important;
-  -ms-transition: all 300ms ease-out !important;
-  -o-transition: all 600ms ease-out !important;
-  transition: all 300ms ease-out !important;
-}
-
-.container:hover {
-  -webkit-box-shadow: 0px 5px 0px 0 rgba(35,76,231,0.9) !important;
-  box-shadow: 0px 5px 0px 0 rgba(35,76,231,0.9) !important;
-  transform: translate(0px, -3px);
+  margin-top: 90px;
+  max-width: 485px;
+  width: calc(100% - 180px);
 }
 
 .retain {
   position: relative;
-}
-
-.title {
-  font-size: 20px !important;
-  margin-bottom: 24px !important;
 }
 
 .helpIcon {
@@ -44,9 +29,9 @@
 
 .topLeftButton,
 .bottomLeftButton {
-  border-radius: 10px 10px 0 0 !important;
+  border-radius: 8px 8px 0 0 !important;
   width: 100%;
-  min-height: 70px;
+  min-height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -77,10 +62,12 @@
 }
 
 .textField {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  margin-bottom: 4px;
+  position: relative;
+}
+
+.largeInput {
+  font-size: 46px !important;
 }
 
 .activeIcon {
@@ -112,12 +99,27 @@
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
+  position: absolute;
+  top: 8px;
 }
 
 .inputTitle {
   padding-bottom: 16px;
   margin-left: 6px;
+}
+
+.inputBalance {
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 12px;
+  padding-bottom: 6px;
+  cursor: pointer;
+}
+
+.inputBalanceText {
+  font-weight: 100 !important;
+  font-size: 12px !important;
 }
 
 .balances {
@@ -170,11 +172,12 @@
   padding: 0px 24px;
   width: 100%;
   height: 100%;
+  margin-top: 12px;
 }
 
 .actionButtonText {
-  font-size: 12px !important;
   text-transform: capitalize !important;
+  font-weight: 700 !important;
 }
 
 .autocompleteContainer {
@@ -186,8 +189,6 @@
 
 .reAddPadding {
   padding: 24px 0px;
-  display: flex;
-  flex: 1;
 }
 
 .loadingCircle {
@@ -199,8 +200,9 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  background: #2b47cd !important;
+  background: #06d3d7 !important;
   border-radius: 9px 9px 0 0;
+  color: rgba(0, 0, 0, 0.87) !important;
 }
 
 .button {
@@ -209,8 +211,8 @@
   /* border-bottom: 1px solid rgba(104, 108, 122, 0.25) !important; */
   transition: none !important;
   opacity: 1;
-  color: rgba(255,255,255,0.7) !important;
   background: none !important;
+  color: rgba(0, 0, 0, 0.87) !important;
 }
 
 /* .buttonActive {
@@ -238,10 +240,194 @@
 }
 
 .buttonOverride {
-  background: #234ce7 !important;
-  color: #FFF !important;
+  background: #06d3d7 !important;
+  color: rgba(0, 0, 0, 0.87) !important;
+  color: rgba(0, 0, 0, 0.87) !important;
   font-weight: 700 !important;
   box-shadow: none !important;
+}
+
+
+
+
+
+.swapIconContainer {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9;
+  height: 0px;
+}
+
+.swapIconSubContainer {
+  background: #161B2C;
+  border-radius: 9px;
+  height: 38px;
+  z-index: 1;
+}
+
+.swapIcon {
+  cursor: pointer;
+  padding: 6px;
+  font-size: 30px !important;
+  background: rgb(33, 43, 72);
+  margin: 4px;
+  border-radius: 6px;
+}
+
+.error {
+  border: 1px solid #dc3545;
+}
+
+.massiveInputContainer {
+  display: flex;
+  flex-wrap: wrap;
+  border-radius: 10px;
+  width: 100%;
+  align-items: center;
+  background: rgb(33, 43, 72);
+}
+
+.massiveInputAssetSelect {
+  width: 124px;
+  min-height: 124px;
+  height: 100%;
+}
+
+.massiveInputAmount {
+  flex: 1;
+  height: 100%;
+}
+
+.massiveInputAddress {
+  min-width: 100%;
+  border-top: 1px solid rgba(128, 128, 128, 0.5);
+}
+
+.displaySelectContainer {
+  padding: 12px;
+  min-height: 100px;
+}
+
+.displayDualIconContainer {
+  width: 100px;
+  position: relative;
+}
+
+.displayAssetIcon {
+  border: 1px solid rgba(128, 128, 128, 0.5);
+  border-radius: 50px;
+  background: rgb(33, 43, 72);
+  width: 100px;
+  height: 100px;
+  padding: 10px;
+}
+
+.mediumInputContainer {
+  display: flex;
+  flex-wrap: wrap;
+  border-radius: 10px;
+  width: 100%;
+  align-items: center;
+  background: rgb(33, 43, 72);
+}
+
+.mediumInputAssetSelect {
+  width: 74px;
+  min-height: 50px;
+  height: 100%;
+}
+
+.mediumInputAmount {
+  flex: 1;
+  height: 100%;
+}
+
+.mediumInputAddress {
+  min-width: 100%;
+  border-top: 1px solid rgba(128, 128, 128, 0.5);
+}
+
+.mediumdisplaySelectContainer {
+  padding: 12px;
+  height: 74px;
+}
+
+.mediumdisplayDualIconContainer {
+  width: 50px;
+  position: relative;
+}
+
+.mediumdisplayAssetIcon {
+  border: 1px solid rgba(128, 128, 128, 0.5);
+  border-radius: 50px;
+  background: rgb(33, 43, 72);
+  width: 50px;
+  height: 50px;
+  padding: 5px;
+}
+
+.mediumInput {
+  font-size: 32px !important;
+}
+
+.receiveAssets {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-gap: 4px;
+}
+
+.depositInfoContainer {
+  margin-top: 12px;
+  padding: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  border-radius: 10px;
+  width: 100%;
+  align-items: center;
+}
+
+.withdrawInfoContainer {
+  margin-top: 8px;
+  padding: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  border-radius: 10px;
+  width: 100%;
+  align-items: center;
+}
+
+.depositInfoHeading {
+  width: 100%;
+  padding-bottom: 12px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.87);
+  font-size: 14px !important;
+}
+
+.priceInfos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 12px;
+  width: 100%;
+}
+
+.priceInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 0px;
+}
+
+.priceInfo > .title {
+  font-weight: bold !important;
+  font-size: 14px !important;
+  padding: 6px 0px;
+}
+
+.priceInfo > .text {
+  font-size: 14px !important;
 }
 
 @media screen and (max-width: 1280px) {

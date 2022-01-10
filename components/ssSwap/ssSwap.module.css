@@ -12,7 +12,7 @@
   max-width: 485px;
   width: 100%;
   padding: 24px;
-  min-height: 542px;
+  min-height: 515px;
   display: flex;
   flex-direction: column;
 }
@@ -163,6 +163,11 @@
   cursor: pointer;
 }
 
+.inputBalanceText {
+  font-weight: 100 !important;
+  font-size: 12px !important;
+}
+
 .textField {
   margin-top: 2px;
   margin-bottom: 2px;
@@ -309,6 +314,7 @@
   background: #161B2C;
   border-radius: 9px;
   height: 38px;
+  z-index: 1;
 }
 
 .swapIcon {
@@ -457,6 +463,48 @@
   width: 100%;
   height: 100%;
   margin-top: 10px;
+}
+
+.depositInfoContainer {
+  margin-top: 12px;
+  padding: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  border-radius: 10px;
+  width: 100%;
+  align-items: center;
+}
+
+.depositInfoHeading {
+  width: 100%;
+  padding-bottom: 12px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.87);
+  font-size: 14px !important;
+}
+
+.priceInfos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 12px;
+  width: 100%;
+}
+
+.priceInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 0px;
+}
+
+.priceInfo > .title {
+  font-weight: bold !important;
+  font-size: 14px !important;
+  padding: 6px 0px;
+}
+
+.priceInfo > .text {
+  font-size: 14px !important;
 }
 
 @media screen and (max-width: 1200px) {

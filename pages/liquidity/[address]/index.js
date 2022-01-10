@@ -29,26 +29,7 @@ function Asset({ changeTheme }) {
         <title>Solid Swap</title>
       </Head>
       <div className={classes.container}>
-
-        <div className={classes.backBtn} onClick={() => router.push('/liquidity')}>
-          <Tooltip placement="top" title="Back">
-            <KeyboardBackspaceIcon />
-          </Tooltip>
-        </div>
-        <Grid container className={classes.xxxContainer} spacing={0}>
-          <Grid className={classes.xxx} item lg={8} md={12} sm={12} xs={12}>
-            <SSPoolLiquidity />
-            {/*<SSPoolGauge />*/}
-          </Grid>
-          <Grid className={classes.columnRight} item lg={4} md={12} sm={12} xs={12}>
-            <Typography variant="h5" className={ classes.title}>Claimable Rewards</Typography>
-            <div className={classes.rewardsWrap}>
-              {/*<FFClaimConvexGauge asset={ asset } />
-              <FFClaimCurveGauge asset={ asset } />
-              <FFClaimCurveRKP3RGauge asset={ asset } />*/}
-            </div>
-          </Grid>
-        </Grid>
+        <SSPoolLiquidity />
       </div>
     </Layout>
   );

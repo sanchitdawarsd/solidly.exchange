@@ -4,6 +4,8 @@ import { Paper, Grid, Typography, Button, TextField, InputAdornment, CircularPro
 import BigNumber from 'bignumber.js';
 import { formatCurrency } from '../../utils';
 import classes from './ssPoolLiquidity.module.css';
+import AddIcon from '@material-ui/icons/Add';
+import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
 
 import stores from '../../stores'
 import {
@@ -186,311 +188,290 @@ export default function SSPoolLiquidity() {
     setActiveTab('withdraw')
   }
 
-  return (
-    <div className={classes.retain}>
-      <Typography variant="h5" className={ classes.title}>Deposit &amp; Withdraw</Typography>
-      <Tooltip placement="top-start" title="Earn Rewards. Providing liquidity to these LP’s allows you to hedge against USD risk, or simply have exposure in your own preferred currency, while earning LP incentives.">
-        <div className={classes.helpIcon}>?</div>
-      </Tooltip>
-    <Paper elevation={0} className={ classes.container }>
-      <Grid container spacing={0}>
-        <Grid item lg={12} md={12} xs={12}>
-          <div className={classes.toggleButtons}>
-            <Grid container spacing={0}>
-              <Grid item lg={6} md={6} sm={6} xs={6}>
-                <Paper className={ `${activeTab === 'deposit' ? classes.buttonActive : classes.button} ${ classes.topLeftButton }` } onClick={ toggleDeposit } disabled={ depositLoading || approvalLoading }>
-                  <Typography variant='h5'>Deposit</Typography>
-                  <div className={ `${activeTab === 'deposit' ? classes.activeIcon : ''}` }></div>
-                </Paper>
-              </Grid>
-              <Grid item lg={6} md={6} sm={6} xs={6}>
-                <Paper className={ `${activeTab === 'withdraw' ? classes.buttonActive : classes.button}  ${ classes.bottomLeftButton }` } onClick={ toggleWithdraw } disabled={ depositLoading || approvalLoading }>
-                  <Typography variant='h5'>Withdraw</Typography>
-                  <div className={ `${activeTab === 'withdraw' ? classes.activeIcon : ''}` }></div>
-                </Paper>
-              </Grid>
-            </Grid>
-          </div>
-        </Grid>
-        <Grid item lg={12} md={12} sm={12}>
-          <div className={ classes.reAddPadding }>
-            <Grid container spacing={0}>
-              <Grid item lg={9} xs={12}>
-                <div className={ classes.inputsContainer }>
+  const amount0Changed = (event) => {
+    setAmount0(event.target.value)
+  }
+
+  const amount1Changed = (event) => {
+    setAmount1(event.target.value)
+  }
+
+  const withdrawAmountChanged = (event) => {
+    setWithdrawAmount(event.target.value);
+    if(event.target.value === '') {
+      setWithdrawAmount0('')
+      setWithdrawAmount1('')
+    } else if(event.target.value !== '' && !isNaN(event.target.value)) {
+      const totalBalances = BigNumber(pair.token0.poolBalance).plus(pair.token1.poolBalance)
+      const coin0Ratio = BigNumber(pair.token0.poolBalance).div(totalBalances).toFixed(18)
+      const coin1Ratio = BigNumber(pair.token1.poolBalance).div(totalBalances).toFixed(18)
+      setWithdrawAmount0(BigNumber(coin0Ratio).times(pair.virtualPrice).times(event.target.value).toFixed(18))
+      setWithdrawAmount1(BigNumber(coin1Ratio).times(pair.virtualPrice).times(event.target.value).toFixed(18))
+    }
+  }
+
+  const renderMediumInput = (type, value, logo, symbol) => {
+    return (
+      <div className={ classes.textField}>
+        <div className={ classes.mediumInputContainer}>
+          <div className={ classes.mediumInputAssetSelect }>
+            <div className={ classes.mediumdisplaySelectContainer }>
+              <div className={ classes.assetSelectMenuItem }>
+                <div className={ classes.mediumdisplayDualIconContainer }>
                   {
-                    activeTab === 'deposit' &&
-                    <>
-                      <Grid container spacing={2}>
-                        <Grid item lg={12} xs={12}>
-                          <div className={classes.textField}>
-                            <div className={classes.inputTitleContainer}>
-                              <div className={classes.inputTitle}>
-                                <Typography variant="h5" className={ classes.inputTitleText }>
-                                  Deposit Amounts:
-                                </Typography>
-                              </div>
-                            </div>
-                            <Grid container spacing={2}>
-                              <Grid item lg={6} xs={12}>
-                                <div className={ classes.extraTF }>
-                                  <div className={classes.balances}>
-                                    <Typography
-                                      variant="h5"
-                                      onClick={() => {
-                                        setAmountPercent('amount0', 100);
-                                      }}
-                                      className={classes.value}
-                                      noWrap
-                                    >
-                                      Balance: {formatCurrency(balances ? balances.token0 : 0)}
-                                    </Typography>
-                                  </div>
-                                  <TextField
-                                    variant="outlined"
-                                    fullWidth
-                                    placeholder="0.00"
-                                    value={amount0}
-                                    error={amount0Error}
-                                    onChange={(e) => {
-                                      setAmount0(e.target.value);
-                                    }}
-                                    InputProps={{
-                                      startAdornment: (
-                                        <InputAdornment position="start">
-                                          <img src={ `/tokens/unknown-logo.png` } alt="" width={30} height={30} />
-                                        </InputAdornment>
-                                      ),
-                                      endAdornment: (
-                                        <InputAdornment position="end">
-                                          <Typography>{pair?.token0?.symbol}</Typography>
-                                        </InputAdornment>
-                                      ),
-                                    }}
-                                  />
-                                </div>
-                              </Grid>
-                              <Grid item lg={6} xs={12}>
-                                <div className={ classes.extraTF }>
-                                  <div className={classes.balances}>
-                                    <Typography
-                                      variant="h5"
-                                      onClick={() => {
-                                        setAmountPercent('amount1', 100);
-                                      }}
-                                      className={classes.value}
-                                      noWrap
-                                    >
-                                      Balance: {formatCurrency(balances ? balances.token1 : 0)}
-                                    </Typography>
-                                  </div>
-                                  <TextField
-                                    variant="outlined"
-                                    fullWidth
-                                    placeholder="0.00"
-                                    value={amount1}
-                                    error={amount1Error}
-                                    onChange={(e) => {
-                                      setAmount1(e.target.value);
-                                    }}
-                                    InputProps={{
-                                      startAdornment: (
-                                        <InputAdornment position="start">
-                                          <img src={ `/tokens/unknown-logo.png` } alt="" width={30} height={30} />
-                                        </InputAdornment>
-                                      ),
-                                      endAdornment: (
-                                        <InputAdornment position="end">
-                                          <Typography>{pair?.token1?.symbol}</Typography>
-                                        </InputAdornment>
-                                      ),
-                                    }}
-                                  />
-                                </div>
-                              </Grid>
-                            </Grid>
-                          </div>
-                        </Grid>
-                      </Grid>
-                    </>
+                    logo &&
+                    <img
+                      className={ classes.mediumdisplayAssetIcon }
+                      alt=""
+                      src={ logo }
+                      height='50px'
+                      onError={(e)=>{e.target.onerror = null; e.target.src="/tokens/unknown-logo.png"}}
+                    />
                   }
                   {
-                    activeTab === 'withdraw' &&
-                    <>
-                      <Grid container spacing={2}>
-                        <Grid item lg={12} xs={12}>
-                          <div className={classes.textField}>
-                            <div className={classes.inputTitleContainer}>
-                              <div className={classes.inputTitle}>
-                                <Typography variant="h5" className={ classes.inputTitleText }>
-                                  Withdraw Amount:
-                                </Typography>
-                              </div>
-                              <div className={classes.balances}>
-                                <Typography
-                                  variant="h5"
-                                  onClick={() => {
-                                    setAmountPercent('withdraw', 100);
-                                  }}
-                                  className={classes.value}
-                                  noWrap
-                                >
-                                  Balance: {formatCurrency(balances ? balances.pool : 0)}
-                                </Typography>
-                              </div>
-                            </div>
-                            <TextField
-                              variant="outlined"
-                              fullWidth
-                              placeholder="0.00"
-                              value={withdrawAmount}
-                              onChange={(e) => {
-                                setWithdrawAmount(e.target.value);
-                                if(e.target.value === '') {
-                                  setWithdrawAmount0('')
-                                  setWithdrawAmount1('')
-                                } else if(e.target.value !== '' && !isNaN(e.target.value)) {
-                                  const totalBalances = BigNumber(pair.token0.poolBalance).plus(pair.token1.poolBalance)
-                                  const coin0Ratio = BigNumber(pair.token0.poolBalance).div(totalBalances).toFixed(18)
-                                  const coin1Ratio = BigNumber(pair.token1.poolBalance).div(totalBalances).toFixed(18)
-                                  setWithdrawAmount0(BigNumber(coin0Ratio).times(pair.virtualPrice).times(e.target.value).toFixed(18))
-                                  setWithdrawAmount1(BigNumber(coin1Ratio).times(pair.virtualPrice).times(e.target.value).toFixed(18))
-                                }
-                              }}
-                              InputProps={{
-                                startAdornment: (
-                                  <InputAdornment position="start">
-                                    <img src={ `/tokens/unknown-logo.png` } alt="" width={30} height={30} />
-                                  </InputAdornment>
-                                ),
-                                endAdornment: (
-                                  <InputAdornment position="end">
-                                    <Typography>{pair?.poolSymbol}</Typography>
-                                  </InputAdornment>
-                                ),
-                              }}
-                            />
-                          </div>
-                        </Grid>
-                        <Grid item lg={12} xs={12}>
-                          <div className={classes.textField}>
-                            <div className={classes.inputTitleContainer}>
-                              <div className={classes.inputTitle}>
-                                <Typography variant="h5" className={ classes.inputTitleText }>
-                                  Estimated Receive Amounts:
-                                </Typography>
-                              </div>
-                            </div>
-                            <Grid container spacing={2}>
-                              <Grid item lg={6} xs={12}>
-                                <div className={ classes.amountAndPercent }>
-                                  <TextField
-                                    variant="outlined"
-                                    fullWidth
-                                    placeholder="0.00"
-                                    value={withdrawAmount0}
-                                    disabled={ true }
-                                    onChange={(e) => {
-                                      setWithdrawAmount0(e.target.value);
-                                    }}
-                                    InputProps={{
-                                      startAdornment: (
-                                        <InputAdornment position="start">
-                                          <img src={ `/tokens/unknown-logo.png` } alt="" width={30} height={30} />
-                                        </InputAdornment>
-                                      ),
-                                      endAdornment: (
-                                        <InputAdornment position="end">
-                                          <Typography>{pair?.token0?.symbol}</Typography>
-                                        </InputAdornment>
-                                      ),
-                                    }}
-                                  />
-                                </div>
-                              </Grid>
-                              <Grid item lg={6} xs={12}>
-                                <div className={ classes.amountAndPercent }>
-                                  <TextField
-                                    variant="outlined"
-                                    fullWidth
-                                    placeholder="0.00"
-                                    disabled={ true }
-                                    value={withdrawAmount1}
-                                    onChange={(e) => {
-                                      setWithdrawAmount1(e.target.value);
-                                    }}
-                                    InputProps={{
-                                      startAdornment: (
-                                        <InputAdornment position="start">
-                                          <img src={ `/tokens/unknown-logo.png` } alt="" width={30} height={30} />
-                                        </InputAdornment>
-                                      ),
-                                      endAdornment: (
-                                        <InputAdornment position="end">
-                                          <Typography>{pair?.token1?.symbol}</Typography>
-                                        </InputAdornment>
-                                      ),
-                                    }}
-                                  />
-                                </div>
-                              </Grid>
-                            </Grid>
-                          </div>
-                        </Grid>
-                      </Grid>
-                    </>
+                    !logo &&
+                    <img
+                      className={ classes.mediumdisplayAssetIcon }
+                      alt=""
+                      src={ '/tokens/unknown-logo.png' }
+                      height='50px'
+                      onError={(e)=>{e.target.onerror = null; e.target.src="/tokens/unknown-logo.png"}}
+                    />
                   }
                 </div>
-              </Grid>
-              <Grid item lg={3} xs={12} className={classes.buttonWrap}>
-            {
-              activeTab === 'deposit' &&
-              <div className={ classes.actionsContainer }>
-                <Button
-                  variant='contained'
-                  size='large'
-                  className={ ((amount0 === '' && amount1 === '') || depositLoading || depositStakeLoading) ? classes.multiApprovalButton : classes.buttonOverride }
-                  color='primary'
-                  disabled={ (amount0 === '' && amount1 === '') || depositLoading || depositStakeLoading }
-                  onClick={ onDeposit }
-                  >
-                  <Typography className={ classes.actionButtonText }>{ depositLoading ? `Depositing` : `Deposit` }</Typography>
-                  { depositLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
-                </Button>
-                <Button
-                  variant='contained'
-                  size='large'
-                  className={ ((amount0 === '' && amount1 === '') || depositLoading || depositStakeLoading) ? classes.multiApprovalButton : classes.buttonOverride }
-                  color='primary'
-                  disabled={ (amount0 === '' && amount1 === '') || depositLoading || depositStakeLoading }
-                  onClick={ onDepositAndStake }
-                  >
-                  <Typography className={ classes.actionButtonText }>{ depositStakeLoading ? `Depositing` : `Deposit & Stake` }</Typography>
-                  { depositStakeLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
-                </Button>
               </div>
-            }
-            {
-              activeTab === 'withdraw' &&
-              <div className={ classes.actionsContainer }>
-                <Button
-                  variant='contained'
-                  size='large'
-                  color='primary'
-                  className={classes.buttonOverride}
-                  disabled={ depositLoading }
-                  onClick={ onWithdraw }
-                  >
-                  <Typography className={ classes.actionButtonText }>{ depositLoading ? `Withdrawing` : `Withdraw` }</Typography>
-                  { depositLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
-                </Button>
-              </div>
-            }
-            </Grid>
-          </Grid>
+            </div>
           </div>
+          <div className={ classes.mediumInputAmount }>
+            <TextField
+              placeholder='0.00'
+              fullWidth
+              value={ value }
+              disabled={ true }
+              InputProps={{
+                className: classes.mediumInput,
+              }}
+            />
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  /*
+  endAdornment: (
+    <InputAdornment position="end">
+      <Typography>{symbol}</Typography>
+    </InputAdornment>
+  ),
+  */
+
+  const renderMassiveInput = (type, amountValue, amountError, amountChanged, balance, logo) => {
+    return (
+      <div className={ classes.textField}>
+        <div className={ classes.inputTitleContainer }>
+          <div className={ classes.inputBalance }>
+            <Typography className={ classes.inputBalanceText } noWrap onClick={ () => {
+              setAmountPercent(type, 100)
+            }}>
+              Balance: { balance ? ' ' + formatCurrency(balance) : '' }
+            </Typography>
+          </div>
+        </div>
+        <div className={ `${classes.massiveInputContainer} ${ (amountError) && classes.error }` }>
+          <div className={ classes.massiveInputAssetSelect }>
+            <div className={ classes.displaySelectContainer }>
+              <div className={ classes.assetSelectMenuItem }>
+                <div className={ classes.displayDualIconContainer }>
+                  {
+                    logo &&
+                    <img
+                      className={ classes.displayAssetIcon }
+                      alt=""
+                      src={ logo }
+                      height='100px'
+                      onError={(e)=>{e.target.onerror = null; e.target.src="/tokens/unknown-logo.png"}}
+                    />
+                  }
+                  {
+                    !logo &&
+                    <img
+                      className={ classes.displayAssetIcon }
+                      alt=""
+                      src={ '/tokens/unknown-logo.png' }
+                      height='100px'
+                      onError={(e)=>{e.target.onerror = null; e.target.src="/tokens/unknown-logo.png"}}
+                    />
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className={ classes.massiveInputAmount }>
+            <TextField
+              placeholder='0.00'
+              fullWidth
+              error={ amountError }
+              helperText={ amountError }
+              value={ amountValue }
+              onChange={ amountChanged }
+              disabled={ depositLoading || depositStakeLoading }
+              InputProps={{
+                className: classes.largeInput
+              }}
+            />
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const renderDepositInformation = () => {
+    return (
+      <div className={ classes.depositInfoContainer }>
+        <Typography className={ classes.depositInfoHeading } >Price Info</Typography>
+        <div className={ classes.priceInfos}>
+          <div className={ classes.priceInfo }>
+            <Typography className={ classes.title } >0.000</Typography>
+            <Typography className={ classes.text } >{ `${pair?.token0?.symbol} per ${pair?.token1?.symbol}` }</Typography>
+          </div>
+          <div className={ classes.priceInfo }>
+            <Typography className={ classes.title } >0.000</Typography>
+            <Typography className={ classes.text } >{ `${pair?.token1?.symbol} per ${pair?.token0?.symbol}` }</Typography>
+          </div>
+          <div className={ classes.priceInfo }>
+            <Typography className={ classes.title } >0.000</Typography>
+            <Typography className={ classes.text } >{ `$ per LP ` }</Typography>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const renderWithdrawInformation = () => {
+    return (
+      <div className={ classes.withdrawInfoContainer }>
+        <Typography className={ classes.depositInfoHeading } >Price Info</Typography>
+        <div className={ classes.priceInfos}>
+          <div className={ classes.priceInfo }>
+            <Typography className={ classes.title } >0.000</Typography>
+            <Typography className={ classes.text } >{ `${pair?.token0?.symbol} per ${pair?.token1?.symbol}` }</Typography>
+          </div>
+          <div className={ classes.priceInfo }>
+            <Typography className={ classes.title } >0.000</Typography>
+            <Typography className={ classes.text } >{ `${pair?.token1?.symbol} per ${pair?.token0?.symbol}` }</Typography>
+          </div>
+          <div className={ classes.priceInfo }>
+            <Typography className={ classes.title } >0.000</Typography>
+            <Typography className={ classes.text } >{ `$ per LP ` }</Typography>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className={classes.retain}>
+      <Paper elevation={0} className={ classes.container }>
+        <Grid container spacing={0}>
+          <Grid item lg={12} md={12} xs={12}>
+            <div className={classes.toggleButtons}>
+              <Grid container spacing={0}>
+                <Grid item lg={6} md={6} sm={6} xs={6}>
+                  <Paper className={ `${activeTab === 'deposit' ? classes.buttonActive : classes.button} ${ classes.topLeftButton }` } onClick={ toggleDeposit } disabled={ depositLoading || approvalLoading }>
+                    <Typography variant='h5'>Deposit</Typography>
+                    <div className={ `${activeTab === 'deposit' ? classes.activeIcon : ''}` }></div>
+                  </Paper>
+                </Grid>
+                <Grid item lg={6} md={6} sm={6} xs={6}>
+                  <Paper className={ `${activeTab === 'withdraw' ? classes.buttonActive : classes.button}  ${ classes.bottomLeftButton }` } onClick={ toggleWithdraw } disabled={ depositLoading || approvalLoading }>
+                    <Typography variant='h5'>Withdraw</Typography>
+                    <div className={ `${activeTab === 'withdraw' ? classes.activeIcon : ''}` }></div>
+                  </Paper>
+                </Grid>
+              </Grid>
+            </div>
+          </Grid>
+          <Grid item lg={12} md={12} sm={12}>
+            <div className={ classes.reAddPadding }>
+              <div className={ classes.inputsContainer }>
+                {
+                  activeTab === 'deposit' &&
+                  <>
+                    { renderMassiveInput('amount0', amount0, amount0Error, amount0Changed, balances?.token0, pair?.token0?.logo) }
+                    <div className={ classes.swapIconContainer }>
+                      <div className={ classes.swapIconSubContainer }>
+                        <AddIcon className={ classes.swapIcon } />
+                      </div>
+                    </div>
+                    { renderMassiveInput('amount1', amount1, amount1Error, amount1Changed, balances?.token1, pair?.token0?.logo) }
+                    { renderDepositInformation() }
+                  </>
+                }
+                {
+                  activeTab === 'withdraw' &&
+                  <>
+                    { renderMassiveInput('withdraw', withdrawAmount, null, withdrawAmountChanged, balances?.poolBalance, pair?.logo) }
+                    <div className={ classes.swapIconContainer }>
+                      <div className={ classes.swapIconSubContainer }>
+                        <ArrowDownwardIcon className={ classes.swapIcon } />
+                      </div>
+                    </div>
+                    <div className={ classes.receiveAssets }>
+                      { renderMediumInput('withdrawAmount0', withdrawAmount0, pair?.token0?.logo, pair?.token0?.symbol) }
+                      { renderMediumInput('withdrawAmount1', withdrawAmount1, pair?.token1?.logo, pair?.token1?.symbol) }
+                    </div>
+                    { renderWithdrawInformation() }
+                  </>
+                }
+              </div>
+              {
+                activeTab === 'deposit' &&
+                <div className={ classes.actionsContainer }>
+                  <Button
+                    variant='contained'
+                    size='large'
+                    className={ ((amount0 === '' && amount1 === '') || depositLoading || depositStakeLoading) ? classes.multiApprovalButton : classes.buttonOverride }
+                    color='primary'
+                    disabled={ (amount0 === '' && amount1 === '') || depositLoading || depositStakeLoading }
+                    onClick={ onDeposit }
+                    >
+                    <Typography className={ classes.actionButtonText }>{ depositLoading ? `Depositing` : `Deposit` }</Typography>
+                    { depositLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
+                  </Button>
+                  <Button
+                    variant='contained'
+                    size='large'
+                    className={ ((amount0 === '' && amount1 === '') || depositLoading || depositStakeLoading) ? classes.multiApprovalButton : classes.buttonOverride }
+                    color='primary'
+                    disabled={ (amount0 === '' && amount1 === '') || depositLoading || depositStakeLoading }
+                    onClick={ onDepositAndStake }
+                    >
+                    <Typography className={ classes.actionButtonText }>{ depositStakeLoading ? `Depositing` : `Deposit & Stake` }</Typography>
+                    { depositStakeLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
+                  </Button>
+                </div>
+              }
+              {
+                activeTab === 'withdraw' &&
+                <div className={ classes.actionsContainer }>
+                  <Button
+                    variant='contained'
+                    size='large'
+                    color='primary'
+                    className={ (depositLoading || withdrawAmount === '') ? classes.multiApprovalButton : classes.buttonOverride }
+                    disabled={ depositLoading || withdrawAmount === '' }
+                    onClick={ onWithdraw }
+                    >
+                    <Typography className={ classes.actionButtonText }>{ depositLoading ? `Withdrawing` : `Withdraw` }</Typography>
+                    { depositLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
+                  </Button>
+                </div>
+              }
+            </div>
+          </Grid>
         </Grid>
-      </Grid>
-    </Paper>
+      </Paper>
     </div>
   );
 }
