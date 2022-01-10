@@ -718,14 +718,12 @@ class Store {
 
       const { token0, token1, amount0, amount1, minLiquidity, pair } = payload.content
 
-      this.emitter.emit(ACTIONS.TX_PURPOSE, `ADD LIQUIDITY TO ${pair.symbol}`)
-
       // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
       let allowance0TXID = this.getTXUUID()
       let allowance1TXID = this.getTXUUID()
       let depositTXID = this.getTXUUID()
 
-      this.emitter.emit(ACTIONS.TX_ADDED, [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `ADD LIQUIDITY TO ${pair.symbol}`, transactions: [
         {
           uuid: allowance0TXID,
           description: `CHECKING YOUR ${token0.symbol} ALLOWANCES`,
@@ -741,7 +739,7 @@ class Store {
           description: `DEPOSIT TOKENS IN POOL`,
           status: 'WAITING'
         },
-      ])
+      ]})
 
       // CHECK ALLOWANCES AND SET TX DISPLAY
       const allowance0 = await this._getDepositAllowance(web3, token0, account)
@@ -865,13 +863,7 @@ class Store {
       let stakeTXID = this.getTXUUID()
 
 
-      txs.push({
-        uuid: params.uuid,
-        description: params.description,
-        status: 'WAITING'
-      })
-
-      this.emitter.emit(ACTIONS.TX_ADDED, [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `ADD LIQUIDITY TO ${pair.symbol}`, transactions: [
         {
           uuid: allowance0TXID,
           description: `CHECKING YOUR ${token0.symbol} ALLOWANCES`,
@@ -897,8 +889,7 @@ class Store {
           description: `STAKE POOL TOKENS IN GAUGE`,
           status: 'WAITING'
         }
-      ])
-
+      ]})
 
 
       // CHECK ALLOWANCES AND SET TX DISPLAY
@@ -1229,25 +1220,33 @@ class Store {
             }
           })
           .on("error", function (error) {
-            context.emitter.emit(ACTIONS.TX_REJECTED, { uuid })
             if (!error.toString().includes("-32601")) {
               if (error.message) {
+                context.emitter.emit(ACTIONS.TX_REJECTED, { uuid, error: error.message })
                 return callback(error.message)
               }
+              context.emitter.emit(ACTIONS.TX_REJECTED, { uuid, error: error })
               callback(error)
             }
           })
           .catch((error) => {
-            context.emitter.emit(ACTIONS.TX_REJECTED, { uuid })
             if (!error.toString().includes("-32601")) {
               if (error.message) {
+                context.emitter.emit(ACTIONS.TX_REJECTED, { uuid, error: error.message })
                 return callback(error.message)
               }
+              context.emitter.emit(ACTIONS.TX_REJECTED, { uuid, error: error })
               callback(error)
             }
           })
       })
       .catch((ex) => {
+        console.log(ex)
+        if (ex.message) {
+          this.emitter.emit(ACTIONS.TX_REJECTED, { uuid, error: ex.message })
+          return callback(ex.message)
+        }
+        this.emitter.emit(ACTIONS.TX_REJECTED, { uuid, error: ex })
         callback(ex)
       })
   }

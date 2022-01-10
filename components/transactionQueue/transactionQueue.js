@@ -10,7 +10,7 @@ import classes from './transactionQueue.module.css';
 import stores from '../../stores'
 import { ACTIONS } from '../../stores/constants';
 
-export default function TransactionQueue() {
+export default function TransactionQueue({ setQueueLength }) {
 
   const [open, setOpen] = useState(false)
   const [ transactions, setTransactions ] = useState([])
@@ -23,24 +23,25 @@ export default function TransactionQueue() {
   const fullScreen = window.innerWidth < 576;
 
   useEffect(() => {
-    const clearTransactions = (txs) => {
+    const clearTransactions = () => {
       setTransactions([])
+      setQueueLength(0)
     }
 
-    const transactionSetName = (purpose) => {
-      setPurpose(purpose)
+    const openQueue = () => {
       setOpen(true)
     }
 
     const transactionAdded = (params) => {
-      console.log(params)
-      const txs = [...transactions, ...params]
-      console.log(txs)
+      setPurpose(params.title)
+      setOpen(true)
+      const txs = [...params.transactions]
       setTransactions(txs)
+
+      setQueueLength(params.transactions.length)
     }
 
     const transactionPending = (params) => {
-      console.log(transactions)
       let txs = transactions.map((tx) => {
         if(tx.uuid === params.uuid) {
           tx.status = 'PENDING'
@@ -48,12 +49,10 @@ export default function TransactionQueue() {
         }
         return tx
       })
-      console.log(txs)
       setTransactions(txs)
     }
 
     const transactionSubmitted = (params) => {
-      console.log(transactions)
       let txs = transactions.map((tx) => {
         if(tx.uuid === params.uuid) {
           tx.status = 'SUBMITTED'
@@ -62,12 +61,10 @@ export default function TransactionQueue() {
         }
         return tx
       })
-      console.log(txs)
       setTransactions(txs)
     }
 
     const transactionConfirmed = (params) => {
-      console.log(transactions)
       let txs = transactions.map((tx) => {
         if(tx.uuid === params.uuid) {
           tx.status = 'CONFIRMED'
@@ -76,25 +73,22 @@ export default function TransactionQueue() {
         }
         return tx
       })
-      console.log(txs)
       setTransactions(txs)
     }
 
     const transactionRejected = (params) => {
-      console.log(transactions)
       let txs = transactions.map((tx) => {
         if(tx.uuid === params.uuid) {
           tx.status = 'REJECTED'
           tx.description = params.description ? params.description : tx.description
+          tx.error = params.error
         }
         return tx
       })
-      console.log(txs)
       setTransactions(txs)
     }
 
     const transactionStatus = (params) => {
-      console.log(transactions)
       let txs = transactions.map((tx) => {
         if(tx.uuid === params.uuid) {
           tx.status = params.status ? params.status : tx.status
@@ -102,7 +96,6 @@ export default function TransactionQueue() {
         }
         return tx
       })
-      console.log(txs)
       setTransactions(txs)
     }
 
@@ -113,7 +106,7 @@ export default function TransactionQueue() {
     stores.emitter.on(ACTIONS.TX_CONFIRMED, transactionConfirmed)
     stores.emitter.on(ACTIONS.TX_REJECTED, transactionRejected)
     stores.emitter.on(ACTIONS.TX_STATUS, transactionStatus)
-    stores.emitter.on(ACTIONS.TX_PURPOSE, transactionSetName)
+    stores.emitter.on(ACTIONS.TX_OPEN, openQueue)
 
     return () => {
       stores.emitter.removeListener(ACTIONS.CLEAR_TRANSACTION_QUEUE, clearTransactions)
@@ -123,11 +116,9 @@ export default function TransactionQueue() {
       stores.emitter.removeListener(ACTIONS.TX_CONFIRMED, transactionConfirmed)
       stores.emitter.removeListener(ACTIONS.TX_REJECTED, transactionRejected)
       stores.emitter.removeListener(ACTIONS.TX_STATUS, transactionStatus)
-      stores.emitter.removeListener(ACTIONS.TX_PURPOSE, transactionSetName)
+      stores.emitter.removeListener(ACTIONS.TX_OPEN, openQueue)
     };
   }, [transactions]);
-
-  console.log(transactions)
 
   return (
     <Dialog

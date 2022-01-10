@@ -157,11 +157,12 @@ const coreTheme = {
     },
     MuiToggleButton: {
       root: {
-        flex: 1,
         border: "none",
-        padding: "0px",
-        borderRadius: "30px !important",
-        margin: "0px 6px"
+        borderRadius: "12px",
+      },
+      "&$selected": {
+        border: '1px solid #06d3d7',
+        backgroundColor: 'rgba(0,0,0,0)'
       }
     },
     MuiSnackbar: {

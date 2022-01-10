@@ -1,29 +1,22 @@
 import React, { useState, useEffect } from 'react';
-
-import { Typography, Switch, Button, SvgIcon } from '@material-ui/core';
-import { withStyles } from '@material-ui/core/styles';
-import { withTheme } from '@material-ui/core/styles';
 import { useRouter } from "next/router";
-import Paper from '@material-ui/core/Paper';
-import InputBase from '@material-ui/core/InputBase';
-import Navigation from '../navigation'
 
-import WbSunnyOutlinedIcon from '@material-ui/icons/WbSunnyOutlined';
-import Brightness2Icon from '@material-ui/icons/Brightness2';
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import MonetizationOnIcon from '@material-ui/icons/MonetizationOn';
+import { Typography, Switch, Button, SvgIcon, Badge, IconButton } from '@material-ui/core';
+import { withStyles, withTheme } from '@material-ui/core/styles';
+import HelpIcon from '@material-ui/icons/Help';
+import ListIcon from '@material-ui/icons/List';
+
+import Navigation from '../navigation'
+import Unlock from '../unlock';
+import AboutModal from './aboutModal';
+import TransactionQueue from '../transactionQueue';
 
 import { ACTIONS } from '../../stores/constants';
-
-import Unlock from '../unlock';
 
 import stores from '../../stores';
 import { formatAddress } from '../../utils';
 
 import classes from './header.module.css';
-import HelpIcon from '@material-ui/icons/Help';
-import AboutModal from './aboutModal';
-import TransactionQueue from '../transactionQueue';
 
 const { CONNECT_WALLET,CONNECTION_DISCONNECTED, ACCOUNT_CONFIGURED, ACCOUNT_CHANGED, FIXED_FOREX_BALANCES_RETURNED, FIXED_FOREX_CLAIM_VECLAIM, FIXED_FOREX_VECLAIM_CLAIMED, FIXED_FOREX_UPDATED, ERROR } = ACTIONS
 
@@ -90,6 +83,14 @@ const StyledSwitch = withStyles((theme) => ({
   );
 });
 
+
+const StyledBadge = withStyles((theme) => ({
+  badge: {
+    background: '#2b47cd',
+    color: '#fff'
+  },
+}))(Badge);
+
 function Header(props) {
 
   const accountStore = stores.accountStore.getStore('account');
@@ -101,6 +102,7 @@ function Header(props) {
   const [unlockOpen, setUnlockOpen] = useState(false);
   const [chainInvalid, setChainInvalid] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [transactionQueueLength, setTransactionQueueLength] = useState(0)
 
   useEffect(() => {
     const accountConfigure = () => {
@@ -156,7 +158,7 @@ function Header(props) {
     stores.dispatcher.dispatch({ type: FIXED_FOREX_CLAIM_VECLAIM, content: {} })
   }
 
-  const switchChain =async()=>{
+  const switchChain = async () => {
     try {
       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
@@ -165,6 +167,10 @@ function Header(props) {
     } catch (switchError) {
       console.log("switch error",switchError)
     }
+  }
+
+  const setQueueLength = (length) => {
+    setTransactionQueueLength(length)
   }
 
   return (
@@ -179,18 +185,36 @@ function Header(props) {
 
         <Navigation changeTheme={props.changeTheme} />
 
-        <Button
-          disableElevation
-          className={classes.accountButton}
-          variant="contained"
-          color={props.theme.palette.type === 'dark' ? 'primary' : 'secondary'}
-          onClick={onAddressClicked}>
-          {account && account.address && <div className={`${classes.accountIcon} ${classes.metamask}`}></div>}
-          <Typography className={classes.headBtnTxt}>{account && account.address ? formatAddress(account.address) : 'Connect Wallet'}</Typography>
-        </Button>
+        <div>
+          { transactionQueueLength > 0 &&
+            <IconButton
+              className={classes.accountButton}
+              variant="contained"
+              disableElevation
+              color={props.theme.palette.type === 'dark' ? 'primary' : 'secondary'}
+              onClick={ () => {
+                  stores.emitter.emit(ACTIONS.TX_OPEN)
+                }
+              }>
+              <StyledBadge badgeContent={transactionQueueLength} color="secondary" overlap="circular" >
+                <ListIcon className={ classes.iconColor}/>
+              </StyledBadge>
+            </IconButton>
+          }
+          <Button
+            disableElevation
+            className={classes.accountButton}
+            variant="contained"
+            color={props.theme.palette.type === 'dark' ? 'primary' : 'secondary'}
+            onClick={onAddressClicked}>
+            {account && account.address && <div className={`${classes.accountIcon} ${classes.metamask}`}></div>}
+            <Typography className={classes.headBtnTxt}>{account && account.address ? formatAddress(account.address) : 'Connect Wallet'}</Typography>
+          </Button>
+
+        </div>
         {unlockOpen && <Unlock modalOpen={unlockOpen} closeModal={closeUnlock} />}
         {toggleAboutModal && <AboutModal setToggleAboutModal={setToggleAboutModal} />}
-        <TransactionQueue />
+        <TransactionQueue setQueueLength={ setQueueLength } />
     </div>
     {chainInvalid ? (
       <div className={classes.chainInvalidError}>

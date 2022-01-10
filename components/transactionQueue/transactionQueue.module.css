@@ -1,9 +1,11 @@
 .headingContainer {
-
+  padding: 24px;
 }
 
 .heading {
-
+  font-size: 24px !important;
+  width: 100%;
+  text-align: center;
 }
 
 .transactionsContainer {
@@ -11,12 +13,42 @@
   background: rgb(33, 43, 72);
   border: 1px solid rgba(108,108,123, 0.2);
   padding: 24px;
+  margin-bottom: 12px;
 }
 
-
 .transaction {
+  padding: 12px 12px;
+  border-bottom: 1px solid rgba(108,108,123, 0.2);
+  cursor: pointer;
+}
+
+.transactionInfo {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0px 12px;
+}
+
+.transactionExpanded {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.transaction:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.orangeIcon {
+  color: #ffc512 !important;
+}
+.greenIcon {
+  color: #49a766 !important;
+}
+.redIcon {
+  color: #dc3545 !important;
+}
+
+.errorText {
+  color: #dc3545 !important;
+  padding-top: 12px !important;
 }

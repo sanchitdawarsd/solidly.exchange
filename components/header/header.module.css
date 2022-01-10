@@ -3,7 +3,7 @@
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  padding: 0 90px;
+  padding: 24px 90px;
   min-height: 60px;
   position: fixed;
   top: 0;
@@ -12,7 +12,6 @@
   width: calc(100%);
   border: 0;
   border-radius: 0 !important;
-  margin-bottom: 60px;
 }
 
 .networkIcon {
@@ -75,17 +74,15 @@
   display: flex;
   align-items: center;
   margin-left: 14px !important;
-  min-height: 40px;
+  min-height: 50px;
   background-color: rgb(33, 43, 72) !important;
   border: 1px solid rgba(108,108,123, 0.2) !important;
   border-radius: 12px !important;
-  /* color: #FFF !important; */
+  color: rgba(255, 255, 255, 0.87) !important;
 }
 
-.accountButton {
-  font-weight: 700 !important;
-  font-size: 12px !important;
-  margin-left: 10px !important;
+.iconColor {
+  color: #fff;
 }
 
 .switchNetworkBtn {

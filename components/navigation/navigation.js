@@ -1,31 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, Paper, Switch, Button, Tooltip, Grid } from '@material-ui/core';
-import { withTheme } from '@material-ui/core/styles';
-import { withStyles } from '@material-ui/core/styles';
-
 import { useRouter } from 'next/router';
-import MenuIcon from '@material-ui/icons/Menu';
-import CloseIcon from '@material-ui/icons/Close';
-import WbSunnyOutlinedIcon from '@material-ui/icons/WbSunnyOutlined';
-import Brightness2Icon from '@material-ui/icons/Brightness2';
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 
-import SwapHorizIcon from '@material-ui/icons/SwapHoriz';
-import TimerIcon from '@material-ui/icons/Timer';
-import HowToVoteIcon from '@material-ui/icons/HowToVote';
-import SpaceBarIcon from '@material-ui/icons/SpaceBar';
-import WarningIcon from '@material-ui/icons/Warning';
-import MonetizationOnIcon from '@material-ui/icons/MonetizationOn';
-import TableChartIcon from '@material-ui/icons/TableChart';
-import BuildIcon from '@material-ui/icons/Build';
-
-import { SvgIcon } from "@material-ui/core";
-
-import Unlock from '../unlock';
+import { Typography, Paper, Switch, Button, Tooltip, Grid, SvgIcon } from '@material-ui/core';
+import { ToggleButton, ToggleButtonGroup } from '@material-ui/lab';
+import { withTheme, withStyles } from '@material-ui/core/styles';
 
 import stores from '../../stores';
 import { formatAddress } from '../../utils';
-
 import classes from './navigation.module.css';
 
 const StyledSwitch = withStyles((theme) => ({
@@ -81,53 +62,44 @@ const StyledSwitch = withStyles((theme) => ({
 });
 
 function Navigation(props) {
-  const router = useRouter();
+  const router = useRouter()
 
-  const account = stores.accountStore.getStore('account');
-
-  const [darkMode, setDarkMode] = useState(false);
-  const [unlockOpen, setUnlockOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [active, setActive] = useState('swap')
 
   function handleNavigate(route) {
     router.push(route);
   }
 
-  const onMenuClicked = () => {
-    setMenuOpen(!menuOpen);
-  };
+  const onActiveClick = (event, val) => {
+    setActive(val)
+    handleNavigate('/' + val);
+  }
 
-  const handleToggleChange = (event, val) => {
-    setDarkMode(val);
-    props.changeTheme(val);
-  };
+  useEffect(() => {
+    const activePath = router.asPath
+    if(activePath.includes('swap')) {
+      setActive('swap')
+    }
+    if(activePath.includes('liquidity')) {
+      setActive('liquidity')
+    }
+    if(activePath.includes('vest')) {
+      setActive('vest')
+    }
+    if(activePath.includes('vote')) {
+      setActive('vote')
+    }
+  }, [])
 
-  const onAddressClicked = () => {
-    setUnlockOpen(true);
-  };
-
-  const closoeUnlock = () => {
-    setUnlockOpen(false);
-  };
-
-  useEffect(function () {
-    const localStorageDarkMode = window.localStorage.getItem('yearn.finance-dark-mode');
-    setDarkMode(localStorageDarkMode ? localStorageDarkMode === 'dark' : false);
-
-    const localStorageWarningAccepted = window.localStorage.getItem('fixed.forex-warning-accepted');
-  }, []);
-
-  useEffect(
-    function () {
-      setDarkMode(props.theme.palette.type === 'dark' ? true : false);
-    },
-    [props.theme],
-  );
-
-  const activePath = router.asPath;
   const renderNavs = () => {
     return (
-      <React.Fragment>
+      <ToggleButtonGroup
+        value={active}
+        exclusive
+        onChange={onActiveClick}
+        className={ classes.navToggles}
+      >
         {renderSubNav(
           'Swap',
           'swap',
@@ -144,7 +116,7 @@ function Navigation(props) {
           'Vote',
           'vote',
         )}
-      </React.Fragment>
+      </ToggleButtonGroup>
     );
   };
 
@@ -159,46 +131,11 @@ function Navigation(props) {
     );
   };
 
-  const renderNav = (title, link, anotherLink) => {
-    return (
-      <div
-        className={classes.navigationOptionContainer}
-        onClick={() => {
-
-          if(anotherLink) {
-            window.open(anotherLink, '_blank')
-          } else {
-            handleNavigate('/' + link);
-          }
-
-        }}
-      >
-        {activePath.includes('/' + link) ? (
-          <div className={darkMode ? classes.navigationOptionSelectedWhite : classes.navigationOptionSelected}></div>
-        ) : (
-          <div className={classes.navigationOptionNotSelected}></div>
-        )}
-        <Typography variant="h2" className={ classes.subtitleText}>{title}</Typography>
-        { anotherLink && '↗'}
-      </div>
-    );
-  };
-
   const renderSubNav = (title, link) => {
     return (
-      <div
-        className={classes.navigationSubOptionContainer}
-        onClick={() => {
-          handleNavigate('/' + link);
-        }}
-      >
+      <ToggleButton value={link} className={ classes.navButton } classes={{ selected: classes.testChange }}>
         <Typography variant="h2" className={ classes.subtitleText}>{title}</Typography>
-        {activePath.includes('/' + link) ? (
-          <div className={darkMode ? classes.navigationOptionSelectedWhite : classes.navigationOptionSelected}></div>
-        ) : (
-          <div className={classes.navigationOptionNotSelected}></div>
-        )}
-      </div>
+      </ToggleButton>
     );
   };
 
