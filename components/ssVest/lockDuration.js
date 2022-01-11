@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Grid, Typography, Button, TextField, CircularProgress, RadioGroup, Radio, FormControlLabel } from '@material-ui/core';
+import { Grid, Typography, Button, TextField, CircularProgress, RadioGroup, Radio, FormControlLabel, InputAdornment } from '@material-ui/core';
 import moment from 'moment';
 import classes from "./ssVest.module.css";
 import stores from '../../stores'
@@ -7,7 +7,7 @@ import {
   ACTIONS
 } from '../../stores/constants';
 
-export default function ffLockDuration({ veToken }) {
+export default function ffLockDuration({ govToken, veToken }) {
 
   const [ lockLoading, setLockLoading ] = useState(false)
 
@@ -74,53 +74,89 @@ export default function ffLockDuration({ veToken }) {
     stores.dispatcher.dispatch({ type: ACTIONS.FIXED_FOREX_VEST_DURATION, content: { unlockTime: selectedDateUnix } })
   }
 
-  return (
-    <>
-      <Grid container spacing={4}>
-        <Grid item lg={8}>
-          <div className={ classes.inputsContainer3 }>
-            <div className={classes.textField}>
-              <TextField
-                fullWidth
-                id="date"
-                type="date"
-                variant="outlined"
-                className={classes.textField}
-                onChange={handleDateChange}
-                value={selectedDate}
-                error={selectedDateError}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-              />
-              <div className={ classes.inline }>
-                <Typography className={ classes.expiresIn }>Expires in </Typography>
-                <RadioGroup className={classes.vestPeriodToggle} row aria-label="position" name="position" onChange={handleChange} value={selectedValue}>
-                  <FormControlLabel value="week" control={<Radio color="primary" />} label="1 week" labelPlacement="left" />
-                  <FormControlLabel value="month" control={<Radio color="primary" />} label="1 month" labelPlacement="left" />
-                  <FormControlLabel value="year" control={<Radio color="primary" />} label="1 year" labelPlacement="left" />
-                  <FormControlLabel value="years" control={<Radio color="primary" />} label="4 years" labelPlacement="left" />
-                </RadioGroup>
+
+  const renderMassiveInput = (type, amountValue, amountError, amountChanged, balance, logo) => {
+    return (
+      <div className={ classes.textField}>
+        <div className={ `${classes.massiveInputContainer} ${ (amountError) && classes.error }` }>
+          <div className={ classes.massiveInputAssetSelect }>
+            <div className={ classes.displaySelectContainer }>
+              <div className={ classes.assetSelectMenuItem }>
+                <div className={ classes.displayDualIconContainer }>
+                  {
+                    logo &&
+                    <img
+                      className={ classes.displayAssetIcon }
+                      alt=""
+                      src={ logo }
+                      height='100px'
+                      onError={(e)=>{e.target.onerror = null; e.target.src="/tokens/unknown-logo.png"}}
+                    />
+                  }
+                  {
+                    !logo &&
+                    <img
+                      className={ classes.displayAssetIcon }
+                      alt=""
+                      src={ '/tokens/unknown-logo.png' }
+                      height='100px'
+                      onError={(e)=>{e.target.onerror = null; e.target.src="/tokens/unknown-logo.png"}}
+                    />
+                  }
+                </div>
               </div>
             </div>
           </div>
-        </Grid>
-        <Grid item lg={4}>
-          <div className={ classes.actionsContainer3 }>
-            <Button
-              className={classes.actionBtn}
-              variant='contained'
-              size='large'
-              color='primary'
+          <div className={ classes.massiveInputAmount }>
+            <TextField
+              type="date"
+              placeholder='Expiry Date'
+              fullWidth
+              error={ amountError }
+              helperText={ amountError }
+              value={ amountValue }
+              onChange={ amountChanged }
               disabled={ lockLoading }
-              onClick={ onLock }
-              >
-              <Typography className={ classes.actionButtonText }>{ lockLoading ? `Increasing Duration` : `Increase Duration` }</Typography>
-              { lockLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
-            </Button>
+              InputProps={{
+                className: classes.largeInput,
+                shrink: true
+              }}
+            />
           </div>
-        </Grid>
-      </Grid>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <>
+      <div className={ classes.inputsContainer3 }>
+        { renderMassiveInput('lockDuration', selectedDate, selectedDateError, handleDateChange, null, null) }
+        <div className={classes.textField}>
+          <div className={ classes.inline }>
+            <Typography className={ classes.expiresIn }>Expires in </Typography>
+            <RadioGroup className={classes.vestPeriodToggle} row aria-label="position" name="position" onChange={handleChange} value={selectedValue}>
+              <FormControlLabel value="week" control={<Radio color="primary" />} label="1 week" labelPlacement="left" />
+              <FormControlLabel value="month" control={<Radio color="primary" />} label="1 month" labelPlacement="left" />
+              <FormControlLabel value="year" control={<Radio color="primary" />} label="1 year" labelPlacement="left" />
+              <FormControlLabel value="years" control={<Radio color="primary" />} label="4 years" labelPlacement="left" />
+            </RadioGroup>
+          </div>
+        </div>
+      </div>
+      <div className={ classes.actionsContainer3 }>
+        <Button
+          className={classes.actionBtn}
+          variant='contained'
+          size='large'
+          color='primary'
+          disabled={ lockLoading }
+          onClick={ onLock }
+          >
+          <Typography className={ classes.actionButtonText }>{ lockLoading ? `Increasing Duration` : `Increase Duration` }</Typography>
+          { lockLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
+        </Button>
+      </div>
     </>
   );
 }

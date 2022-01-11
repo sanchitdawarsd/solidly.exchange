@@ -1,31 +1,30 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import BigNumber from 'bignumber.js';
-import { Typography, Button, Paper, SvgIcon, Grid } from "@material-ui/core";
 import Head from 'next/head';
+import { Typography, Button, Paper, SvgIcon } from "@material-ui/core";
 import Layout from '../../components/layout/layout.js';
-import Vesting from '../../components/ssVest';
-import Overview from '../../components/ssOverview';
-import Claim from '../../components/ffClaim';
-import ClaimDistribution from '../../components/ffClaimDistirbution';
+import VestsNFTs from '../../components/ssVests';
 
-import classes from './vest.module.css';
+import React, { useState, useEffect } from 'react';
+import { ACTIONS } from '../../stores/constants';
 
 import stores from '../../stores';
-import { ACTIONS } from '../../stores/constants';
+import { useRouter } from "next/router";
 import Unlock from '../../components/unlock';
+
+import classes from './vest.module.css';
 
 function BalanceIcon(props) {
   const { color, className } = props;
   return (
     <SvgIcon viewBox="0 0 64 64" strokeWidth="1" className={className}>
-      <g strokeWidth="1" transform="translate(0, 0)"><rect data-color="color-2" x="9" y="10" fill="none" stroke="#4585d6" strokeWidth="1" strokeLinecap="square" strokeMiterlimit="10" width="46" height="40" strokeLinejoin="miter"></rect> <line data-color="color-2" fill="none" stroke="#4585d6" strokeWidth="1" strokeLinecap="square" strokeMiterlimit="10" x1="14" y1="57" x2="14" y2="61" strokeLinejoin="miter"></line> <line data-color="color-2" fill="none" stroke="#4585d6" strokeWidth="1" strokeLinecap="square" strokeMiterlimit="10" x1="50" y1="57" x2="50" y2="61" strokeLinejoin="miter"></line> <rect x="2" y="3" fill="none" stroke="#4585d6" strokeWidth="1" strokeLinecap="square" strokeMiterlimit="10" width="60" height="54" strokeLinejoin="miter"></rect> <line data-cap="butt" fill="none" stroke="#4585d6" strokeWidth="1" strokeMiterlimit="10" x1="27.757" y1="25.757" x2="22.103" y2="20.103" strokeLinejoin="miter" strokeLinecap="butt"></line> <line data-cap="butt" fill="none" stroke="#4585d6" strokeWidth="1" strokeMiterlimit="10" x1="36.243" y1="25.757" x2="41.897" y2="20.103" strokeLinejoin="miter" strokeLinecap="butt"></line> <line data-cap="butt" fill="none" stroke="#4585d6" strokeWidth="1" strokeMiterlimit="10" x1="36.243" y1="34.243" x2="41.897" y2="39.897" strokeLinejoin="miter" strokeLinecap="butt"></line> <line data-cap="butt" fill="none" stroke="#4585d6" strokeWidth="1" strokeMiterlimit="10" x1="27.757" y1="34.243" x2="22.103" y2="39.897" strokeLinejoin="miter" strokeLinecap="butt"></line> <circle fill="none" stroke="#4585d6" strokeWidth="1" strokeLinecap="square" strokeMiterlimit="10" cx="32" cy="30" r="14" strokeLinejoin="miter"></circle> <circle fill="none" stroke="#4585d6" strokeWidth="1" strokeLinecap="square" strokeMiterlimit="10" cx="32" cy="30" r="6" strokeLinejoin="miter"></circle></g>
+      <g strokeWidth="1" transform="translate(0, 0)"><path data-color="color-2" fill="none" stroke="#4585d6" strokeWidth="1" strokeLinecap="square" strokeMiterlimit="10" d="M40,28 c0-3.8,6-10,6-10s6,6.2,6,10s-3,6-6,6S40,31.8,40,28z" strokeLinejoin="miter"></path> <path data-color="color-2" fill="none" stroke="#4585d6" strokeWidth="1" strokeLinecap="square" strokeMiterlimit="10" d="M20,14 c0-3.8,6-10,6-10s6,6.2,6,10s-3,6-6,6S20,17.8,20,14z" strokeLinejoin="miter"></path> <path data-cap="butt" fill="none" stroke="#4585d6" strokeWidth="1" strokeMiterlimit="10" d="M10,34h2c4.6,0,9.6,2.4,12,6h8 c4,0,8,4,8,8H22" strokeLinejoin="miter" strokeLinecap="butt"></path> <path data-cap="butt" fill="none" stroke="#4585d6" strokeWidth="1" strokeMiterlimit="10" d="M38.8,44H52c7.2,0,8,4,8,4L31.4,59.6 c-2.2,1-4.8,0.8-7-0.2L10,52" strokeLinejoin="miter" strokeLinecap="butt"></path> <rect x="2" y="30" fill="none" stroke="#4585d6" strokeWidth="1" strokeLinecap="square" strokeMiterlimit="10" width="8" height="26" strokeLinejoin="miter"></rect></g>
     </SvgIcon>
   );
 }
 
-function Vest({ changeTheme }) {
+function Vesting({ changeTheme }) {
 
   const accountStore = stores.accountStore.getStore('account');
+  const router = useRouter();
   const [account, setAccount] = useState(accountStore);
   const [unlockOpen, setUnlockOpen] = useState(false);
 
@@ -55,72 +54,37 @@ function Vest({ changeTheme }) {
     setUnlockOpen(false);
   };
 
-  const [, updateState] = useState();
-  const forceUpdate = useCallback(() => updateState({}), []);
-
-  const [ govToken, setGovToken] = useState(null)
-  const [ veToken, setVeToken] = useState(null)
-
-  useEffect(() => {
-    const forexUpdated = () => {
-      setGovToken(stores.stableSwapStore.getStore('govToken'))
-      setVeToken(stores.stableSwapStore.getStore('veToken'))
-      forceUpdate()
-    }
-
-    setGovToken(stores.stableSwapStore.getStore('govToken'))
-    setVeToken(stores.stableSwapStore.getStore('veToken'))
-
-    stores.emitter.on(ACTIONS.UPDATED, forexUpdated);
-    return () => {
-      stores.emitter.removeListener(ACTIONS.UPDATED, forexUpdated);
-    };
-  }, []);
-
   return (
     <Layout changeTheme={changeTheme} title={ '' }>
       <Head>
         <title>Solid Swap</title>
       </Head>
       <div className={classes.ffContainer}>
-        {
-          account && account.address ?
-            <div className={classes.connected}>
-              <Grid container spacing={0} className={classes.gridWrapper}>
-                <Grid item lg={8} md={12} sm={12} xs={12}>
-                  <Vesting />
-                </Grid>
-                <Grid item lg={4} md={12} sm={12} xs={12} className={classes.xxx}>
-                  { (BigNumber(govToken ? govToken.balance : 0).gt(0) && BigNumber(veToken && veToken.vestingInfo ? veToken.vestingInfo.locked : 0).gt(0)) &&
-                    <Claim />
-                  }
-                  { (BigNumber(govToken ? govToken.balance : 0).gt(0) && BigNumber(veToken && veToken.vestingInfo ? veToken.vestingInfo.locked : 0).gt(0)) &&
-                    <ClaimDistribution />
-                  }
-                </Grid>
-              </Grid>
-            </div>
-            :
-            <Paper className={classes.notConnectedContent}>
-              <BalanceIcon className={ classes.overviewIcon } />
-              <Typography className={classes.mainHeadingNC} variant='h1'>Vest</Typography>
-              <Typography className={classes.mainDescNC} variant='body2'>
-                Vesting your kp3r in the Solid Swap gauge means that you will be locking up your assets in order to gain a voting right in how the protocol emits rewards.
-              </Typography>
-              <Button
-                disableElevation
-                className={classes.buttonConnect}
-                variant="contained"
-                onClick={onAddressClicked}>
+        {account && account.address ?
+          <div className={classes.connected}>
+            <VestsNFTs />
+          </div>
+        :
+          <Paper className={classes.notConnectedContent}>
+            <BalanceIcon className={ classes.overviewIcon } />
+            <Typography className={classes.mainHeadingNC} variant='h1'>Vesting NFTs</Typography>
+            <Typography className={classes.mainDescNC} variant='body2'>
+              Description
+            </Typography>
+            <Button
+              disableElevation
+              className={classes.buttonConnect}
+              variant="contained"
+              onClick={onAddressClicked}>
                 {account && account.address && <div className={`${classes.accountIcon} ${classes.metamask}`}></div>}
-                  <Typography>Connect Wallet to Continue</Typography>
-              </Button>
-            </Paper>
-         }
-         {unlockOpen && <Unlock modalOpen={unlockOpen} closeModal={closeUnlock} />}
+                <Typography>Connect Wallet to Continue</Typography>
+            </Button>
+          </Paper>
+        }
+        {unlockOpen && <Unlock modalOpen={unlockOpen} closeModal={closeUnlock} />}
       </div>
     </Layout>
   );
 }
 
-export default Vest;
+export default Vesting;

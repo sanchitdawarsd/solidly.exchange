@@ -28,7 +28,8 @@ class Store {
       govToken: null,
       veToken: null,
       rewards: {},
-      pairs: []
+      pairs: [],
+      vestNFTs: []
     }
 
     dispatcher.register(
@@ -70,6 +71,10 @@ class Store {
             break
 
 
+          // VESTING
+            case ACTIONS.GET_VEST_NFTS:
+            this.getVestNFTs(payload)
+            break;
           default: {
           }
         }
@@ -107,6 +112,67 @@ class Store {
     }
 
     return theAsset[0]
+  }
+
+  getNFTByID = async (id) => {
+    try {
+      const vestNFTs = this.getStore('vestNFTs')
+      let theNFT = vestNFTs.filter((vestNFT) => {
+        return (vestNFT.id == id)
+      })
+
+      if(theNFT.length > 0) {
+        return theNFT[0]
+      }
+
+      // const web3 = await stores.accountStore.getWeb3Provider()
+      // if (!web3) {
+      //   console.warn('web3 not found')
+      //   return null
+      // }
+      //
+      // const vestingContract = new web3.eth.Contract(CONTRACTS.VE_TOKEN_ABI, CONTRACTS.VE_TOKEN_ADDRESS)
+      //
+      // const nftsLength = await vestingContract.methods.ownerToNFTokenCount(account.address).call()
+      // const arr = Array.from({length: parseInt(nftsLength)}, (v, i) => i)
+      //
+      // const nfts = await Promise.all(
+      //   arr.map(async (idx) => {
+      //
+      //     const tokenIndex = await vestingContract.methods.tokenOfOwnerByIndex(account.address, idx).call()
+      //     const token = await vestingContract.methods.tokenByIndex(tokenIndex).call()
+      //
+      //     // probably do some decimals math before returning info. Maybe get more info. I don't know what it returns.
+      //     return token
+      //   })
+      // )
+
+      // Theoretical values for now
+      const nfts = [{
+        id: 0,
+        lockEnds: '1673452568',
+        lockAmount: '100',
+        lockValue: '25'
+      },{
+        id: 1,
+        lockEnds: '1704988568',
+        lockAmount: '70',
+        lockValue: '35.123'
+      }]
+
+      theNFT = nfts.filter((nft) => {
+        return nft.id == id
+      })
+
+      if(theNFT.length > 0) {
+        return theNFT[0]
+      }
+
+      return null
+    } catch(ex) {
+      console.log(ex)
+      return null
+    }
   }
 
   getPairByAddress = async (address) => {
@@ -1309,6 +1375,58 @@ class Store {
     } catch (ex) {
       console.error(ex)
       return null
+    }
+  }
+
+  getVestNFTs = async (payload) => {
+    try {
+      const account = stores.accountStore.getStore("account")
+      if (!account) {
+        console.warn('account not found')
+        return null
+      }
+
+      const web3 = await stores.accountStore.getWeb3Provider()
+      if (!web3) {
+        console.warn('web3 not found')
+        return null
+      }
+
+      // const vestingContract = new web3.eth.Contract(CONTRACTS.VE_TOKEN_ABI, CONTRACTS.VE_TOKEN_ADDRESS)
+      //
+      // const nftsLength = await vestingContract.methods.ownerToNFTokenCount(account.address).call()
+      // const arr = Array.from({length: parseInt(nftsLength)}, (v, i) => i)
+      //
+      // const nfts = await Promise.all(
+      //   arr.map(async (idx) => {
+      //
+      //     const tokenIndex = await vestingContract.methods.tokenOfOwnerByIndex(account.address, idx).call()
+      //     const token = await vestingContract.methods.tokenByIndex(tokenIndex).call()
+      //
+      //     // probably do some decimals math before returning info. Maybe get more info. I don't know what it returns.
+      //     return token
+      //   })
+      // )
+
+      // Theoretical values for now
+      const nfts = [{
+        id: 0,
+        lockEnds: '1673452568',
+        lockAmount: '100',
+        lockValue: '25'
+      },{
+        id: 1,
+        lockEnds: '1704988568',
+        lockAmount: '70',
+        lockValue: '35.123'
+      }]
+
+      this.setStore({ vestNFTs: nfts })
+      this.emitter.emit(ACTIONS.VEST_NFTS_RETURNED, nfts)
+
+    } catch(ex) {
+      console.error(ex)
+      this.emitter.emit(ACTIONS.ERROR, ex)
     }
   }
 

@@ -1,3 +1,9 @@
+.vestContainer {
+  width: calc(100% - 180px);
+  max-width: 485px;
+  margin: 0 auto;
+}
+
 .container {
   width: calc(100% - 180px);
   display: flex;
@@ -13,11 +19,11 @@
   left: 0;
   right: 0;
   margin: auto;
-  padding: 45px;
+  padding: 24px;
 }
 
 .contentBox {
-  background: rgba(104,108,122,0.05);
+  background: rgb(25, 33, 56);
   padding: 30px;
   border-radius: 5px;
 }
@@ -35,24 +41,8 @@
 }
 
 .textField {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  margin-top: 0px;
-}
-
-.inputTitleContainer {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.inputTitle {
-  padding-bottom: 15px;
+  margin-bottom: 4px;
   position: relative;
-  width: 100%;
 }
 
 .vestPeriodToggle {
@@ -73,6 +63,20 @@
   cursor: pointer;
   font-size: 15px !important;
   margin-bottom: 7px !important;
+}
+
+.inputTitleContainer {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  position: absolute;
+  top: 8px;
+}
+
+.inputTitle {
+  padding-bottom: 16px;
+  margin-left: 6px;
 }
 
 .inputTitleText {
@@ -135,37 +139,6 @@
 
 .loadingCircle {
   margin-left: 6px !important;
-}
-
-.noBalancesContainer {
-  width: calc(100% - 180px);
-  position: absolute;
-  /* display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-column-gap: 24px; */
-}
-.title {
-  font-size: 20px !important;
-  font-weight: bold !important;
-  padding-bottom: 20px;
-  border-bottom: 1px solid rgba(104,108,122,0.2);
-  margin-bottom: 20px !important;
-}
-
-.title2 {
-  font-size: 20px !important;
-  margin-bottom: 24px !important;
-}
-
-.subTitle {
-  font-size: 16px !important;
-  font-weight: bold !important;
-  padding-bottom: 12px;
-  padding-top: 12px;
-}
-.paragraph {
-  padding-bottom: 24px;
-  opacity: 0.8;
 }
 
 .inputsContainer2 {
@@ -270,6 +243,143 @@
   transform: scale(0.84);
   opacity: 0.6;
 }
+
+
+
+
+.vestingInfoContainer {
+  margin-top: 12px;
+  padding: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  border-radius: 10px;
+  width: 100%;
+  align-items: center;
+}
+
+.vestingInfoHeading {
+  width: 100%;
+  padding-bottom: 12px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.87);
+  font-size: 14px !important;
+}
+
+.vestInfos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 12px;
+  width: 100%;
+}
+
+.vestInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 0px;
+}
+
+.vestInfo > .title {
+  font-weight: bold !important;
+  font-size: 14px !important;
+  padding: 6px 0px;
+}
+
+.vestInfo > .text {
+  font-size: 14px !important;
+}
+
+
+
+
+
+.error {
+  border: 1px solid #dc3545;
+}
+
+.massiveInputContainer {
+  display: flex;
+  flex-wrap: wrap;
+  border-radius: 10px;
+  width: 100%;
+  align-items: center;
+  background: rgb(33, 43, 72);
+}
+
+.massiveInputAssetSelect {
+  width: 124px;
+  min-height: 124px;
+  height: 100%;
+}
+
+.massiveInputAmount {
+  flex: 1;
+  height: 100%;
+  max-width: calc(100% - 124px);
+}
+
+.massiveInputAddress {
+  min-width: 100%;
+  border-top: 1px solid rgba(128, 128, 128, 0.5);
+}
+
+.displaySelectContainer {
+  padding: 12px;
+  min-height: 100px;
+}
+
+.displayDualIconContainer {
+  width: 100px;
+  position: relative;
+}
+
+.displayAssetIcon {
+  border: 1px solid rgba(128, 128, 128, 0.5);
+  border-radius: 50px;
+  background: rgb(33, 43, 72);
+  width: 100px;
+  height: 100px;
+  padding: 10px;
+}
+
+.inputTitleContainer {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  position: absolute;
+  top: 8px;
+}
+
+.inputTitle {
+  padding-bottom: 16px;
+  margin-left: 6px;
+}
+
+.inputBalance {
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 12px;
+  padding-bottom: 6px;
+  cursor: pointer;
+}
+
+.inputBalanceText {
+  font-weight: 100 !important;
+  font-size: 12px !important;
+}
+
+.balances {
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 12px;
+  padding-bottom: 15px;
+}
+
+.largeInput {
+  font-size: 46px !important;
+}
+
 
 @media screen and (max-width: 1200px) {
   .container {
