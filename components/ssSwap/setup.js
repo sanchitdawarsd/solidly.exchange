@@ -168,52 +168,7 @@ function Setup({ theme }) {
     if(!error) {
       setLoading(true)
 
-      stores.dispatcher.dispatch({ type: ACTIONS.FIXED_FOREX_SWAP, content: {
-        fromAmount: fromAmountValue,
-        fromAsset: fromAssetValue,
-        toAmount: toAmountValue,
-        toAsset: toAssetValue,
-      } })
-    }
-  }
-
-  const onApprove = () => {
-    setFromAmountError(false)
-    setFromAssetError(false)
-    setToAssetError(false)
-
-    let error = false
-
-    if(!fromAmountValue || fromAmountValue === '' || isNaN(fromAmountValue)) {
-      setFromAmountError('From amount is required')
-      error = true
-    } else {
-      if(!fromAssetValue.balance || isNaN(fromAssetValue.balance) || BigNumber(fromAssetValue.balance).lte(0))  {
-        setFromAmountError('Invalid balance')
-        error = true
-      } else if(BigNumber(fromAmountValue).lt(0)) {
-        setFromAmountError('Invalid amount')
-        error = true
-      } else if (fromAssetValue && BigNumber(fromAmountValue).gt(fromAssetValue.balance)) {
-        setFromAmountError(`Greater than your available balance`)
-        error = true
-      }
-    }
-
-    if(!fromAssetValue || fromAssetValue === null) {
-      setFromAssetError('From asset is required')
-      error = true
-    }
-
-    if(!toAssetValue || toAssetValue === null) {
-      setFromAssetError('To asset is required')
-      error = true
-    }
-
-    if(!error) {
-      setApprovalLoading(true)
-
-      stores.dispatcher.dispatch({ type: ACTIONS.FIXED_FOREX_APPROVE_SWAP, content: {
+      stores.dispatcher.dispatch({ type: ACTIONS.SWAP, content: {
         fromAmount: fromAmountValue,
         fromAsset: fromAssetValue,
         toAmount: toAmountValue,
@@ -292,19 +247,6 @@ function Setup({ theme }) {
     )
   }
 
-  let approvalNotRequired = false
-  if(fromAssetValue) {
-    approvalNotRequired = BigNumber(fromAssetValue.allowance).gte(fromAmountValue) || ((!fromAmountValue || fromAmountValue === '') && BigNumber(fromAssetValue.allowance).gt(0) )
-  }
-
-  const formatApproved = (am) => {
-    if(BigNumber(am).gte(1000000000000000)) {
-      return 'Approved Forever'
-    }
-
-    return `Approved ${formatCurrency(am)}`
-  }
-
   return (
     <div className={ classes.swapInputs }>
       { renderMassiveInput('From', fromAmountValue, fromAmountError, fromAmountChanged, fromAssetValue, fromAssetError, fromAssetOptions, onAssetSelect) }
@@ -318,23 +260,11 @@ function Setup({ theme }) {
       <div className={ classes.actionsContainer }>
         <Button
           className={ classes.actionButton }
-          size='large'
-          disableElevation
-          variant='contained'
-          color='primary'
-          onClick={ onApprove }
-          disabled={ approvalLoading || approvalNotRequired }
-          >
-          <Typography className={ classes.actionButtonText }>{ approvalNotRequired ? formatApproved( fromAssetValue?.allowance ) : ( approvalLoading ? `Approving` : `Approve`)}</Typography>
-          { approvalLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
-        </Button>
-        <Button
-          className={ classes.actionButton }
           variant='contained'
           size='large'
           color='primary'
           className={classes.buttonOverride}
-          disabled={ loading || !approvalNotRequired }
+          disabled={ loading }
           onClick={ onSwap }
           >
           <Typography className={ classes.actionButtonText }>{ loading ? `Swapping` : `Swap` }</Typography>

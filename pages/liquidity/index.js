@@ -1,7 +1,6 @@
 import Head from 'next/head';
 import { Typography, Button, Paper, SvgIcon } from "@material-ui/core";
 import Layout from '../../components/layout/layout.js';
-import Overview from '../../components/ssOverview';
 import Pairs from '../../components/ssPairs';
 
 import React, { useState, useEffect } from 'react';

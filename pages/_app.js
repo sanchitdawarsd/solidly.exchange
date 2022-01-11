@@ -35,12 +35,10 @@ export default function MyApp({ Component, pageProps }) {
   };
 
   const accountConfigureReturned = () => {
-    console.log('accountConfigured')
     setAccountConfigured(true);
   };
 
   const stalbeSwapConfigureReturned = () => {
-    console.log('stableSwapConfigured')
     setStableSwapConfigured(true);
   };
 
@@ -64,9 +62,9 @@ export default function MyApp({ Component, pageProps }) {
   const validateConfigured = () => {
     switch (router.pathname) {
       case '/':
-        return stalbeSwapConfigured && accountConfigured;
+        return accountConfigured;
       default:
-        return stalbeSwapConfigured && accountConfigured;
+        return accountConfigured;
     }
   };
 

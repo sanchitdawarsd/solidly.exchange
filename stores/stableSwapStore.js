@@ -45,9 +45,6 @@ class Store {
           case ACTIONS.CREATE_PAIR:
             this.createPair(payload)
             break
-          case ACTIONS.APPROVE_ADD_LIQUIDITY:
-            this.approveAddLiquidity(payload)
-            break
           case ACTIONS.ADD_LIQUIDITY:
             this.addLiquidity(payload)
             break
@@ -56,9 +53,6 @@ class Store {
             break
           case ACTIONS.QUOTE_ADD_LIQUIDITY:
             this.quoteAddLiquidity(payload)
-            break
-          case ACTIONS.GET_ADD_LIQUIDITY_ALLOWANCE:
-            this.getAddLiquidityAllowance(payload)
             break
           case ACTIONS.GET_LIQUIDITY_BALANCES:
             this.getLiquidityBalances(payload)
@@ -651,51 +645,6 @@ class Store {
     }
   }
 
-  approveAddLiquidity = async (payload) => {
-    try {
-      const account = stores.accountStore.getStore("account")
-      if (!account) {
-        console.warn('account not found')
-        return null
-      }
-
-      const web3 = await stores.accountStore.getWeb3Provider()
-      if (!web3) {
-        console.warn('web3 not found')
-        return null
-      }
-
-      const gasPrice = await stores.accountStore.getGasPrice()
-      const { token0, token1, allowance0, allowance1, amount0, amount1 } = payload.content
-
-      if(BigNumber(amount0).gt(allowance0)) {
-        const token0COntract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, token0.address)
-        this._callContractWait(web3, token0COntract, 'approve', [CONTRACTS.ROUTER_ADDRESS, MAX_UINT256], account, gasPrice, ACTIONS.GET_ADD_LIQUIDITY_ALLOWANCE, { token0, token1 }, null, (err) => {
-          if (err) {
-            return this.emitter.emit(ACTIONS.ERROR, err);
-          }
-
-          this.emitter.emit(ACTIONS.ADD_LIQUIDITY_APPROVED)
-        })
-      }
-
-      if(BigNumber(amount1).gt(allowance1)) {
-        const token1COntract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, token1.address)
-        this._callContractWait(web3, token1COntract, 'approve', [CONTRACTS.ROUTER_ADDRESS, MAX_UINT256], account, gasPrice, ACTIONS.GET_ADD_LIQUIDITY_ALLOWANCE, { token0, token1 }, null, (err) => {
-          if (err) {
-            return this.emitter.emit(ACTIONS.ERROR, err);
-          }
-
-          this.emitter.emit(ACTIONS.ADD_LIQUIDITY_APPROVED)
-        })
-      }
-
-    } catch(ex) {
-      console.error(ex)
-      this.emitter.emit(ACTIONS.ERROR, ex)
-    }
-  }
-
   getTXUUID = () => {
     return uuidv4()
   }
@@ -1087,43 +1036,6 @@ class Store {
         }
         this.emitter.emit(ACTIONS.QUOTE_ADD_LIQUIDITY_RETURNED, returnVal)
       })
-
-    } catch(ex) {
-      console.error(ex)
-      this.emitter.emit(ACTIONS.ERROR, ex)
-    }
-  }
-
-  getAddLiquidityAllowance = async (payload) => {
-    try {
-      const account = stores.accountStore.getStore("account")
-      if (!account) {
-        console.warn('account not found')
-        return null
-      }
-
-      const web3 = await stores.accountStore.getWeb3Provider()
-      if (!web3) {
-        console.warn('web3 not found')
-        return null
-      }
-
-      const { token0, token1 } = payload.content
-
-      const token0Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, token0.address)
-      const token1Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, token1.address)
-
-      const [ token0Allowance, token1Allowance ] = await Promise.all([
-        token0Contract.methods.allowance(account.address, CONTRACTS.ROUTER_ADDRESS).call(),
-        token1Contract.methods.allowance(account.address, CONTRACTS.ROUTER_ADDRESS).call()
-      ]);
-
-      const returnVal = {
-        allowance0: BigNumber(token0Allowance).div(10**token0.decimals).toFixed(token0.decimals),
-        allowance1: BigNumber(token1Allowance).div(10**token1.decimals).toFixed(token1.decimals)
-      }
-
-      this.emitter.emit(ACTIONS.GET_ADD_LIQUIDITY_ALLOWANCE_RETURNED, returnVal)
 
     } catch(ex) {
       console.error(ex)
