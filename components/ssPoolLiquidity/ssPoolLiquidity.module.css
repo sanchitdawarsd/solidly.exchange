@@ -200,9 +200,13 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  background: #06d3d7 !important;
   border-radius: 9px 9px 0 0;
-  color: rgba(0, 0, 0, 0.87) !important;
+  background: rgb(23, 52, 72) !important;
+  color: rgb(6, 211, 215) !important;
+}
+
+.toggleButtons:hover {
+  background: rgb(19, 44, 60) !important;
 }
 
 .button {
@@ -212,7 +216,7 @@
   transition: none !important;
   opacity: 1;
   background: none !important;
-  color: rgba(0, 0, 0, 0.87) !important;
+  color: rgb(6, 211, 215) !important;
 }
 
 /* .buttonActive {
@@ -240,13 +244,14 @@
 }
 
 .buttonOverride {
-  background: #06d3d7 !important;
-  color: rgba(0, 0, 0, 0.87) !important;
-  color: rgba(0, 0, 0, 0.87) !important;
+  background: rgb(23, 52, 72) !important;
+  color: rgb(6, 211, 215) !important;
   font-weight: 700 !important;
-  box-shadow: none !important;
 }
 
+.buttonOverride:hover {
+  background: rgb(19, 44, 60) !important;
+}
 
 
 

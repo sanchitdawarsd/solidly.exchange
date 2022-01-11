@@ -8,6 +8,7 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 
 import stableSwapAssets from './configurations/stableSwapAssets'
+import stableSwapRouteAssets from './configurations/stableSwapRouteAssets'
 
 import * as moment from "moment"
 
@@ -42,6 +43,8 @@ class Store {
           case ACTIONS.SEARCH_ASSET:
             this.searchBaseAsset(payload)
             break
+
+          // LIQUIDITY
           case ACTIONS.CREATE_PAIR:
             this.createPair(payload)
             break
@@ -56,6 +59,17 @@ class Store {
             break
           case ACTIONS.GET_LIQUIDITY_BALANCES:
             this.getLiquidityBalances(payload)
+            break
+
+          // LIQUIDITY
+          case ACTIONS.QUOTE_SWAP:
+            this.quoteSwap(payload)
+            break
+          case ACTIONS.SWAP:
+            this.swap(payload)
+            break
+
+
           default: {
           }
         }
@@ -73,6 +87,8 @@ class Store {
     return this.emitter.emit(ACTIONS.STORE_UPDATED)
   }
 
+
+  // COMMON GETTER FUNCTIONS Assets, BaseAssets, Pairs etc
   getAsset = (address) => {
     const assets = this.store.assets
     if (!assets || assets.length === 0) {
@@ -227,9 +243,68 @@ class Store {
     return null
   }
 
+  getBaseAsset = async (address) => {
+    try {
+      let localBaseAssets = [];
+      const localBaseAssetsString = localStorage.getItem('stableSwap-assets')
+
+      if(localBaseAssetsString && localBaseAssetsString !== '') {
+        localBaseAssets = JSON.parse(localBaseAssetsString)
+      }
+
+      const theBaseAsset = localBaseAssets.filter((as) => {
+        return as.address.toLowerCase() === address.toLowerCase()
+      })
+      if(theBaseAsset.length > 0) {
+        return theBaseAsset[0]
+      }
+
+      // not found, so we search the blockchain for it.
+      const web3 = await stores.accountStore.getWeb3Provider()
+      if (!web3) {
+        console.warn('web3 not found')
+        return null
+      }
+
+      const baseAssetContract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, address)
+
+      const [ symbol, decimals, name ] = await Promise.all([
+        baseAssetContract.methods.symbol().call(),
+        baseAssetContract.methods.decimals().call(),
+        baseAssetContract.methods.name().call(),
+      ]);
+
+      const newBaseAsset = {
+        address: address,
+        symbol: symbol,
+        name: name,
+        decimals: parseInt(decimals)
+      }
+
+      localBaseAssets = [...localBaseAssets, newBaseAsset]
+      localStorage.setItem('stableSwap-assets', JSON.stringify(localBaseAssets))
+
+      const baseAssets = this.getStore('baseAssets')
+      const storeBaseAssets = [...baseAssets, ...localBaseAssets]
+
+      this.setStore({ baseAssets: storeBaseAssets })
+
+      return newBaseAsset
+    } catch(ex) {
+      console.log(ex)
+      this.emitter.emit(ACTIONS.ERROR, ex)
+    }
+  }
+
+
+
+
+
+  // DISPATCHER FUNCTIONS
   configure = async (payload) => {
     try {
       this.setStore({ baseAssets: this._getBaseAssets() })
+      this.setStore({ routeAssets: this._getRouteAssets() })
       this.setStore({ govToken: this._getGovTokenBase() })
       this.setStore({ veToken: this._getVeTokenBase() })
 
@@ -261,6 +336,16 @@ class Store {
     } catch(ex) {
       console.log(ex)
       return stableSwapAssets
+    }
+  }
+
+  _getRouteAssets = () => {
+    try {
+      const routeAssets = stableSwapRouteAssets;
+      return routeAssets
+    } catch(ex) {
+      console.log(ex)
+      return stableSwapRouteAssets
     }
   }
 
@@ -503,68 +588,6 @@ class Store {
       this.emitter.emit(ACTIONS.UPDATED)
     } catch (ex) {
       console.log(ex)
-    }
-  }
-
-  _getApprovalAmount = async (web3, asset, owner, spender) => {
-    const erc20Contract = new web3.eth.Contract(abis.erc20ABI, asset.address)
-    const allowance = await erc20Contract.methods.allowance(owner, spender).call()
-
-    return BigNumber(allowance)
-      .div(10 ** asset.decimals)
-      .toFixed(asset.decimals)
-  }
-
-  getBaseAsset = async (address) => {
-    try {
-      let localBaseAssets = [];
-      const localBaseAssetsString = localStorage.getItem('stableSwap-assets')
-
-      if(localBaseAssetsString && localBaseAssetsString !== '') {
-        localBaseAssets = JSON.parse(localBaseAssetsString)
-      }
-
-      const theBaseAsset = localBaseAssets.filter((as) => {
-        return as.address.toLowerCase() === address.toLowerCase()
-      })
-      if(theBaseAsset.length > 0) {
-        return theBaseAsset[0]
-      }
-
-      // not found, so we search the blockchain for it.
-      const web3 = await stores.accountStore.getWeb3Provider()
-      if (!web3) {
-        console.warn('web3 not found')
-        return null
-      }
-
-      const baseAssetContract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, address)
-
-      const [ symbol, decimals, name ] = await Promise.all([
-        baseAssetContract.methods.symbol().call(),
-        baseAssetContract.methods.decimals().call(),
-        baseAssetContract.methods.name().call(),
-      ]);
-
-      const newBaseAsset = {
-        address: address,
-        symbol: symbol,
-        name: name,
-        decimals: parseInt(decimals)
-      }
-
-      localBaseAssets = [...localBaseAssets, newBaseAsset]
-      localStorage.setItem('stableSwap-assets', JSON.stringify(localBaseAssets))
-
-      const baseAssets = this.getStore('baseAssets')
-      const storeBaseAssets = [...baseAssets, ...localBaseAssets]
-
-      this.setStore({ baseAssets: storeBaseAssets })
-
-      return newBaseAsset
-    } catch(ex) {
-      console.log(ex)
-      this.emitter.emit(ACTIONS.ERROR, ex)
     }
   }
 
@@ -1092,6 +1115,200 @@ class Store {
     } catch(ex) {
       console.error(ex)
       this.emitter.emit(ACTIONS.ERROR, ex)
+    }
+  }
+
+
+  quoteSwap = async (payload) => {
+    try {
+      const web3 = await stores.accountStore.getWeb3Provider()
+      if (!web3) {
+        console.warn('web3 not found')
+        return null
+      }
+
+      // some path logic. Have a base asset (FTM) swap from start asset to FTM, swap from FTM back to out asset. Don't know.
+      const routeAssets = this.getStore('routeAssets')
+      const { fromAsset, toAsset, fromAmount } = payload.content
+
+      const routerContract = new web3.eth.Contract(CONTRACTS.ROUTER_ABI, CONTRACTS.ROUTER_ADDRESS)
+      const sendFromAmount = BigNumber(fromAmount).times(10**fromAsset.decimals).toFixed()
+
+      if (!fromAsset || !toAsset || !fromAmount || !fromAsset.address || !toAsset.address || fromAmount === '') {
+        return null
+      }
+
+
+      let amountOuts = await Promise.all(routeAssets.map(async (routeAsset) => {
+        try {
+          const routes = [{
+            from: fromAsset.address,
+            to: routeAsset.address,
+            stable: true
+          },{
+            from: routeAsset.address,
+            to: toAsset.address,
+            stable: true
+          }]
+          const receiveAmounts = await routerContract.methods.getAmountsOut(sendFromAmount, routes).call()
+          const returnVal = {
+            routes: routes,
+            routeAsset: routeAsset,
+            receiveAmounts: receiveAmounts
+          }
+          return returnVal
+        } catch(ex) {
+          //asuming there will be exceptions thrown when no route exists
+          console.error(ex)
+          return null
+        }
+      }))
+
+
+      try {
+        // also do a direct swap check.
+        const routes = [{
+          from: fromAsset.address,
+          to: toAsset.address,
+          stable: true
+        }]
+        const receiveAmounts = await routerContract.methods.getAmountsOut(sendFromAmount, routes).call()
+        const returnVal = {
+          routes: routes,
+          routeAsset: {},
+          receiveAmounts: receiveAmounts
+        }
+
+        amountOuts.push(returnVal)
+      } catch(ex) {
+        //asuming there will be exceptions thrown when no route exists
+        console.error(ex)
+        return null
+      }
+
+      const bestAmountOut = amountOuts.filter((ret) => {
+        return ret != null
+      }).reduce((best, current) => {
+        if(!best) {
+          return current
+        }
+        return (BigNumber(best.receiveAmounts[best.receiveAmounts.length-1]).gt(current.receiveAmounts[best.receiveAmounts.length-1])) ? best : current
+      }, null)
+
+      if(!bestAmountOut) {
+        this.emitter.emit(ACTIONS.ERROR, 'No valid route found to complete swap')
+        return
+      }
+
+      this.emitter.emit(ACTIONS.QUOTE_SWAP_RETURNED, bestAmountOut)
+
+    } catch(ex) {
+      console.error(ex)
+      this.emitter.emit(ACTIONS.ERROR, ex)
+    }
+  }
+
+  swap = async (payload) => {
+    try {
+      const account = stores.accountStore.getStore("account")
+      if (!account) {
+        console.warn('account not found')
+        return null
+      }
+
+      const web3 = await stores.accountStore.getWeb3Provider()
+      if (!web3) {
+        console.warn('web3 not found')
+        return null
+      }
+
+      const { fromAsset, toAsset, fromAmount, quote } = payload.content
+
+      // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
+      let allowanceTXID = this.getTXUUID()
+      let swapTXID = this.getTXUUID()
+
+
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `SWAP ${fromAsset.symbol} FOR ${toAsset.symbol}`, transactions: [
+        {
+          uuid: allowanceTXID,
+          description: `CHECKING YOUR ${fromAsset.symbol} ALLOWANCES`,
+          status: 'WAITING'
+        },
+        {
+          uuid: swapTXID,
+          description: `SWAP ${fromAsset.symbol} FOR ${toAsset.symbol}`,
+          status: 'WAITING'
+        }
+      ]})
+
+
+      // CHECK ALLOWANCES AND SET TX DISPLAY
+      const allowance = await this._getSwapAllowance(web3, fromAsset, account)
+
+      if(BigNumber(allowance).lt(fromAmount)) {
+        this.emitter.emit(ACTIONS.TX_STATUS, {
+          uuid: allowanceTXID,
+          description: `ALLOW ROUTER TO SPEND YOUR ${fromAsset.symbol}`
+        })
+      } else {
+        this.emitter.emit(ACTIONS.TX_STATUS, {
+          uuid: allowanceTXID,
+          description: `ALLOWANCE ON ${fromAsset.symbol} SET`,
+          status: 'DONE'
+        })
+      }
+
+      const gasPrice = await stores.accountStore.getGasPrice()
+
+
+      // SUBMIT REQUIRED ALLOWANCE TRANSACTIONS
+      if(BigNumber(allowance).lt(fromAmount)) {
+        const tokenContract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, token0.address)
+
+        const tokenPromise = new Promise((resolve, reject) => {
+          context._callContractWait(web3, tokenContract, 'approve', [CONTRACTS.ROUTER_ADDRESS, MAX_UINT256], account, gasPrice, null, null, allowanceTXID, (err) => {
+            if (err) {
+              reject(err)
+              return
+            }
+
+            resolve()
+          })
+        })
+
+        const done = await tokenPromise()
+      }
+
+      // SUBMIT SWAP TRANSACTION
+      const sendFromAmount = BigNumber(fromAmount).times(10**fromAsset.decimals).toFixed(0)
+      const sendMinAmountOut = BigNumber(quote.receiveAmounts[quote.receiveAmounts.length-1]).times(0.97).toFixed(0)
+      const deadline = ''+moment().add(600, 'seconds').unix()
+
+      const routerContract = new web3.eth.Contract(CONTRACTS.ROUTER_ABI, CONTRACTS.ROUTER_ADDRESS)
+
+      this._callContractWait(web3, routerContract, 'swapExactTokensForTokens', [sendFromAmount, sendMinAmountOut, quote.routes, account.address, deadline], account, gasPrice, null, null, swapTXID, (err) => {
+        if (err) {
+          return this.emitter.emit(ACTIONS.ERROR, err);
+        }
+
+        this.emitter.emit(ACTIONS.SWAP_RETURNED)
+      })
+
+    } catch(ex) {
+      console.error(ex)
+      this.emitter.emit(ACTIONS.ERROR, ex)
+    }
+  }
+
+  _getSwapAllowance = async (web3, token, account) => {
+    try {
+      const tokenContract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, token.address)
+      const allowance = await tokenContract.methods.allowance(account.address, CONTRACTS.ROUTER_ADDRESS).call()
+      return BigNumber(allowance).div(10**token.decimals).toFixed(token.decimals)
+    } catch (ex) {
+      console.error(ex)
+      return null
     }
   }
 

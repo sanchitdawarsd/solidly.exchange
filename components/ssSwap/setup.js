@@ -26,7 +26,7 @@ import {
 } from '../../stores/constants'
 import BigNumber from 'bignumber.js'
 
-function Setup({ theme }) {
+function Setup() {
 
   const [, updateState] = React.useState();
   const forceUpdate = React.useCallback(() => updateState({}), []);
@@ -53,7 +53,7 @@ function Setup({ theme }) {
     }
 
     const quoteReturned = (val) => {
-      if(val.fromAmount === fromAmountValue && val.toAsset.address === toAssetValue.address) {
+      if(val && val.fromAmount === fromAmountValue && val.toAsset.address === toAssetValue.address) {
         setToAmountValue(val.toAmount)
       }
     }
@@ -76,40 +76,34 @@ function Setup({ theme }) {
       forceUpdate()
     }
 
-    const approveReturned = (event) => {
-      setApprovalLoading(false)
-    }
-
     const swapReturned = (event) => {
       setLoading(false)
       setFromAmountValue('')
-      calculateReceiveAmount(0, toAssetValue)
+      calculateReceiveAmount(0, fromAssetValue, toAssetValue)
     }
 
     stores.emitter.on(ACTIONS.ERROR, errorReturned)
     stores.emitter.on(ACTIONS.UPDATED, ssUpdated)
-    stores.emitter.on(ACTIONS.FIXED_FOREX_SWAP_APPROVED, approveReturned)
-    stores.emitter.on(ACTIONS.FIXED_FOREX_SWAP_RETURNED, swapReturned)
-    stores.emitter.on(ACTIONS.FIXED_FOREX_QUOTE_SWAP_RETURNED, quoteReturned)
+    stores.emitter.on(ACTIONS.SWAP_RETURNED, swapReturned)
+    stores.emitter.on(ACTIONS.QUOTE_SWAP_RETURNED, quoteReturned)
 
     ssUpdated()
 
     return () => {
       stores.emitter.removeListener(ACTIONS.ERROR, errorReturned)
       stores.emitter.removeListener(ACTIONS.UPDATED, ssUpdated)
-      stores.emitter.removeListener(ACTIONS.FIXED_FOREX_SWAP_APPROVED, approveReturned)
-      stores.emitter.removeListener(ACTIONS.FIXED_FOREX_SWAP_RETURNED, swapReturned)
-      stores.emitter.removeListener(ACTIONS.FIXED_FOREX_QUOTE_SWAP_RETURNED, quoteReturned)
+      stores.emitter.removeListener(ACTIONS.SWAP_RETURNED, swapReturned)
+      stores.emitter.removeListener(ACTIONS.QUOTE_SWAP_RETURNED, quoteReturned)
     }
   },[fromAmountValue, toAssetValue]);
 
   const onAssetSelect = (type, value) => {
     if(type === 'From') {
       setFromAssetValue(value)
-      calculateReceiveAmount(fromAmountValue, toAssetValue)
+      calculateReceiveAmount(fromAmountValue, value, toAssetValue)
     } else {
       setToAssetValue(value)
-      calculateReceiveAmount(fromAmountValue, value)
+      calculateReceiveAmount(fromAmountValue, fromAssetValue, value)
     }
 
     forceUpdate()
@@ -117,17 +111,18 @@ function Setup({ theme }) {
 
   const fromAmountChanged = (event) => {
     setFromAmountValue(event.target.value)
-    calculateReceiveAmount(event.target.value, toAssetValue)
+    calculateReceiveAmount(event.target.value, fromAssetValue, toAssetValue)
   }
 
   const toAmountChanged = (event) => {
   }
 
-  const calculateReceiveAmount = (amount, to) => {
+  const calculateReceiveAmount = (amount, from, to) => {
     if(!isNaN(amount) && to != null) {
-      stores.dispatcher.dispatch({ type: ACTIONS.FIXED_FOREX_QUOTE_SWAP, content: {
-        amount: amount,
+      stores.dispatcher.dispatch({ type: ACTIONS.QUOTE_SWAP, content: {
+        fromAsset: from,
         toAsset: to,
+        fromAmount: amount,
       } })
     }
   }
@@ -169,17 +164,17 @@ function Setup({ theme }) {
       setLoading(true)
 
       stores.dispatcher.dispatch({ type: ACTIONS.SWAP, content: {
-        fromAmount: fromAmountValue,
         fromAsset: fromAssetValue,
-        toAmount: toAmountValue,
         toAsset: toAssetValue,
+        fromAmount: fromAmountValue,
+        toAmount: toAmountValue,
       } })
     }
   }
 
   const setBalance100 = () => {
     setFromAmountValue(fromAssetValue.balance)
-    calculateReceiveAmount(fromAssetValue.balance, toAssetValue)
+    calculateReceiveAmount(fromAssetValue.balance, fromAssetValue, toAssetValue)
   }
 
   const renderSwapInformation = () => {
@@ -205,7 +200,6 @@ function Setup({ theme }) {
   }
 
   const renderMassiveInput = (type, amountValue, amountError, amountChanged, assetValue, assetError, assetOptions, onAssetSelect) => {
-    const isDark = theme?.palette?.type === 'dark'
 
     return (
       <div className={ classes.textField}>
@@ -224,7 +218,7 @@ function Setup({ theme }) {
             </Typography>
           </div>
         </div>
-        <div className={ `${classes.massiveInputContainer} ${ !isDark && classes.whiteBackground } ${ (amountError || assetError) && classes.error }` }>
+        <div className={ `${classes.massiveInputContainer} ${ (amountError || assetError) && classes.error }` }>
           <div className={ classes.massiveInputAssetSelect }>
             <AssetSelect type={type} value={ assetValue } assetOptions={ assetOptions } onSelect={ onAssetSelect } />
           </div>
@@ -259,7 +253,6 @@ function Setup({ theme }) {
       { renderSwapInformation() }
       <div className={ classes.actionsContainer }>
         <Button
-          className={ classes.actionButton }
           variant='contained'
           size='large'
           color='primary'

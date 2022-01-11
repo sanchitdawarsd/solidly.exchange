@@ -507,6 +507,16 @@
   font-size: 14px !important;
 }
 
+.buttonOverride {
+  background: rgb(23, 52, 72) !important;
+  color: rgb(6, 211, 215) !important;
+  font-weight: 700 !important;
+}
+
+.buttonOverride:hover {
+  background: rgb(19, 44, 60) !important;
+}
+
 @media screen and (max-width: 1200px) {
   .swapContainer {
     padding: 12px;
