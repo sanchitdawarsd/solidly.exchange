@@ -72,8 +72,10 @@ function Navigation(props) {
   }
 
   const onActiveClick = (event, val) => {
-    setActive(val)
-    handleNavigate('/' + val);
+    if(val) {
+      setActive(val)
+      handleNavigate('/' + val);
+    }
   }
 
   useEffect(() => {
