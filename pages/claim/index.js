@@ -2,7 +2,6 @@ import Head from 'next/head';
 import { Typography, Button, Paper, SvgIcon } from "@material-ui/core";
 import Layout from '../../components/layout/layout.js';
 import ClaimAll from '../../components/ssClaimAll';
-import Overview from '../../components/ssOverview';
 
 import classes from './claim.module.css';
 
