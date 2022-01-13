@@ -1,4 +1,4 @@
-import Swap from "./swp";
+import Swap from "./swap";
 
 import { useRouter } from "next/router";
 
