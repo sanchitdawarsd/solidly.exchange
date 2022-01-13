@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import Skeleton from '@material-ui/lab/Skeleton';
-import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, Typography, Tooltip } from '@material-ui/core';
+import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, Typography, Tooltip, Toolbar, IconButton, TextField, InputAdornment } from '@material-ui/core';
 import { useRouter } from "next/router";
 import BigNumber from 'bignumber.js';
+import FilterListIcon from '@material-ui/icons/FilterList';
+import SearchIcon from '@material-ui/icons/Search';
 
 import { formatCurrency } from '../../utils';
 
@@ -222,8 +224,74 @@ const useStyles = makeStyles((theme) => ({
     position: 'relative',
     width: '70px',
     height: '35px'
+  },
+  searchContainer: {
+    flex: 1,
+    minWidth: '300px',
+    marginLeft: '30px',
+    marginRight: '40px'
+  },
+  buttonOverride: {
+    color: 'rgb(6, 211, 215)',
+    background: 'rgb(23, 52, 72)',
+    fontWeight: '700',
+    '&:hover': {
+      background: 'rgb(19, 44, 60)'
+    },
+  },
+  toolbar: {
+    paddingTop: '24px'
   }
 }));
+
+const EnhancedTableToolbar = (props) => {
+  const classes = useStyles()
+  const router = useRouter()
+
+  const [search, setSearch] = useState('');
+
+  const onSearchChanged = (event) => {
+    setSearch(event.target.value);
+  };
+
+  const onCreate = () => {
+    router.push('/liquidity/create')
+  }
+
+  return (
+    <Toolbar className={ classes.toolbar }>
+      <Button
+        variant='contained'
+        size='large'
+        className={ classes.buttonOverride }
+        color='primary'
+        onClick={ onCreate }
+        >
+        <Typography className={ classes.actionButtonText }>Create Pair</Typography>
+      </Button>
+      <TextField
+        className={classes.searchContainer}
+        variant="outlined"
+        fullWidth
+        placeholder="ETH, CRV, ..."
+        value={search}
+        onChange={onSearchChanged}
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <SearchIcon />
+            </InputAdornment>
+          ),
+        }}
+      />
+      <Tooltip title="Filter list">
+        <IconButton aria-label="filter list">
+          <FilterListIcon />
+        </IconButton>
+      </Tooltip>
+    </Toolbar>
+  );
+};
 
 export default function EnhancedTable({ pairs }) {
   const classes = useStyles();
@@ -257,6 +325,7 @@ export default function EnhancedTable({ pairs }) {
 
   return (
     <div className={classes.root}>
+      <EnhancedTableToolbar />
       <TableContainer>
         <Table className={classes.table} aria-labelledby='tableTitle' size={'medium'} aria-label='enhanced table'>
           <EnhancedTableHead classes={classes} order={order} orderBy={orderBy} onRequestSort={handleRequestSort} />
@@ -340,7 +409,7 @@ export default function EnhancedTable({ pairs }) {
                         onView(row);
                       }}
                     >
-                      View
+                      Manage
                     </Button>
                   </TableCell>
                 </TableRow>

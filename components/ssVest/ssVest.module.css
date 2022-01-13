@@ -2,6 +2,13 @@
   width: calc(100% - 180px);
   max-width: 485px;
   margin: 0 auto;
+  position: relative;
+}
+
+.backButton {
+  top: 24px;
+  left: 0px;
+  position: absolute !important;
 }
 
 .container {
@@ -20,6 +27,9 @@
   right: 0;
   margin: auto;
   padding: 24px;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-gap: 36px;
 }
 
 .contentBox {
@@ -41,15 +51,7 @@
 }
 
 .textField {
-  margin-bottom: 4px;
   position: relative;
-}
-
-.vestPeriodToggle {
-  background: none;
-  font-size: 12px !important;
-  transform: scale(0.84);
-  opacity: 0.6;
 }
 
 .balances {
@@ -163,6 +165,16 @@
   margin-bottom: 10px !important;
 }
 
+.buttonOverride {
+  background: rgb(23, 52, 72) !important;
+  color: rgb(6, 211, 215) !important;
+  font-weight: 700 !important;
+}
+
+.buttonOverride:hover {
+  background: rgb(19, 44, 60) !important;
+}
+
 .toggleButtons {
   display: flex;
   flex-direction: column;
@@ -233,22 +245,29 @@
 .inline {
   display: flex;
   align-items: center;
-  margin-top: 10px;
 }
 
 .expiresIn {
   background: none;
-
-  -webkit-transform: scale(0.84);
-  transform: scale(0.84);
   opacity: 0.6;
+  width: 80px;
+  font-size: 12px !important;
+}
+
+.vestPeriodToggle {
+  background: none;
+  opacity: 0.6;
+  flex: 1;
+}
+
+.vestPeriodLabel > span {
+  font-size: 12px !important;
 }
 
 
 
 
 .vestingInfoContainer {
-  margin-top: 12px;
   padding: 12px;
   display: flex;
   flex-wrap: wrap;
@@ -342,6 +361,15 @@
   padding: 10px;
 }
 
+.displayAssetIconWhite {
+  border: 1px solid rgba(128, 128, 128, 0.5);
+  border-radius: 50px;
+  background: rgb(33, 43, 72);
+  width: 100px;
+  height: 100px;
+  padding: 10px;
+}
+
 .inputTitleContainer {
   width: 100%;
   display: flex;
@@ -378,6 +406,22 @@
 
 .largeInput {
   font-size: 46px !important;
+  z-index: 99;
+}
+
+.someContainer {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-gap: 12px;
+}
+
+.titleSection {
+  display: flex;
+  align-items: center;
+}
+
+.titleText {
+  font-size: 24px !important;
 }
 
 

@@ -9,6 +9,7 @@ import moment from "moment";
 import ExistingLock from "./existingLock";
 import Unlock from "./unlock";
 import Loading from "./loading";
+import Lock from './lock';
 
 export default function ssVest() {
 
@@ -27,6 +28,7 @@ export default function ssVest() {
 
     const nft = await stores.stableSwapStore.getNFTByID(router.query.id)
     setNFT(nft)
+    forceUpdate()
   };
 
   useEffect(() => {
@@ -44,16 +46,22 @@ export default function ssVest() {
 
   return (
     <div className={ classes.vestContainer }>
-      {!govToken && !veToken && <Loading />}
-      {veToken && BigNumber(veToken.balance).gt(0) && (
+      { router.query.id === 'create' && (
+        <Lock
+          nft={nft}
+          govToken={govToken}
+          veToken={veToken}
+        />
+      )}
+      { router.query.id === 'create' && !nft && <Loading /> }
+      { router.query.id !== 'create' && nft && BigNumber(nft.lockEnds).gte(moment().unix()) && BigNumber(nft.lockEnds).gt(0) && (
         <ExistingLock
           nft={nft}
           govToken={govToken}
           veToken={veToken}
         />
       )}
-      {
-        veToken && veToken.vestingInfo && BigNumber(veToken.vestingInfo.lockEnds).lte(moment().unix()) && BigNumber(veToken.vestingInfo.lockEnds).gt(0) && (
+      { router.query.id !== 'create' && nft && BigNumber(nft.lockEnds).lt(moment().unix()) && BigNumber(nft.lockEnds).gt(0) && (
           <Unlock />
         )
       }

@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Paper } from '@material-ui/core';
 
-import classes from './ssPairs.module.css';
+import classes from './ssLiquidityPairs.module.css';
 
-import ParisTable from './ssPairsTable.js'
+import ParisTable from './ssLiquidityPairsTable.js'
 
 import stores from '../../stores'
 import { ACTIONS } from '../../stores/constants';
 
-export default function ssPairs() {
+export default function ssLiquidityPairs() {
 
   const [, updateState] = useState();
   const forceUpdate = useCallback(() => updateState({}), []);

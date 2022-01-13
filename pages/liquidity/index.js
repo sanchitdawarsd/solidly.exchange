@@ -1,7 +1,7 @@
-import Head from 'next/head';
-import { Typography, Button, Paper, SvgIcon } from "@material-ui/core";
-import Layout from '../../components/layout/layout.js';
-import Pairs from '../../components/ssPairs';
+import Head from 'next/head'
+import { Typography, Button, Paper, SvgIcon } from "@material-ui/core"
+import Layout from '../../components/layout/layout.js'
+import LiquidityPairs from '../../components/ssLiquidityPairs'
 
 import React, { useState, useEffect } from 'react';
 import { ACTIONS } from '../../stores/constants';
@@ -62,7 +62,7 @@ function Liquidity({ changeTheme }) {
       <div className={classes.ffContainer}>
         {account && account.address ?
           <div className={classes.connected}>
-            <Pairs />
+            <LiquidityPairs />
           </div>
            :
            <Paper className={classes.notConnectedContent}>

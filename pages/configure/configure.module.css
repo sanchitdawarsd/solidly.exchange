@@ -47,12 +47,17 @@
   animation-delay: .5s;
 }
 
-.yearnLogo {
+.logo {
   width: 160px !important;
   height: 42.3px !important;
 }
 
-
+.someIcon {
+  transform: translate3d(0px, 0px, 0px);
+  content-visibility: visible;
+  display: block;
+  width: 300px;
+}
 
 @keyframes dotPulseDarkBefore {
   0% {

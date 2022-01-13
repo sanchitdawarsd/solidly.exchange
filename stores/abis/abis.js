@@ -6,6 +6,9 @@ import { routerABI } from './routerABI'
 import { gaugesABI } from './gaugesABI'
 import { gaugeABI } from './gaugeABI'
 import { bribeABI } from './bribeABI'
+import { tokenABI } from './tokenABI'
+import { veDistABI } from './veDistABI'
+import { minterABI } from './minterABI'
 
 export default {
   erc20ABI,
@@ -16,4 +19,7 @@ export default {
   gaugesABI,
   bribeABI,
   gaugeABI,
+  veDistABI,
+  tokenABI,
+  minterABI
 }

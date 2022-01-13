@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Paper, Typography, Button, CircularProgress } from '@material-ui/core';
+import { useRouter } from 'next/router';
+import { Paper, Typography, Button, CircularProgress, IconButton } from '@material-ui/core';
 import classes from "./ssVest.module.css";
 
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import VestingInfo from './vestingInfo'
 import stores from '../../stores'
 import {
   ACTIONS
 } from '../../stores/constants';
 
-export default function Unlock({ ibff, veIBFF }) {
+export default function Unlock({ nft, govToken, veToken }) {
+
+  const router = useRouter();
 
   const [ lockLoading, setLockLoading ] = useState(false)
 
@@ -32,8 +37,19 @@ export default function Unlock({ ibff, veIBFF }) {
     stores.dispatcher.dispatch({ type: ACTIONS.FIXED_FOREX_WITHDRAW_LOCK, content: {  } })
   }
 
+  const onBack = () => {
+    router.push('/vest')
+  }
+
   return (
     <Paper elevation={0} className={ classes.container2 }>
+      <div className={ classes.titleSection }>
+        <IconButton onClick={ onBack }>
+          <ArrowBackIcon />
+        </IconButton>
+        <Typography className={ classes.titleText }>Manage Exissting Lock</Typography>
+      </div>
+      <VestingInfo nft={nft} veToken={veToken} />
       <div className={ classes.reAddPadding }>
         <div className={ classes.inputsContainer2 }>
           <div className={classes.contentBox}>

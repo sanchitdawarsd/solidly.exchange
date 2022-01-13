@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Grid, Typography, Button, TextField, CircularProgress, RadioGroup, Radio, FormControlLabel, InputAdornment } from '@material-ui/core';
 import moment from 'moment';
 import classes from "./ssVest.module.css";
@@ -9,6 +9,7 @@ import {
 
 export default function ffLockDuration({ govToken, veToken }) {
 
+  const inputEl = useRef(null);
   const [ lockLoading, setLockLoading ] = useState(false)
 
   const [selectedDate, setSelectedDate] = useState(moment().add(8, 'days').format('YYYY-MM-DD'));
@@ -74,6 +75,9 @@ export default function ffLockDuration({ govToken, veToken }) {
     stores.dispatcher.dispatch({ type: ACTIONS.FIXED_FOREX_VEST_DURATION, content: { unlockTime: selectedDateUnix } })
   }
 
+  const focus = () => {
+    inputEl.current.focus();
+  }
 
   const renderMassiveInput = (type, amountValue, amountError, amountChanged, balance, logo) => {
     return (
@@ -83,32 +87,17 @@ export default function ffLockDuration({ govToken, veToken }) {
             <div className={ classes.displaySelectContainer }>
               <div className={ classes.assetSelectMenuItem }>
                 <div className={ classes.displayDualIconContainer }>
-                  {
-                    logo &&
-                    <img
-                      className={ classes.displayAssetIcon }
-                      alt=""
-                      src={ logo }
-                      height='100px'
-                      onError={(e)=>{e.target.onerror = null; e.target.src="/tokens/unknown-logo.png"}}
-                    />
-                  }
-                  {
-                    !logo &&
-                    <img
-                      className={ classes.displayAssetIcon }
-                      alt=""
-                      src={ '/tokens/unknown-logo.png' }
-                      height='100px'
-                      onError={(e)=>{e.target.onerror = null; e.target.src="/tokens/unknown-logo.png"}}
-                    />
-                  }
+                  <div className={ classes.displayAssetIconWhite } onClick={ focus }>
+
+                  </div>
                 </div>
               </div>
             </div>
           </div>
           <div className={ classes.massiveInputAmount }>
             <TextField
+              inputRef={inputEl}
+              id='someDate'
               type="date"
               placeholder='Expiry Date'
               fullWidth
@@ -119,7 +108,7 @@ export default function ffLockDuration({ govToken, veToken }) {
               disabled={ lockLoading }
               InputProps={{
                 className: classes.largeInput,
-                shrink: true
+                shrink: true,
               }}
             />
           </div>
@@ -129,24 +118,23 @@ export default function ffLockDuration({ govToken, veToken }) {
   }
 
   return (
-    <>
+    <div className={ classes.someContainer }>
       <div className={ classes.inputsContainer3 }>
         { renderMassiveInput('lockDuration', selectedDate, selectedDateError, handleDateChange, null, null) }
-        <div className={classes.textField}>
-          <div className={ classes.inline }>
-            <Typography className={ classes.expiresIn }>Expires in </Typography>
-            <RadioGroup className={classes.vestPeriodToggle} row aria-label="position" name="position" onChange={handleChange} value={selectedValue}>
-              <FormControlLabel value="week" control={<Radio color="primary" />} label="1 week" labelPlacement="left" />
-              <FormControlLabel value="month" control={<Radio color="primary" />} label="1 month" labelPlacement="left" />
-              <FormControlLabel value="year" control={<Radio color="primary" />} label="1 year" labelPlacement="left" />
-              <FormControlLabel value="years" control={<Radio color="primary" />} label="4 years" labelPlacement="left" />
-            </RadioGroup>
-          </div>
+        <div className={ classes.inline }>
+          <Typography className={ classes.expiresIn }>Expires: </Typography>
+          <RadioGroup className={classes.vestPeriodToggle} row onChange={handleChange} value={selectedValue}>
+            <FormControlLabel className={ classes.vestPeriodLabel } value="week" control={<Radio color="primary" />} label="1 week" labelPlacement="left" />
+            <FormControlLabel className={ classes.vestPeriodLabel } value="month" control={<Radio color="primary" />} label="1 month" labelPlacement="left" />
+            <FormControlLabel className={ classes.vestPeriodLabel } value="year" control={<Radio color="primary" />} label="1 year" labelPlacement="left" />
+            <FormControlLabel className={ classes.vestPeriodLabel } value="years" control={<Radio color="primary" />} label="4 years" labelPlacement="left" />
+          </RadioGroup>
         </div>
       </div>
       <div className={ classes.actionsContainer3 }>
         <Button
-          className={classes.actionBtn}
+          className={classes.buttonOverride}
+          fullWidth
           variant='contained'
           size='large'
           color='primary'
@@ -157,6 +145,6 @@ export default function ffLockDuration({ govToken, veToken }) {
           { lockLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
         </Button>
       </div>
-    </>
+    </div>
   );
 }

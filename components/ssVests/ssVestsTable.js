@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import Skeleton from '@material-ui/lab/Skeleton';
-import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, Typography, Tooltip } from '@material-ui/core';
+import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, Typography, Tooltip, Toolbar } from '@material-ui/core';
 import { useRouter } from "next/router";
 import BigNumber from 'bignumber.js';
 import moment from 'moment';
@@ -223,8 +223,48 @@ const useStyles = makeStyles((theme) => ({
     position: 'relative',
     width: '70px',
     height: '35px'
+  },
+  buttonOverride: {
+    color: 'rgb(6, 211, 215)',
+    background: 'rgb(23, 52, 72)',
+    fontWeight: '700',
+    '&:hover': {
+      background: 'rgb(19, 44, 60)'
+    },
+  },
+  toolbar: {
+    paddingTop: '24px'
   }
 }));
+
+const EnhancedTableToolbar = (props) => {
+  const classes = useStyles()
+  const router = useRouter()
+
+  const [search, setSearch] = useState('');
+
+  const onSearchChanged = (event) => {
+    setSearch(event.target.value);
+  };
+
+  const onCreate = () => {
+    router.push('/vest/create')
+  }
+
+  return (
+    <Toolbar className={ classes.toolbar }>
+      <Button
+        variant='contained'
+        size='large'
+        className={ classes.buttonOverride }
+        color='primary'
+        onClick={ onCreate }
+        >
+        <Typography className={ classes.actionButtonText }>Create Lock</Typography>
+      </Button>
+    </Toolbar>
+  );
+};
 
 export default function EnhancedTable({ vestNFTs }) {
   const classes = useStyles();
@@ -258,6 +298,7 @@ export default function EnhancedTable({ vestNFTs }) {
 
   return (
     <div className={classes.root}>
+      <EnhancedTableToolbar />
       <TableContainer>
         <Table className={classes.table} aria-labelledby='tableTitle' size={'medium'} aria-label='enhanced table'>
           <EnhancedTableHead classes={classes} order={order} orderBy={orderBy} onRequestSort={handleRequestSort} />

@@ -13,6 +13,7 @@ import Configure from './configure';
 import stores from '../stores/index.js';
 
 import { ACTIONS } from '../stores/constants';
+import '../styles/global.css'
 
 export default function MyApp({ Component, pageProps }) {
   const router = useRouter();

@@ -109,13 +109,14 @@ export default function ffLockAmount({ govToken }) {
   }
 
   return (
-    <>
+    <div className={ classes.someContainer }>
       <div className={ classes.inputsContainer3 }>
         { renderMassiveInput('lockAmount', amount, amountError, amountChanged, govToken?.balance, null) }
       </div>
       <div className={ classes.actionsContainer3 }>
         <Button
-          className={classes.actionBtn}
+          className={classes.buttonOverride}
+          fullWidth
           variant='contained'
           size='large'
           color='primary'
@@ -126,6 +127,6 @@ export default function ffLockAmount({ govToken }) {
           { lockLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
         </Button>
       </div>
-    </>
+    </div>
   );
 }

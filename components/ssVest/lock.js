@@ -1,18 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { Paper, Typography, Button, TextField, InputAdornment, CircularProgress, RadioGroup, Radio, FormControlLabel, Tooltip } from '@material-ui/core';
+import React, { useState, useEffect, useRef } from 'react';
+import { Paper, Typography, Button, TextField, InputAdornment, CircularProgress, RadioGroup, Radio, FormControlLabel, Tooltip, IconButton } from '@material-ui/core';
+import { useRouter } from 'next/router';
 import BigNumber from 'bignumber.js';
 import moment from 'moment';
 import { formatCurrency } from '../../utils';
 import classes from "./ssVest.module.css";
-
 import stores from '../../stores'
 import {
   ACTIONS
 } from '../../stores/constants';
 
-export default function ssLock({ govToken }) {
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 
-  const [ approvalLoading, setApprovalLoading ] = useState(false)
+export default function ssLock({ govToken, veToken }) {
+
+  const inputEl = useRef(null);
+  const router = useRouter();
+
   const [ lockLoading, setLockLoading ] = useState(false)
 
   const [amount, setAmount] = useState('');
@@ -25,20 +29,14 @@ export default function ssLock({ govToken }) {
     const lockReturned = () => {
       setLockLoading(false)
     }
-    const approveReturned = () => {
-      setApprovalLoading(false)
-    }
     const errorReturned = () => {
-      setApprovalLoading(false)
       setLockLoading(false)
     }
 
     stores.emitter.on(ACTIONS.ERROR, errorReturned);
-    stores.emitter.on(ACTIONS.FIXED_FOREX_VEST_APPROVED, approveReturned);
     stores.emitter.on(ACTIONS.FIXED_FOREX_VESTED, lockReturned);
     return () => {
       stores.emitter.removeListener(ACTIONS.ERROR, errorReturned);
-      stores.emitter.removeListener(ACTIONS.FIXED_FOREX_VEST_APPROVED, approveReturned);
       stores.emitter.removeListener(ACTIONS.FIXED_FOREX_VESTED, lockReturned);
     };
   }, []);
@@ -76,29 +74,11 @@ export default function ssLock({ govToken }) {
     setSelectedDate(newDate);
   }
 
-  const onApprove = () => {
-    setApprovalLoading(true)
-    stores.dispatcher.dispatch({ type: ACTIONS.FIXED_FOREX_APPROVE_VEST, content: { amount } })
-  }
-
   const onLock = () => {
     setLockLoading(true)
 
     const selectedDateUnix = moment(selectedDate).unix()
     stores.dispatcher.dispatch({ type: ACTIONS.FIXED_FOREX_VEST, content: { amount, unlockTime: selectedDateUnix } })
-  }
-
-  const formatApproved = (am) => {
-    if(BigNumber(am).gte(1000000000000000)) {
-      return 'Approved Forever'
-    }
-
-    return `Approved ${formatCurrency(am)}`
-  }
-
-  let depositApprovalNotRequired = false
-  if(govToken) {
-    depositApprovalNotRequired = BigNumber(govToken.vestAllowance).gte(amount) || ((!amount || amount === '') && BigNumber(govToken.vestAllowance).gt(0) )
   }
 
   let min = 0
@@ -108,112 +88,155 @@ export default function ssLock({ govToken }) {
     min = moment().add(7, 'days').format('YYYY-MM-DD')
   }
 
+  const focus = () => {
+    inputEl.current.focus();
+  }
+
+  const onAmountChanged = (event) => {
+    setAmount(event.target.value)
+  }
+
+  const renderMassiveDateInput = (type, amountValue, amountError, amountChanged, balance, logo) => {
+    return (
+      <div className={ classes.textField}>
+        <div className={ `${classes.massiveInputContainer} ${ (amountError) && classes.error }` }>
+          <div className={ classes.massiveInputAssetSelect }>
+            <div className={ classes.displaySelectContainer }>
+              <div className={ classes.assetSelectMenuItem }>
+                <div className={ classes.displayDualIconContainer }>
+                  <div className={ classes.displayAssetIcon } onClick={ focus }>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className={ classes.massiveInputAmount }>
+            <TextField
+              inputRef={inputEl}
+              id='someDate'
+              type="date"
+              placeholder='Expiry Date'
+              fullWidth
+              error={ amountError }
+              helperText={ amountError }
+              value={ amountValue }
+              onChange={ amountChanged }
+              disabled={ lockLoading }
+              InputProps={{
+                className: classes.largeInput,
+                shrink: true,
+                min: min,
+                max: moment().add(1461, 'days').format('YYYY-MM-DD')
+              }}
+            />
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const renderMassiveInput = (type, amountValue, amountError, amountChanged, balance, logo) => {
+    return (
+      <div className={ classes.textField}>
+        <div className={ classes.inputTitleContainer }>
+          <div className={ classes.inputBalance }>
+            <Typography className={ classes.inputBalanceText } noWrap onClick={ () => {
+              setAmountPercent(type, 100)
+            }}>
+              Balance: { balance ? ' ' + formatCurrency(balance) : '' }
+            </Typography>
+          </div>
+        </div>
+        <div className={ `${classes.massiveInputContainer} ${ (amountError) && classes.error }` }>
+          <div className={ classes.massiveInputAssetSelect }>
+            <div className={ classes.displaySelectContainer }>
+              <div className={ classes.assetSelectMenuItem }>
+                <div className={ classes.displayDualIconContainer }>
+                  {
+                    logo &&
+                    <img
+                      className={ classes.displayAssetIcon }
+                      alt=""
+                      src={ logo }
+                      height='100px'
+                      onError={(e)=>{e.target.onerror = null; e.target.src="/tokens/unknown-logo.png"}}
+                    />
+                  }
+                  {
+                    !logo &&
+                    <img
+                      className={ classes.displayAssetIcon }
+                      alt=""
+                      src={ '/tokens/unknown-logo.png' }
+                      height='100px'
+                      onError={(e)=>{e.target.onerror = null; e.target.src="/tokens/unknown-logo.png"}}
+                    />
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className={ classes.massiveInputAmount }>
+            <TextField
+              placeholder='0.00'
+              fullWidth
+              error={ amountError }
+              helperText={ amountError }
+              value={ amountValue }
+              onChange={ amountChanged }
+              disabled={ lockLoading }
+              InputProps={{
+                className: classes.largeInput
+              }}
+            />
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const onBack = () => {
+    router.push('/vest')
+  }
+
   return (
     <>
-    <Typography variant="h5" className={classes.title2}>Vest KP3R to Earn Rewards</Typography>
-    <Paper elevation={0} className={ classes.container2 }>
-      <div className={ classes.inputsContainer }>
-        <div className={classes.textField}>
-          <div className={classes.inputTitleContainer}>
-            <div className={classes.inputTitle}>
-              <Typography variant="h5" className={ classes.inputTitleText }>
-                Vest Amount:
-              </Typography>
-            </div>
-            <div className={classes.balances}>
-              <Typography
-                variant="h5"
-                onClick={() => {
-                  setAmountPercent(100);
-                }}
-                className={classes.value}
-                noWrap
-              >
-                Balance: {formatCurrency(govToken ? govToken.balance : 0)}
-              </Typography>
-            </div>
-          </div>
-          <TextField
-            variant="outlined"
-            fullWidth
-            placeholder="0.00"
-            value={amount}
-            error={amountError}
-            onChange={(e) => {
-              setAmount(e.target.value);
-            }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <img src={ govToken && govToken.address ? `https://assets.coingecko.com/coins/images/12966/large/kp3r_logo.jpg` : '/tokens/unknown-logo.png'} alt="" width={30} height={30} />
-                </InputAdornment>
-              ),
-            }}
-          />
-          <Typography className={classes.helpText} variant="body2">How many kp3r tokens you will be locking up.</Typography>
+      <Paper elevation={0} className={ classes.container2 }>
+        <div className={ classes.titleSection }>
+          <IconButton onClick={ onBack }>
+            <ArrowBackIcon />
+          </IconButton>
+          <Typography className={ classes.titleText }>Create New Lock</Typography>
         </div>
-
-        <div className={classes.textField}>
-          <div className={classes.inputTitleContainer}>
-            <div className={classes.inputTitle}>
-              <Typography variant="h5" className={ classes.inputTitleText }>
-                Vest Expires:
-              </Typography>
-              <Tooltip title="How long you will be locking the tokens up for. Anywhere from 1 week to 4 years. The more tokens you lock and the longer you lock them for, the more rewards you will receive." placement="top">
-              <div className={classes.helpSmallIcon}>?</div>
-              </Tooltip>
-            </div>
+        { renderMassiveInput('amount', amount, amountError, onAmountChanged, govToken?.balance, govToken?.logo) }
+        <div>
+          { renderMassiveDateInput('date', selectedDate, selectedDateError, handleDateChange, govToken?.balance, govToken?.logo) }
+          <div className={ classes.inline }>
+            <Typography className={ classes.expiresIn }>Expires: </Typography>
+            <RadioGroup className={classes.vestPeriodToggle} row onChange={handleChange} value={selectedValue}>
+              <FormControlLabel className={ classes.vestPeriodLabel } value="week" control={<Radio color="primary" />} label="1 week" labelPlacement="left" />
+              <FormControlLabel className={ classes.vestPeriodLabel } value="month" control={<Radio color="primary" />} label="1 month" labelPlacement="left" />
+              <FormControlLabel className={ classes.vestPeriodLabel } value="year" control={<Radio color="primary" />} label="1 year" labelPlacement="left" />
+              <FormControlLabel className={ classes.vestPeriodLabel } value="years" control={<Radio color="primary" />} label="4 years" labelPlacement="left" />
+            </RadioGroup>
           </div>
-          <TextField
-            fullWidth
-            id="date"
-            type="date"
-            variant="outlined"
-            className={classes.textField}
-            onChange={handleDateChange}
-            value={selectedDate}
-            error={selectedDateError}
-            InputLabelProps={{
-              shrink: true,
-            }}
-            inputProps={{
-              min: min,
-              max: moment().add(1461, 'days').format('YYYY-MM-DD')
-            }}
-          />
-          <RadioGroup className={classes.vestPeriodToggle} row aria-label="position" name="position" onChange={handleChange} value={selectedValue}>
-            <FormControlLabel value="week" control={<Radio color="primary" />} label="1 week" labelPlacement="left" />
-            <FormControlLabel value="month" control={<Radio color="primary" />} label="1 month" labelPlacement="left" />
-            <FormControlLabel value="year" control={<Radio color="primary" />} label="1 year" labelPlacement="left" />
-            <FormControlLabel value="years" control={<Radio color="primary" />} label="4 years" labelPlacement="left" />
-          </RadioGroup>
         </div>
-      </div>
-      <div className={ classes.actionsContainer }>
-        <Button
-          className={classes.buttonStretch}
-          variant='contained'
-          size='large'
-          color='primary'
-          disabled={ depositApprovalNotRequired || approvalLoading }
-          onClick={ onApprove }
-          >
-          <Typography className={ classes.actionButtonText }>{ depositApprovalNotRequired ? formatApproved(govToken.vestAllowance) : (approvalLoading ? `Approving` : `Approve Transaction`)} </Typography>
-          { approvalLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
-        </Button>
-        <Button
-          className={classes.buttonStretch}
-          variant='contained'
-          size='large'
-          color='primary'
-          disabled={ lockLoading || !depositApprovalNotRequired }
-          onClick={ onLock }
-          >
-          <Typography className={ classes.actionButtonText }>{ lockLoading ? `Locking` : `Lock` }</Typography>
-          { lockLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
-        </Button>
-      </div>
-    </Paper><br /><br />
+        <div className={ classes.actionsContainer }>
+          <Button
+            className={classes.buttonOverride}
+            fullWidth
+            variant='contained'
+            size='large'
+            color='primary'
+            disabled={ lockLoading }
+            onClick={ onLock }
+            >
+            <Typography className={ classes.actionButtonText }>{ lockLoading ? `Locking` : `Lock` }</Typography>
+            { lockLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
+          </Button>
+        </div>
+      </Paper><br /><br />
     </>
   );
 }

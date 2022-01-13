@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { Paper, Grid, Typography, Button, TextField, InputAdornment, CircularProgress, Tooltip } from '@material-ui/core';
 import BigNumber from 'bignumber.js';
 import { formatCurrency } from '../../utils';
-import classes from './ssPoolLiquidity.module.css';
+import classes from './ssLiquidityManage.module.css';
 import AddIcon from '@material-ui/icons/Add';
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
 
@@ -12,13 +12,12 @@ import {
   ACTIONS
 } from '../../stores/constants';
 
-export default function SSPoolLiquidity() {
+export default function ssLiquidityManage() {
 
   const router = useRouter();
 
   const [pair, setPair] = useState(null);
 
-  const [ approvalLoading, setApprovalLoading ] = useState(false)
   const [ depositLoading, setDepositLoading ] = useState(false)
   const [ depositStakeLoading, setDepositStakeLoading ] = useState(false)
 
@@ -258,14 +257,6 @@ export default function SSPoolLiquidity() {
     )
   }
 
-  /*
-  endAdornment: (
-    <InputAdornment position="end">
-      <Typography>{symbol}</Typography>
-    </InputAdornment>
-  ),
-  */
-
   const renderMassiveInput = (type, amountValue, amountError, amountChanged, balance, logo) => {
     return (
       <div className={ classes.textField}>
@@ -378,13 +369,13 @@ export default function SSPoolLiquidity() {
             <div className={classes.toggleButtons}>
               <Grid container spacing={0}>
                 <Grid item lg={6} md={6} sm={6} xs={6}>
-                  <Paper className={ `${activeTab === 'deposit' ? classes.buttonActive : classes.button} ${ classes.topLeftButton }` } onClick={ toggleDeposit } disabled={ depositLoading || approvalLoading }>
+                  <Paper className={ `${activeTab === 'deposit' ? classes.buttonActive : classes.button} ${ classes.topLeftButton }` } onClick={ toggleDeposit } disabled={ depositLoading }>
                     <Typography variant='h5'>Deposit</Typography>
                     <div className={ `${activeTab === 'deposit' ? classes.activeIcon : ''}` }></div>
                   </Paper>
                 </Grid>
                 <Grid item lg={6} md={6} sm={6} xs={6}>
-                  <Paper className={ `${activeTab === 'withdraw' ? classes.buttonActive : classes.button}  ${ classes.bottomLeftButton }` } onClick={ toggleWithdraw } disabled={ depositLoading || approvalLoading }>
+                  <Paper className={ `${activeTab === 'withdraw' ? classes.buttonActive : classes.button}  ${ classes.bottomLeftButton }` } onClick={ toggleWithdraw } disabled={ depositLoading }>
                     <Typography variant='h5'>Withdraw</Typography>
                     <div className={ `${activeTab === 'withdraw' ? classes.activeIcon : ''}` }></div>
                   </Paper>
@@ -404,7 +395,7 @@ export default function SSPoolLiquidity() {
                         <AddIcon className={ classes.swapIcon } />
                       </div>
                     </div>
-                    { renderMassiveInput('amount1', amount1, amount1Error, amount1Changed, balances?.token1, pair?.token0?.logo) }
+                    { renderMassiveInput('amount1', amount1, amount1Error, amount1Changed, balances?.token1, pair?.token1?.logo) }
                     { renderDepositInformation() }
                   </>
                 }
@@ -428,7 +419,7 @@ export default function SSPoolLiquidity() {
               {
                 activeTab === 'deposit' &&
                 <div className={ classes.actionsContainer }>
-                  <Button
+                  {/*<Button
                     variant='contained'
                     size='large'
                     className={ ((amount0 === '' && amount1 === '') || depositLoading || depositStakeLoading) ? classes.multiApprovalButton : classes.buttonOverride }
@@ -438,7 +429,7 @@ export default function SSPoolLiquidity() {
                     >
                     <Typography className={ classes.actionButtonText }>{ depositLoading ? `Depositing` : `Deposit` }</Typography>
                     { depositLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
-                  </Button>
+                  </Button>*/}
                   <Button
                     variant='contained'
                     size='large'
