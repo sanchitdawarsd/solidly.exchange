@@ -53,6 +53,55 @@
   width: 216px;
 }
 
+.tokenIDContainer {
+  padding: 24px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.mediumInputContainer {
+  display: flex;
+  flex-wrap: wrap;
+  border-radius: 10px;
+  width: 100%;
+  align-items: center;
+  background: rgb(33, 43, 72);
+}
+
+.mediumInputAssetSelect {
+  width: 74px;
+  min-height: 50px;
+  height: 100%;
+}
+
+.mediumInputAmount {
+  flex: 1;
+  height: 100%;
+  width: 300px;
+}
+
+.mediumInputAddress {
+  min-width: 100%;
+  border-top: 1px solid rgba(128, 128, 128, 0.5);
+}
+
+.mediumInput {
+  font-size: 32px !important;
+}
+
+.menuOption {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: calc(100% - 24px);
+  padding: 18px 12px;
+}
+
+.smallerText {
+  font-size: 12px !important;
+}
+
 @media screen and (max-width: 1200px) {
   .container {
     width: calc(100% - 80px);

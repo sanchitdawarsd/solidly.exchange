@@ -79,7 +79,6 @@ class Store {
             this.swap(payload)
             break
 
-
           // VESTING
           case ACTIONS.GET_VEST_NFTS:
             this.getVestNFTs(payload)
@@ -95,6 +94,14 @@ class Store {
             break;
           case ACTIONS.WITHDRAW_VEST:
             this.withdrawVest(payload)
+            break;
+
+          //VOTE
+          case ACTIONS.VOTE:
+            this.vote(payload)
+            break;
+          case ACTIONS.GET_VEST_VOTES:
+            this.getVestVotes(payload)
             break;
           default: {
           }
@@ -540,8 +547,9 @@ class Store {
       const factoryContract = new web3.eth.Contract(CONTRACTS.FACTORY_ABI, CONTRACTS.FACTORY_ADDRESS)
       const gaugesContract = new web3.eth.Contract(CONTRACTS.GAUGES_ABI, CONTRACTS.GAUGES_ADDRESS)
 
-      const [ allPairsLength ] = await Promise.all([
-        factoryContract.methods.allPairsLength().call()
+      const [ allPairsLength, totalWeight ] = await Promise.all([
+        factoryContract.methods.allPairsLength().call(),
+        gaugesContract.methods.totalWeight().call()
       ])
 
       const arr = Array.from({length: parseInt(allPairsLength)}, (v, i) => i)
@@ -554,7 +562,7 @@ class Store {
 
           const pairContract = new web3.eth.Contract(CONTRACTS.PAIR_ABI, pairAddress)
 
-          const [ token0, token1, totalSupply, symbol, reserve0, reserve1, decimals, balanceOf, stable, gaugeAddress ] = await Promise.all([
+          const [ token0, token1, totalSupply, symbol, reserve0, reserve1, decimals, balanceOf, stable, gaugeAddress, gaugeWeight ] = await Promise.all([
             pairContract.methods.token0().call(),
             pairContract.methods.token1().call(),
             pairContract.methods.totalSupply().call(),
@@ -564,7 +572,8 @@ class Store {
             pairContract.methods.decimals().call(),
             pairContract.methods.balanceOf(account.address).call(),
             pairContract.methods.stable().call(),
-            gaugesContract.methods.gauges(pairAddress).call()
+            gaugesContract.methods.gauges(pairAddress).call(),
+            gaugesContract.methods.weights(pairAddress).call()
           ])
 
           const token0Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, token0)
@@ -643,7 +652,9 @@ class Store {
               decimals: 18,
               balance: BigNumber(gaugeBalance).div(10**18).toFixed(18),
               totalSupply: BigNumber(totalSupply).div(10**18).toFixed(18),
-              rewards: incentives
+              weight: BigNumber(gaugeWeight).div(19**18).toFixed(18),
+              weightPercent: BigNumber(gaugeWeight).times(100).div(totalWeight).toFixed(2),
+              rewards: incentives,
             }
           }
 
@@ -2086,6 +2097,118 @@ class Store {
         this.emitter.emit(ACTIONS.WITHDRAW_VEST_RETURNED)
       })
 
+    } catch(ex) {
+      console.error(ex)
+      this.emitter.emit(ACTIONS.ERROR, ex)
+    }
+  }
+
+  vote = async (payload) => {
+    try {
+      const account = stores.accountStore.getStore("account")
+      if (!account) {
+        console.warn('account not found')
+        return null
+      }
+
+      const web3 = await stores.accountStore.getWeb3Provider()
+      if (!web3) {
+        console.warn('web3 not found')
+        return null
+      }
+
+      const govToken = this.getStore('govToken')
+      const { tokenID, votes } = payload.content
+
+      // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
+      let voteTXID = this.getTXUUID()
+
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CAST VOTES USING #${tokenID}`, transactions: [
+        {
+          uuid: voteTXID,
+          description: `SUBMIT VOTE TRANSACTION`,
+          status: 'WAITING'
+        }
+      ]})
+
+      const gasPrice = await stores.accountStore.getGasPrice()
+
+      // SUBMIT INCREASE TRANSACTION
+      const veTokenContract = new web3.eth.Contract(CONTRACTS.GAUGES_ABI, CONTRACTS.GAUGES_ADDRESS)
+
+      let tokens = votes.map((v) => {
+        return v.address;
+      });
+
+      let voteCounts = votes.map((v) => {
+        return BigNumber(v.value).times(100).toFixed(0);
+      });
+
+      this._callContractWait(web3, veTokenContract, 'vote', [tokenID, tokens, voteCounts], account, gasPrice, null, null, voteTXID, (err) => {
+        if (err) {
+          return this.emitter.emit(ACTIONS.ERROR, err);
+        }
+
+        this.emitter.emit(ACTIONS.WITHDRAW_VEST_RETURNED)
+      })
+
+    } catch(ex) {
+      console.error(ex)
+      this.emitter.emit(ACTIONS.ERROR, ex)
+    }
+  }
+
+  getVestVotes = async (payload) => {
+    try {
+      const account = stores.accountStore.getStore("account")
+      if (!account) {
+        console.warn('account not found')
+        return null
+      }
+
+      const web3 = await stores.accountStore.getWeb3Provider()
+      if (!web3) {
+        console.warn('web3 not found')
+        return null
+      }
+
+      const { tokenID } = payload.content
+      const pairs = this.getStore('pairs')
+
+      if(!pairs) {
+        return null
+      }
+
+      if(!tokenID) {
+        return
+      }
+
+      const filteredPairs = pairs.filter((pair) => {
+        return pair && pair.gauge && pair.gauge.address
+      })
+
+      const gaugesContract = new web3.eth.Contract(CONTRACTS.GAUGES_ABI, CONTRACTS.GAUGES_ADDRESS)
+
+      const votesCalls = filteredPairs.map((pair) => {
+        return gaugesContract.methods.votes(tokenID, pair.address).call()
+      })
+
+      const voteCounts = await Promise.all(votesCalls);
+
+      let votes = []
+
+      const totalVotes = voteCounts.reduce((curr, acc) => {
+        return BigNumber(curr).plus(acc);
+      }, 0);
+
+      for(let i = 0; i < voteCounts.length; i++) {
+        votes.push({
+          address: filteredPairs[i].address,
+          votePercent: BigNumber(totalVotes).gt(0) ? BigNumber(voteCounts[i]).times(100).div(totalVotes).toFixed(0) : '0'
+        })
+      }
+
+      this.emitter.emit(ACTIONS.VEST_VOTES_RETURNED, votes)
     } catch(ex) {
       console.error(ex)
       this.emitter.emit(ACTIONS.ERROR, ex)

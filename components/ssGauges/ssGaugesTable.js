@@ -238,6 +238,7 @@ export default function EnhancedTable({ gauges, setParentSliderValues, defaultVo
   const [sliderValues, setSliderValues] = useState(defaultVotes)
 
   useEffect(() => {
+    console.log(defaultVotes)
     setSliderValues(defaultVotes)
   }, [defaultVotes]);
 
@@ -245,7 +246,7 @@ export default function EnhancedTable({ gauges, setParentSliderValues, defaultVo
     let newSliderValues = [...sliderValues]
 
     newSliderValues = newSliderValues.map((val) => {
-      if(asset?.gauge?.poolAddress === val.address) {
+      if(asset?.address === val.address) {
         val.value = value
       }
       return val
@@ -279,11 +280,11 @@ export default function EnhancedTable({ gauges, setParentSliderValues, defaultVo
         <Table className={classes.table} aria-labelledby="tableTitle" size={'medium'} aria-label="enhanced table">
           <EnhancedTableHead classes={classes} order={order} orderBy={orderBy} onRequestSort={handleRequestSort} />
           <TableBody>
-            {stableSort(gauges, getComparator(order, orderBy)).map((row) => {
+            {stableSort(gauges, getComparator(order, orderBy)).map((row, index) => {
               if (!row) {
                 return null;
               }
-              let sliderValue = sliderValues.find((el) => el.address === row?.gauge?.poolAddress)?.value
+              let sliderValue = sliderValues.find((el) => el.address === row?.address)?.value
               if(BigNumber(sliderValue).gt(0)) {
                 sliderValue = BigNumber(sliderValue).toNumber(0)
               } else {
@@ -294,20 +295,20 @@ export default function EnhancedTable({ gauges, setParentSliderValues, defaultVo
                 <TableRow key={row?.gauge?.address}>
                   <TableCell className={classes.cell}>
                     <div className={ classes.inline }>
-                      <img className={ classes.imgLogo } src={`https://raw.githubusercontent.com/yearn/yearn-assets/master/icons/multichain-tokens/1/${row.address}/logo-128.png`} width='35' height='35' alt='' />
+                      <img className={ classes.imgLogo } src={`https://raw.githubusercontent.com/yearn/yearn-assets/master/icons/multichain-tokens/1/${row.address}/logo-128.png`} width='35' height='35' alt='' onError={(e)=>{e.target.onerror = null; e.target.src="/tokens/unknown-logo.png"}} />
                       <div>
                         <Typography variant="h2" className={classes.textSpaced}>
-                          { row?.gauge?.coin0?.symbol } - { row?.gauge?.coin1?.symbol }
+                          { row?.symbol }
                         </Typography>
                         <Typography variant="h5" className={classes.textSpaced} color='textSecondary'>
-                          Pool
+                          Liquidity Pool
                         </Typography>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell className={classes.cell} align="right">
                     <Typography variant="h2" className={classes.textSpaced}>
-                      { formatCurrency(row?.gauge?.userGaugeBalance) } { row.symbol }
+                      { formatCurrency(row?.gauge?.balance) } { row.symbol }
                     </Typography>
                     <Typography variant="h5" className={classes.textSpaced} color='textSecondary'>
                       $ { formatCurrency(0.00) }
@@ -315,18 +316,18 @@ export default function EnhancedTable({ gauges, setParentSliderValues, defaultVo
                   </TableCell>
                   <TableCell className={classes.cell} align="right">
                     <Typography variant="h2" className={classes.textSpaced}>
-                      { formatCurrency(row?.gauge?.votes) } {veToken?.symbol}
+                      { formatCurrency(row?.gauge?.weight) } {veToken?.symbol}
                     </Typography>
                     <Typography variant="h5" className={classes.textSpaced} color='textSecondary'>
-                      { formatCurrency(row?.gauge?.votePercent) } %
+                      { formatCurrency(row?.gauge?.weightPercent) } %
                     </Typography>
                   </TableCell>
                   <TableCell className={classes.cell} align="right">
                     <Typography variant="h2" className={classes.textSpaced}>
-                      { formatCurrency(row?.gauge?.userVotes) } {veToken?.symbol}
+                      { formatCurrency(row?.gauge?.weight) } {veToken?.symbol}
                     </Typography>
                     <Typography variant="h5" className={classes.textSpaced} color='textSecondary'>
-                      { formatCurrency(row?.gauge?.userVotePercent) } %
+                      { formatCurrency(row?.gauge?.weightPercent) } %
                     </Typography>
                   </TableCell>
                   <TableCell className={classes.cell} align="right">
