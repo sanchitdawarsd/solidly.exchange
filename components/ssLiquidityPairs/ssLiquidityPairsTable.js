@@ -65,6 +65,12 @@ const headCells = [
     label: 'Total Pool Amount',
   },
   {
+    id: 'reserve1',
+    numeric: true,
+    disablePadding: false,
+    label: 'Total Pool Staked',
+  },
+  {
     id: 'apy',
     numeric: true,
     disablePadding: false,
@@ -96,7 +102,7 @@ function EnhancedTableHead(props) {
             sortDirection={orderBy === headCell.id ? order : false}
           >
             <TableSortLabel active={orderBy === headCell.id} direction={orderBy === headCell.id ? order : 'asc'} onClick={createSortHandler(headCell.id)}>
-              <Typography variant='h5'>{headCell.label}</Typography>
+              <Typography variant='h5' className={ classes.headerText }>{headCell.label}</Typography>
               {orderBy === headCell.id ? <span className={classes.visuallyHidden}>{order === 'desc' ? 'sorted descending' : 'sorted ascending'}</span> : null}
             </TableSortLabel>
           </TableCell>
@@ -141,11 +147,20 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     alignItems: 'center',
   },
+  inlineEnd: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-end'
+  },
   icon: {
     marginRight: '12px',
   },
   textSpaced: {
     lineHeight: '1.5',
+    fontWeight: '200',
+    fontSize: '12px'
+  },
+  headerText: {
     fontWeight: '200',
     fontSize: '12px'
   },
@@ -382,8 +397,8 @@ export default function EnhancedTable({ pairs }) {
                         />
                       </div>
                       <div>
-                        <Typography variant='h2' >
-                          {row?.token0?.symbol}/{row?.token1?.symbol}
+                        <Typography variant='h2' noWrap>
+                          {row?.symbol}
                         </Typography>
                       </div>
                     </div>
@@ -404,32 +419,72 @@ export default function EnhancedTable({ pairs }) {
                       {formatCurrency(BigNumber(row?.balance).times(100).div(row?.totalSupply))}%
                     </Typography>
                   </TableCell>
+                  {
+                    (row && row.gauge && row.gauge.address) &&
+                      <TableCell className={classes.cell} align='right'>
+                        <Typography variant='h2' className={classes.textSpaced}>
+                          {formatCurrency(row?.gauge?.balance)}
+                        </Typography>
+                        <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                          {formatCurrency(BigNumber(row?.gauge?.balance).times(100).div(row?.gauge?.totalSupply))}
+                        </Typography>
+                      </TableCell>
+                  }
+                  {
+                    !(row && row.gauge && row.gauge.address) &&
+                      <TableCell className={classes.cell} align='right'>
+                        <Typography variant='h2' className={classes.textSpaced}>
+                          Gauge not available
+                        </Typography>
+                      </TableCell>
+                  }
                   <TableCell className={classes.cell} align='right'>
-                    <Typography variant='h2' className={classes.textSpaced}>
-                      {formatCurrency(row?.gauge?.balance)}
-                    </Typography>
-                    <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                      {formatCurrency(BigNumber(row?.gauge?.balance).times(100).div(row?.gauge?.totalSupply))}
-                    </Typography>
-                  </TableCell>
-                  <TableCell className={classes.cell} align='right'>
-                    <div className={ classes.inline }>
+                    <div className={ classes.inlineEnd }>
                       <Typography variant='h2' className={classes.textSpaced}>
-                        {formatCurrency(row?.gauge?.reserve0)}
+                        {formatCurrency(row?.reserve0)}
                       </Typography>
                       <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
                         { row?.token0?.symbol }
                       </Typography>
                     </div>
-                    <div className={ classes.inline }>
+                    <div className={ classes.inlineEnd }>
                       <Typography variant='h2' className={classes.textSpaced}>
-                        {formatCurrency(row?.gauge?.reserve1)}
+                        {formatCurrency(row?.reserve1)}
                       </Typography>
                       <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
                         { row?.token1?.symbol }
                       </Typography>
                     </div>
                   </TableCell>
+                  {
+                    (row && row.gauge && row.gauge.address) &&
+                      <TableCell className={classes.cell} align='right'>
+                        <div className={ classes.inlineEnd }>
+                          <Typography variant='h2' className={classes.textSpaced}>
+                            {formatCurrency(row?.gauge?.reserve0)}
+                          </Typography>
+                          <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                            { row?.token0?.symbol }
+                          </Typography>
+                        </div>
+                        <div className={ classes.inlineEnd }>
+                          <Typography variant='h2' className={classes.textSpaced}>
+                            {formatCurrency(row?.gauge?.reserve1)}
+                          </Typography>
+                          <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                            { row?.token1?.symbol }
+                          </Typography>
+                        </div>
+                      </TableCell>
+                  }
+                  {
+                    !(row && row.gauge && row.gauge.address) &&
+                      <TableCell className={classes.cell} align='right'>
+                        <Typography variant='h2' className={classes.textSpaced}>
+                          Gauge not available
+                        </Typography>
+                      </TableCell>
+                  }
                   <TableCell className={classes.cell} align='right'>
                     <Typography variant='h2' className={classes.textSpaced}>
                       0.00%

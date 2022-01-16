@@ -492,6 +492,88 @@
   font-size: 24px !important;
 }
 
+.mediumInputContainer {
+  display: flex;
+  flex-wrap: wrap;
+  border-radius: 10px;
+  width: 100%;
+  align-items: center;
+  background: rgb(33, 43, 72);
+}
+
+.mediumInputAssetSelect {
+  width: 74px;
+  min-height: 50px;
+  height: 100%;
+}
+
+.mediumInputAmount {
+  flex: 1;
+  height: 100%;
+}
+
+.mediumInputAddress {
+  min-width: 100%;
+  border-top: 1px solid rgba(128, 128, 128, 0.5);
+}
+
+.mediumdisplaySelectContainer {
+  padding: 12px;
+  height: 74px;
+}
+
+.mediumdisplayDualIconContainer {
+  width: 50px;
+  position: relative;
+}
+
+.mediumdisplayAssetIcon {
+  border: 1px solid rgba(128, 128, 128, 0.5);
+  border-radius: 50px;
+  background: rgb(33, 43, 72);
+  width: 50px;
+  height: 50px;
+  padding: 5px;
+}
+
+.mediumInput {
+  font-size: 32px !important;
+}
+
+.toggles {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.toggleOption {
+  padding: 24px;
+}
+
+.toggleOption:nth-child(1) {
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+}
+
+.toggleOption:nth-child(2) {
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+.toggleOption:hover {
+  background: rgb(23, 52, 72) !important;
+  color: rgb(6, 211, 215) !important;
+}
+
+.toggleOption.active {
+  background: rgb(23, 52, 72) !important;
+  color: rgb(6, 211, 215) !important;
+  box-shadow: 0px 3px 1px -2px rgb(0 0 0 / 20%), 0px 2px 2px 0px rgb(0 0 0 / 14%), 0px 1px 5px 0px rgb(0 0 0 / 12%);
+}
+
+.toggleOptionText {
+  text-align: center;
+}
 
 @media screen and (max-width: 1280px) {
   .actionsContainer {

@@ -64,6 +64,12 @@ class Store {
           case ACTIONS.GET_LIQUIDITY_BALANCES:
             this.getLiquidityBalances(payload)
             break
+          case ACTIONS.REMOVE_LIQUIDITY:
+            this.removeLiquidity(payload)
+            break
+          case ACTIONS.UNSTAKE_AND_REMOVE_LIQUIDITY:
+            this.unstakeAndRemoveLiquidity(payload)
+            break
 
           // SWAP
           case ACTIONS.QUOTE_SWAP:
@@ -536,7 +542,7 @@ class Store {
 
           const pairContract = new web3.eth.Contract(CONTRACTS.PAIR_ABI, pairAddress)
 
-          const [ token0, token1, totalSupply, symbol, reserve0, reserve1, decimals, balanceOf, gaugeAddress ] = await Promise.all([
+          const [ token0, token1, totalSupply, symbol, reserve0, reserve1, decimals, balanceOf, stable, gaugeAddress ] = await Promise.all([
             pairContract.methods.token0().call(),
             pairContract.methods.token1().call(),
             pairContract.methods.totalSupply().call(),
@@ -545,6 +551,7 @@ class Store {
             pairContract.methods.reserve1().call(),
             pairContract.methods.decimals().call(),
             pairContract.methods.balanceOf(account.address).call(),
+            pairContract.methods.stable().call(),
             gaugesContract.methods.gauges(pairAddress).call()
           ])
 
@@ -564,6 +571,7 @@ class Store {
             address: pairAddress,
             symbol: symbol,
             decimals: parseInt(decimals),
+            isStable: stable,
             token0: {
               address: token0,
               symbol: token0Symbol,
@@ -876,6 +884,7 @@ class Store {
         const tokenPromise = new Promise((resolve, reject) => {
           context._callContractWait(web3, tokenContract, 'approve', [CONTRACTS.ROUTER_ADDRESS, MAX_UINT256], account, gasPrice, null, null, allowance0TXID, (err) => {
             if (err) {
+              console.log(err)
               reject(err)
               return
             }
@@ -894,6 +903,7 @@ class Store {
         const tokenPromise = new Promise((resolve, reject) => {
           context._callContractWait(web3, tokenContract, 'approve', [CONTRACTS.ROUTER_ADDRESS, MAX_UINT256], account, gasPrice, null, null, allowance1TXID, (err) => {
             if (err) {
+              console.log(err)
               reject(err)
               return
             }
@@ -907,16 +917,16 @@ class Store {
 
       const done = await Promise.all(allowanceCallsPromises)
 
-
       // SUBMIT DEPOSIT TRANSACTION
       const sendAmount0 = BigNumber(amount0).times(10**token0.decimals).toFixed(0)
       const sendAmount1 = BigNumber(amount1).times(10**token1.decimals).toFixed(0)
       const deadline = ''+moment().add(600, 'seconds').unix()
-      const sendMinLiquidity = BigNumber(minLiquidity).times(0.9).toFixed(0)
+      const sendAmount0Min = BigNumber(amount0).times(0.97).times(10**token0.decimals).toFixed(0)  //0.97 -> add slipage modifier
+      const sendAmount1Min = BigNumber(amount1).times(0.97).times(10**token1.decimals).toFixed(0)  //0.97 -> add slipage modifier
 
       const routerContract = new web3.eth.Contract(CONTRACTS.ROUTER_ABI, CONTRACTS.ROUTER_ADDRESS)
 
-      this._callContractWait(web3, routerContract, 'addLiquidity', [token0.address, token1.address, sendAmount0, sendAmount1, sendMinLiquidity, account.address, deadline], account, gasPrice, null, null, depositTXID, (err) => {
+      this._callContractWait(web3, routerContract, 'addLiquidity', [token0.address, token1.address, pair.isStable, sendAmount0, sendAmount1, sendAmount0Min, sendAmount1Min, account.address, deadline], account, gasPrice, null, null, depositTXID, (err) => {
         if (err) {
           return this.emitter.emit(ACTIONS.ERROR, err);
         }
@@ -1095,19 +1105,21 @@ class Store {
       const sendAmount0 = BigNumber(amount0).times(10**token0.decimals).toFixed(0)
       const sendAmount1 = BigNumber(amount1).times(10**token1.decimals).toFixed(0)
       const deadline = ''+moment().add(600, 'seconds').unix()
-      const sendMinLiquidity = BigNumber(minLiquidity).times(0.9).toFixed(0)
+      const sendAmount0Min = BigNumber(amount0).times(0.97).times(10**token0.decimals).toFixed(0)
+      const sendAmount1Min = BigNumber(amount1).times(0.97).times(10**token1.decimals).toFixed(0)
 
       const routerContract = new web3.eth.Contract(CONTRACTS.ROUTER_ABI, CONTRACTS.ROUTER_ADDRESS)
       const gaugeContract = new web3.eth.Contract(CONTRACTS.GAUGE_ABI, pair.gauge.address)
+      const pairContract = new web3.eth.Contract(CONTRACTS.PAIR_ABI, pair.address)
 
-      this._callContractWait(web3, routerContract, 'addLiquidity', [token0.address, token1.address, sendAmount0, sendAmount1, sendMinLiquidity, account.address, deadline], account, gasPrice, null, null, depositTXID, async (err) => {
+      this._callContractWait(web3, routerContract, 'addLiquidity', [token0.address, token1.address, pair.isStable, sendAmount0, sendAmount1, sendAmount0Min, sendAmount1Min, account.address, deadline], account, gasPrice, null, null, depositTXID, async (err) => {
         if (err) {
           return this.emitter.emit(ACTIONS.ERROR, err);
         }
 
-        const balanceOf = await gaugeContract.methods.balanceOf(account.address)
+        const balanceOf = await pairContract.methods.balanceOf(account.address).call()
 
-        this._callContractWait(web3, gaugeContract, 'deposit', [balanceOf, account.address], account, gasPrice, null, null, depositTXID, (err) => {
+        this._callContractWait(web3, gaugeContract, 'deposit', [balanceOf, account.address], account, gasPrice, null, null, stakeTXID, (err) => {
           if (err) {
             return this.emitter.emit(ACTIONS.ERROR, err);
           }
@@ -1137,6 +1149,17 @@ class Store {
     try {
       const tokenContract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, pair.address)
       const allowance = await tokenContract.methods.allowance(account.address, pair.gauge.address).call()
+      return BigNumber(allowance).div(10**pair.decimals).toFixed(pair.decimals)
+    } catch (ex) {
+      console.error(ex)
+      return null
+    }
+  }
+
+  _getWithdrawAllowance = async (web3, token, account) => {
+    try {
+      const tokenContract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, token.address)
+      const allowance = await tokenContract.methods.allowance(account.address, CONTRACTS.ROUTER_ADDRESS).call()
       return BigNumber(allowance).div(10**token.decimals).toFixed(token.decimals)
     } catch (ex) {
       console.error(ex)
@@ -1158,28 +1181,39 @@ class Store {
         return null
       }
 
-      const { token0, token1, amount0, amount1 } = payload.content
+      const { pair, token0, token1, amount0, amount1, priorityAsset } = payload.content
+
+      if(!pair || (priorityAsset === 0 && amount0 === '') || (priorityAsset === 1 && amount1 === '') || !token0 || !token1) {
+        return null
+      }
+
       const gasPrice = await stores.accountStore.getGasPrice()
       const routerContract = new web3.eth.Contract(CONTRACTS.ROUTER_ABI, CONTRACTS.ROUTER_ADDRESS)
 
       const sendAmount0 = BigNumber(amount0).times(10**token0.decimals).toFixed(0)
       const sendAmount1 = BigNumber(amount1).times(10**token1.decimals).toFixed(0)
 
-      this._callContractWait(web3, routerContract, 'quoteAddLiquidity', [token0.address, token1.address, sendAmount0, sendAmount1], account, gasPrice, null, null, null, (err, res) => {
-        if (err) {
-          return this.emitter.emit(ACTIONS.ERROR, err);
-        }
-        const returnVal = {
-          inputs: {
-            token0,
-            token1,
-            amount0,
-            amount1
-          },
-          output: res
-        }
-        this.emitter.emit(ACTIONS.QUOTE_ADD_LIQUIDITY_RETURNED, returnVal)
-      })
+      let call = null
+
+      if(priorityAsset === 0) {
+        call = routerContract.methods.quoteAddLiquidity(sendAmount0, token0.address, token1.address)
+      } else {
+        call = routerContract.methods.quoteAddLiquidity(sendAmount1, token1.address, token0.address)
+      }
+
+      const res = await call.call()
+
+      const returnVal = {
+        inputs: {
+          token0,
+          token1,
+          amount0,
+          amount1,
+          priorityAsset
+        },
+        output: BigNumber(res).div(10**(priorityAsset === 0 ? token1.decimals : token0.decimals)).toFixed(0)
+      }
+      this.emitter.emit(ACTIONS.QUOTE_ADD_LIQUIDITY_RETURNED, returnVal)
 
     } catch(ex) {
       console.error(ex)
@@ -1202,6 +1236,10 @@ class Store {
       }
 
       const { pair } = payload.content
+
+      if(!pair) {
+        return
+      }
 
       const token0Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, pair.token0.address)
       const token1Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, pair.token1.address)
@@ -1279,6 +1317,221 @@ class Store {
     }
   }
 
+  removeLiquidity = async (payload) => {
+    try {
+      const context = this
+
+      const account = stores.accountStore.getStore("account")
+      if (!account) {
+        console.warn('account not found')
+        return null
+      }
+
+      const web3 = await stores.accountStore.getWeb3Provider()
+      if (!web3) {
+        console.warn('web3 not found')
+        return null
+      }
+
+      const { token0, token1, amount, amount0, amount1, pair } = payload.content
+
+      // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
+      let allowanceTXID = this.getTXUUID()
+      let withdrawTXID = this.getTXUUID()
+
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `REMOVE LIQUIDITY FROM ${pair.symbol}`, transactions: [
+        {
+          uuid: allowanceTXID,
+          description: `CHECKING YOUR ${pair.symbol} ALLOWANCES`,
+          status: 'WAITING'
+        },
+        {
+          uuid: withdrawTXID,
+          description: `WITHDRAW TOKENS FROM POOL`,
+          status: 'WAITING'
+        },
+      ]})
+
+      // CHECK ALLOWANCES AND SET TX DISPLAY
+      const allowance = await this._getWithdrawAllowance(web3, token0, account)
+
+      if(BigNumber(allowance).lt(amount)) {
+        this.emitter.emit(ACTIONS.TX_STATUS, {
+          uuid: allowanceTXID,
+          description: `ALLOW ROUTER TO SPEND YOUR ${pair.symbol}`
+        })
+      } else {
+        this.emitter.emit(ACTIONS.TX_STATUS, {
+          uuid: allowanceTXID,
+          description: `ALLOWANCE ON ${pair.symbol} SET`,
+          status: 'DONE'
+        })
+      }
+
+      const gasPrice = await stores.accountStore.getGasPrice()
+
+      const allowanceCallsPromises = []
+
+
+      // SUBMIT REQUIRED ALLOWANCE TRANSACTIONS
+      if(BigNumber(allowance).lt(amount)) {
+        const tokenContract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, token0.address)
+
+        const tokenPromise = new Promise((resolve, reject) => {
+          context._callContractWait(web3, tokenContract, 'approve', [CONTRACTS.ROUTER_ADDRESS, MAX_UINT256], account, gasPrice, null, null, allowanceTXID, (err) => {
+            if (err) {
+              console.log(err)
+              reject(err)
+              return
+            }
+
+            resolve()
+          })
+        })
+
+        allowanceCallsPromises.push(tokenPromise)
+      }
+
+
+      const done = await Promise.all(allowanceCallsPromises)
+
+      // SUBMIT WITHDRAW TRANSACTION
+      const sendAmount = BigNumber(amount).times(10**pair.decimals).toFixed(0)
+      const deadline = ''+moment().add(600, 'seconds').unix()
+      const sendAmount0Min = BigNumber(amount0).times(0).times(10**token0.decimals).toFixed(0)  //0.97 -> add slipage modifier
+      const sendAmount1Min = BigNumber(amount1).times(0).times(10**token1.decimals).toFixed(0)  //0.97 -> add slipage modifier
+
+      const routerContract = new web3.eth.Contract(CONTRACTS.ROUTER_ABI, CONTRACTS.ROUTER_ADDRESS)
+
+      this._callContractWait(web3, routerContract, 'removeLiquidity', [token0.address, token1.address, pair.isStable, sendAmount, sendAmount0Min, sendAmount1Min, account.address, deadline], account, gasPrice, null, null, withdrawTXID, (err) => {
+        if (err) {
+          return this.emitter.emit(ACTIONS.ERROR, err);
+        }
+
+        this.emitter.emit(ACTIONS.LIQUIDITY_REMOVED)
+      })
+
+    } catch(ex) {
+      console.error(ex)
+      this.emitter.emit(ACTIONS.ERROR, ex)
+    }
+  }
+
+  unstakeAndRemoveLiquidity = async (payload) => {
+    try {
+      const context = this
+
+      const account = stores.accountStore.getStore("account")
+      if (!account) {
+        console.warn('account not found')
+        return null
+      }
+
+      const web3 = await stores.accountStore.getWeb3Provider()
+      if (!web3) {
+        console.warn('web3 not found')
+        return null
+      }
+
+      const { token0, token1, amount, amount0, amount1, pair } = payload.content
+
+      // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
+      let allowanceTXID = this.getTXUUID()
+      let withdrawTXID = this.getTXUUID()
+      let unstakeTXID = this.getTXUUID()
+
+
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `ADD LIQUIDITY TO ${pair.symbol}`, transactions: [
+        {
+          uuid: allowanceTXID,
+          description: `CHECKING YOUR ${pair.symbol} ALLOWANCES`,
+          status: 'WAITING'
+        },
+        {
+          uuid: unstakeTXID,
+          description: `UNSTAKE POOL TOKENS FROM GAUGE`,
+          status: 'WAITING'
+        },
+        {
+          uuid: withdrawTXID,
+          description: `WITHDRAW TOKENS FROM POOL`,
+          status: 'WAITING'
+        }
+      ]})
+
+
+      // CHECK ALLOWANCES AND SET TX DISPLAY
+      const allowance = await this._getDepositAllowance(web3, token0, account)
+
+      if(BigNumber(allowance).lt(amount)) {
+        this.emitter.emit(ACTIONS.TX_STATUS, {
+          uuid: allowanceTXID,
+          description: `ALLOW ROUTER TO SPEND YOUR ${pair.symbol}`
+        })
+      } else {
+        this.emitter.emit(ACTIONS.TX_STATUS, {
+          uuid: allowanceTXID,
+          description: `ALLOWANCE ON ${pair.symbol} SET`,
+          status: 'DONE'
+        })
+      }
+
+      const gasPrice = await stores.accountStore.getGasPrice()
+
+      const allowanceCallsPromises = []
+
+
+      // SUBMIT REQUIRED ALLOWANCE TRANSACTIONS
+      if(BigNumber(allowance).lt(amount)) {
+        const tokenContract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, pair.address)
+
+        const tokenPromise = new Promise((resolve, reject) => {
+          context._callContractWait(web3, tokenContract, 'approve', [CONTRACTS.ROUTER_ADDRESS, MAX_UINT256], account, gasPrice, null, null, allowanceTXID, (err) => {
+            if (err) {
+              reject(err)
+              return
+            }
+
+            resolve()
+          })
+        })
+
+        allowanceCallsPromises.push(tokenPromise)
+      }
+
+      const done = await Promise.all(allowanceCallsPromises)
+
+
+      // SUBMIT DEPOSIT TRANSACTION
+      const sendAmount = BigNumber(amount).times(10**pair.decimals).toFixed(0)
+      const deadline = ''+moment().add(600, 'seconds').unix()
+      const sendAmount0Min = BigNumber(amount0).times(0.97).times(10**token0.decimals).toFixed(0)
+      const sendAmount1Min = BigNumber(amount1).times(0.97).times(10**token1.decimals).toFixed(0)
+
+      const routerContract = new web3.eth.Contract(CONTRACTS.ROUTER_ABI, CONTRACTS.ROUTER_ADDRESS)
+      const gaugeContract = new web3.eth.Contract(CONTRACTS.GAUGE_ABI, pair.gauge.address)
+      const pairContract = new web3.eth.Contract(CONTRACTS.PAIR_ABI, pair.address)
+
+      this._callContractWait(web3, gaugeContract, 'withdraw', [sendAmount, account.address], account, gasPrice, null, null, unstakeTXID, async (err) => {
+        if (err) {
+          return this.emitter.emit(ACTIONS.ERROR, err);
+        }
+
+        const balanceOf = await pairContract.methods.balanceOf(account.address).call()
+
+        this._callContractWait(web3, routerContract, 'removeLiquidity', [token0.address, token1.address, pair.isStable, balanceOf, sendAmount0Min, sendAmount1Min, account.address, deadline], account, gasPrice, null, null, withdrawTXID, (err) => {
+          if (err) {
+            return this.emitter.emit(ACTIONS.ERROR, err);
+          }
+
+          this.emitter.emit(ACTIONS.REMOVE_LIQUIDITY_AND_UNSTAKED)
+        })
+      })
+    } catch(ex) {
+      console.error(ex)
+      this.emitter.emit(ACTIONS.ERROR, ex)
+    }
+  }
 
   quoteSwap = async (payload) => {
     try {
@@ -1530,6 +1783,7 @@ class Store {
     console.log(contract)
     console.log(method)
     console.log(params)
+    console.log(uuid)
     //estimate gas
     this.emitter.emit(ACTIONS.TX_PENDING, { uuid })
 
@@ -1552,10 +1806,12 @@ class Store {
             // maxPriorityFeePerGas: web3.utils.toWei("2", "gwei"),
           })
           .on("transactionHash", function (txHash) {
+            console.log(`txHash ${uuid} ${txHash}`)
             context.emitter.emit(ACTIONS.TX_SUBMITTED, { uuid, txHash })
           })
           .on("receipt", function (receipt) {
-            context.emitter.emit(ACTIONS.TX_CONFIRMED, { uuid, txHash })
+            console.log(`txHash ${uuid} ${receipt.transactionHash}`)
+            context.emitter.emit(ACTIONS.TX_CONFIRMED, { uuid, txHash: receipt.transactionHash })
             callback(null, receipt.transactionHash)
             if (dispatchEvent) {
               context.dispatcher.dispatch({ type: dispatchEvent, content: dispatchContent })

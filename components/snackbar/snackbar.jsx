@@ -3,6 +3,8 @@ import { Snackbar, IconButton, Button, Typography, SvgIcon } from '@material-ui/
 
 import { colors } from '../../theme/coreTheme';
 
+import { ETHERSCAN_URL } from '../../stores/constants'
+
 const iconStyle = {
   fontSize: '32px',
   marginRight: '20px',
@@ -118,7 +120,7 @@ class MySnackbar extends Component {
         color = colors.blue;
         messageType = 'Hash';
 
-        let snackbarMessage = 'https://etherscan.io/tx/' + message;
+        let snackbarMessage = ETHERSCAN_URL+'tx/' + message;
         actions = [
           <Button variant="text" size="small" onClick={() => window.open(snackbarMessage, '_blank')}>
             View

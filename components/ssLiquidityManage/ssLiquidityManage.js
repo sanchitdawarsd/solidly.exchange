@@ -39,6 +39,7 @@ export default function ssLiquidityManage() {
   const [ balances, setBalances ] = useState(null)
   const [ quote, setQuote ] = useState(null)
 
+  const [ priorityAsset, setPriorityAsset ] = useState(0)
 
   //might not be correct to d this every time store updates.
   const ssUpdated = async () => {
@@ -50,10 +51,31 @@ export default function ssLiquidityManage() {
   }
 
   useEffect(() => {
-    const approveReturned = () => {
-      setApprovalLoading(false)
+    const quoteAddReturned = (res) => {
+      console.log('RETURNED')
+      console.log(res)
+      console.log(priorityAsset)
+      if(priorityAsset === res.inputs.priorityAsset) {
+        console.log(res)
+        setQuote(res)
+        if(priorityAsset === 0) {
+          console.log(res.output)
+          setAmount1(res.output)
+        } else {
+          console.log(res.output)
+          setAmount0(res.output)
+        }
+      }
     }
 
+    stores.emitter.on(ACTIONS.QUOTE_ADD_LIQUIDITY_RETURNED, quoteAddReturned)
+
+    return () => {
+      stores.emitter.removeListener(ACTIONS.QUOTE_ADD_LIQUIDITY_RETURNED, quoteAddReturned)
+    };
+  }, [priorityAsset]);
+
+  useEffect(() => {
     const depositReturned = () => {
       setDepositLoading(false)
       setDepositStakeLoading(false)
@@ -61,7 +83,6 @@ export default function ssLiquidityManage() {
 
     const errorReturned = () => {
       setDepositLoading(false)
-      setApprovalLoading(false)
       setDepositStakeLoading(false)
     }
 
@@ -69,27 +90,23 @@ export default function ssLiquidityManage() {
       setBalances(res)
     }
 
-    const quoteAddReturned = (res) => {
-      if(res.inputs.amount0 === amount0 && res.inputs.amount1 === amount1) {
-        setQuote(res)
-      }
-    }
-
     stores.emitter.on(ACTIONS.UPDATED, ssUpdated)
-    stores.emitter.on(ACTIONS.QUOTE_ADD_LIQUIDITY_RETURNED, quoteAddReturned)
     stores.emitter.on(ACTIONS.GET_LIQUIDITY_BALANCES_RETURNED, balancesReturned)
     stores.emitter.on(ACTIONS.LIQUIDITY_ADDED, depositReturned)
     stores.emitter.on(ACTIONS.ADD_LIQUIDITY_AND_STAKED, depositReturned)
+    stores.emitter.on(ACTIONS.LIQUIDITY_REMOVED, depositReturned)
+    stores.emitter.on(ACTIONS.REMOVE_LIQUIDITY_AND_UNSTAKED, depositReturned)
     stores.emitter.on(ACTIONS.ERROR, errorReturned)
 
     ssUpdated()
 
     return () => {
       stores.emitter.removeListener(ACTIONS.UPDATED, ssUpdated)
-      stores.emitter.removeListener(ACTIONS.QUOTE_ADD_LIQUIDITY_RETURNED, quoteAddReturned)
       stores.emitter.removeListener(ACTIONS.GET_LIQUIDITY_BALANCES_RETURNED, balancesReturned)
       stores.emitter.removeListener(ACTIONS.LIQUIDITY_ADDED, depositReturned)
       stores.emitter.removeListener(ACTIONS.ADD_LIQUIDITY_AND_STAKED, depositReturned)
+      stores.emitter.removeListener(ACTIONS.LIQUIDITY_REMOVED, depositReturned)
+      stores.emitter.removeListener(ACTIONS.REMOVE_LIQUIDITY_AND_UNSTAKED, depositReturned)
       stores.emitter.removeListener(ACTIONS.ERROR, errorReturned)
     };
   }, []);
@@ -110,13 +127,15 @@ export default function ssLiquidityManage() {
     }
   }
 
-  const callQuoteAddLiquidity = (amountA, amountB) => {
+  const callQuoteAddLiquidity = (amountA, amountB, pa) => {
+    console.log('calling')
     stores.dispatcher.dispatch({ type: ACTIONS.QUOTE_ADD_LIQUIDITY, content: {
+        pair: pair,
         token0: pair.token0,
         token1: pair.token1,
         amount0: amountA,
-        amount1: amount1,
-        pair: pair
+        amount1: amountB,
+        priorityAsset: pa
       }
     })
   }
@@ -131,16 +150,16 @@ export default function ssLiquidityManage() {
       setAmount1(am);
 
     } else if (input === 'withdraw') {
-      let am = BigNumber(pair.userPoolBalance).times(percent).div(100).toFixed(18)
+      let am = BigNumber(pair.balance).times(percent).div(100).toFixed(18)
       setWithdrawAmount(am);
 
       if(am === '') {
         setWithdrawAmount0('')
         setWithdrawAmount1('')
       } else if(am !== '' && !isNaN(am)) {
-        const totalBalances = BigNumber(pair.token0.poolBalance).plus(pair.token1.poolBalance)
-        const coin0Ratio = BigNumber(pair.token0.poolBalance).div(totalBalances).toFixed(18)
-        const coin1Ratio = BigNumber(pair.token1.poolBalance).div(totalBalances).toFixed(18)
+        const totalBalances = BigNumber(pair.reserve0).plus(pair.reserve1)
+        const coin0Ratio = BigNumber(pair.reserve0).div(totalBalances).toFixed(18)
+        const coin1Ratio = BigNumber(pair.reserve1).div(totalBalances).toFixed(18)
         setWithdrawAmount0(BigNumber(coin0Ratio).times(am).toFixed(18))
         setWithdrawAmount1(BigNumber(coin1Ratio).times(am).toFixed(18))
       }
@@ -181,7 +200,26 @@ export default function ssLiquidityManage() {
 
   const onWithdraw = () => {
     setDepositLoading(true)
-    stores.dispatcher.dispatch({ type: ACTIONS.FIXED_FOREX_WITHDRAW_CURVE, content: { pair, withdrawAmount, withdrawAmount0, withdrawAmount1 } })
+    stores.dispatcher.dispatch({ type: ACTIONS.REMOVE_LIQUIDITY, content: {
+      pair: pair,
+      token0: pair.token0,
+      token1: pair.token1,
+      amount: withdrawAmount,
+      amount0: withdrawAmount0,
+      amount1: withdrawAmount1
+    } })
+  }
+
+  const onUnstakeAndWithdraw = () => {
+    setDepositLoading(true)
+    stores.dispatcher.dispatch({ type: ACTIONS.UNSTAKE_AND_REMOVE_LIQUIDITY, content: {
+      pair: pair,
+      token0: pair.token0,
+      token1: pair.token1,
+      amount: withdrawAmount,
+      amount0: withdrawAmount0,
+      amount1: withdrawAmount1
+    } })
   }
 
   const toggleDeposit = () => {
@@ -194,10 +232,22 @@ export default function ssLiquidityManage() {
 
   const amount0Changed = (event) => {
     setAmount0(event.target.value)
+    callQuoteAddLiquidity(event.target.value, amount1, priorityAsset)
   }
 
   const amount1Changed = (event) => {
     setAmount1(event.target.value)
+    callQuoteAddLiquidity(amount0, event.target.value, priorityAsset)
+  }
+
+  const amount0Focused = (event) => {
+    setPriorityAsset(0)
+    callQuoteAddLiquidity(amount0, amount1, 0)
+  }
+
+  const amount1Focused = (event) => {
+    setPriorityAsset(1)
+    callQuoteAddLiquidity(amount0, amount1, 1)
   }
 
   const withdrawAmountChanged = (event) => {
@@ -262,7 +312,7 @@ export default function ssLiquidityManage() {
     )
   }
 
-  const renderMassiveInput = (type, amountValue, amountError, amountChanged, balance, logo) => {
+  const renderMassiveInput = (type, amountValue, amountError, amountChanged, balance, logo, amountFocused) => {
     return (
       <div className={ classes.textField}>
         <div className={ classes.inputTitleContainer }>
@@ -311,6 +361,7 @@ export default function ssLiquidityManage() {
               helperText={ amountError }
               value={ amountValue }
               onChange={ amountChanged }
+              onFocus={ amountFocused ? amountFocused : null }
               disabled={ depositLoading || depositStakeLoading }
               InputProps={{
                 className: classes.largeInput
@@ -328,11 +379,11 @@ export default function ssLiquidityManage() {
         <Typography className={ classes.depositInfoHeading } >Price Info</Typography>
         <div className={ classes.priceInfos}>
           <div className={ classes.priceInfo }>
-            <Typography className={ classes.title } >0.000</Typography>
+            <Typography className={ classes.title } >{ formatCurrency(BigNumber(pair?.reserve0).div(pair?.reserve1)) }</Typography>
             <Typography className={ classes.text } >{ `${pair?.token0?.symbol} per ${pair?.token1?.symbol}` }</Typography>
           </div>
           <div className={ classes.priceInfo }>
-            <Typography className={ classes.title } >0.000</Typography>
+            <Typography className={ classes.title } >{ formatCurrency(BigNumber(pair?.reserve1).div(pair?.reserve0)) }</Typography>
             <Typography className={ classes.text } >{ `${pair?.token1?.symbol} per ${pair?.token0?.symbol}` }</Typography>
           </div>
           <div className={ classes.priceInfo }>
@@ -350,11 +401,11 @@ export default function ssLiquidityManage() {
         <Typography className={ classes.depositInfoHeading } >Price Info</Typography>
         <div className={ classes.priceInfos}>
           <div className={ classes.priceInfo }>
-            <Typography className={ classes.title } >0.000</Typography>
+            <Typography className={ classes.title } >{ formatCurrency(BigNumber(pair?.reserve0).div(pair?.reserve1)) }</Typography>
             <Typography className={ classes.text } >{ `${pair?.token0?.symbol} per ${pair?.token1?.symbol}` }</Typography>
           </div>
           <div className={ classes.priceInfo }>
-            <Typography className={ classes.title } >0.000</Typography>
+            <Typography className={ classes.title } >{ formatCurrency(BigNumber(pair?.reserve1).div(pair?.reserve0)) }</Typography>
             <Typography className={ classes.text } >{ `${pair?.token1?.symbol} per ${pair?.token0?.symbol}` }</Typography>
           </div>
           <div className={ classes.priceInfo }>
@@ -396,20 +447,20 @@ export default function ssLiquidityManage() {
             {
               activeTab === 'deposit' &&
               <>
-                { renderMassiveInput('amount0', amount0, amount0Error, amount0Changed, balances?.token0, pair?.token0?.logo) }
+                { renderMassiveInput('amount0', amount0, amount0Error, amount0Changed, pair?.token0?.balance, pair?.token0?.logo, amount0Focused) }
                 <div className={ classes.swapIconContainer }>
                   <div className={ classes.swapIconSubContainer }>
                     <AddIcon className={ classes.swapIcon } />
                   </div>
                 </div>
-                { renderMassiveInput('amount1', amount1, amount1Error, amount1Changed, balances?.token1, pair?.token1?.logo) }
+                { renderMassiveInput('amount1', amount1, amount1Error, amount1Changed, pair?.token1?.balance, pair?.token1?.logo, amount1Focused) }
                 { renderDepositInformation() }
               </>
             }
             {
               activeTab === 'withdraw' &&
               <>
-                { renderMassiveInput('withdraw', withdrawAmount, null, withdrawAmountChanged, balances?.poolBalance, pair?.logo) }
+                { renderMassiveInput('withdraw', withdrawAmount, null, withdrawAmountChanged, pair?.balance, pair?.logo) }
                 <div className={ classes.swapIconContainer }>
                   <div className={ classes.swapIconSubContainer }>
                     <ArrowDownwardIcon className={ classes.swapIcon } />
@@ -426,28 +477,32 @@ export default function ssLiquidityManage() {
           {
             activeTab === 'deposit' &&
             <div className={ classes.actionsContainer }>
-              {/*<Button
-                variant='contained'
-                size='large'
-                className={ ((amount0 === '' && amount1 === '') || depositLoading || depositStakeLoading) ? classes.multiApprovalButton : classes.buttonOverride }
-                color='primary'
-                disabled={ (amount0 === '' && amount1 === '') || depositLoading || depositStakeLoading }
-                onClick={ onDeposit }
-                >
-                <Typography className={ classes.actionButtonText }>{ depositLoading ? `Depositing` : `Deposit` }</Typography>
-                { depositLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
-              </Button>*/}
-              <Button
-                variant='contained'
-                size='large'
-                className={ ((amount0 === '' && amount1 === '') || depositLoading || depositStakeLoading) ? classes.multiApprovalButton : classes.buttonOverride }
-                color='primary'
-                disabled={ (amount0 === '' && amount1 === '') || depositLoading || depositStakeLoading }
-                onClick={ onDepositAndStake }
-                >
-                <Typography className={ classes.actionButtonText }>{ depositStakeLoading ? `Depositing` : `Deposit & Stake` }</Typography>
-                { depositStakeLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
-              </Button>
+              { !(pair && pair.gauge && pair.gauge.address) &&
+                  <Button
+                  variant='contained'
+                  size='large'
+                  className={ ((amount0 === '' && amount1 === '') || depositLoading || depositStakeLoading) ? classes.multiApprovalButton : classes.buttonOverride }
+                  color='primary'
+                  disabled={ (amount0 === '' && amount1 === '') || depositLoading || depositStakeLoading }
+                  onClick={ onDeposit }
+                  >
+                  <Typography className={ classes.actionButtonText }>{ depositLoading ? `Depositing` : `Deposit` }</Typography>
+                  { depositLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
+                </Button>
+              }
+              { (pair && pair.gauge && pair.gauge.address) &&
+                <Button
+                  variant='contained'
+                  size='large'
+                  className={ ((amount0 === '' && amount1 === '') || depositLoading || depositStakeLoading) ? classes.multiApprovalButton : classes.buttonOverride }
+                  color='primary'
+                  disabled={ (amount0 === '' && amount1 === '') || depositLoading || depositStakeLoading }
+                  onClick={ onDepositAndStake }
+                  >
+                  <Typography className={ classes.actionButtonText }>{ depositStakeLoading ? `Depositing` : `Deposit & Stake` }</Typography>
+                  { depositStakeLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
+                </Button>
+              }
             </div>
           }
           {

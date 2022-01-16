@@ -19,10 +19,12 @@ export default function SSLiquidityCreate() {
   const router = useRouter();
   const [ createLoading, setCreateLoading ] = useState(false)
 
-  const [ amount0, setAmount0 ] = useState('');
-  const [ amount0Error/*, setAmount0Error*/ ] = useState(false);
-  const [ amount1, setAmount1 ] = useState('');
-  const [ amount1Error/*, setAmount1Error*/ ] = useState(false);
+  const [ amount0, setAmount0 ] = useState('')
+  const [ amount0Error/*, setAmount0Error*/ ] = useState(false)
+  const [ amount1, setAmount1 ] = useState('')
+  const [ amount1Error/*, setAmount1Error*/ ] = useState(false)
+
+  const [ stable, setStable ] = useState(false)
 
   const [ asset0, setAsset0 ] = useState(null)
   const [ asset1, setAsset1 ] = useState(null)
@@ -102,7 +104,7 @@ export default function SSLiquidityCreate() {
       token1: asset1,
       amount0: amount0,
       amount1: amount1,
-      isStable: true
+      isStable: stable
     } })
   }
 
@@ -133,35 +135,17 @@ export default function SSLiquidityCreate() {
     }
   }
 
-  const renderMassiveInput = (type, amountValue, amountError, amountChanged, balance, assetValue, assetError, assetOptions, onAssetSelect) => {
+  const renderMediumInputToggle = (type, value) => {
     return (
       <div className={ classes.textField}>
-        <div className={ classes.inputTitleContainer }>
-          <div className={ classes.inputBalance }>
-            <Typography className={ classes.inputBalanceText } noWrap onClick={ () => {
-              setAmountPercent(type, 100)
-            }}>
-              Balance: { balance ? ' ' + formatCurrency(balance) : '' }
-            </Typography>
-          </div>
-        </div>
-        <div className={ `${classes.massiveInputContainer} ${ (amountError) && classes.error }` }>
-          <div className={ classes.massiveInputAssetSelect }>
-            <AssetSelect type={type} value={ assetValue } assetOptions={ assetOptions } onSelect={ onAssetSelect } />
-          </div>
-          <div className={ classes.massiveInputAmount }>
-            <TextField
-              placeholder='0.00'
-              fullWidth
-              error={ amountError }
-              helperText={ amountError }
-              value={ amountValue }
-              onChange={ amountChanged }
-              disabled={ createLoading }
-              InputProps={{
-                className: classes.largeInput
-              }}
-            />
+        <div className={ classes.mediumInputContainer}>
+          <div className={ classes.toggles }>
+            <div className={ `${classes.toggleOption} ${stable && classes.active}` } onClick={ () => { setStable(true) } }>
+              <Typography className={ classes.toggleOptionText }>Stable</Typography>
+            </div>
+            <div className={ `${classes.toggleOption} ${!stable && classes.active}` } onClick={ () => { setStable(false) } }>
+              <Typography className={ classes.toggleOptionText }>Variable</Typography>
+            </div>
           </div>
         </div>
       </div>
@@ -231,6 +215,7 @@ export default function SSLiquidityCreate() {
               </div>
             </div>
             { renderMassiveTitleInput('amount1', balances?.token1, asset1, null, assetOptions, onAssetSelect) }
+            { renderMediumInputToggle('stable', stable) }
             { renderCreateInformation() }
           </div>
           <div className={ classes.actionsContainer }>

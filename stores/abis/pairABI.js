@@ -82,6 +82,31 @@ export const pairABI = [
 				"type": "uint256"
 			}
 		],
+		"name": "Fees",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "sender",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount0",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount1",
+				"type": "uint256"
+			}
+		],
 		"name": "Mint",
 		"type": "event"
 	},
@@ -180,6 +205,19 @@ export const pairABI = [
 				"internalType": "bytes32",
 				"name": "",
 				"type": "bytes32"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "MINIMUM_LIQUIDITY",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",
@@ -303,19 +341,34 @@ export const pairABI = [
 		"type": "function"
 	},
 	{
+		"inputs": [],
+		"name": "claimFees",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
 		"inputs": [
 			{
-				"internalType": "uint256",
-				"name": "x",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "y",
-				"type": "uint256"
+				"internalType": "address",
+				"name": "recipient",
+				"type": "address"
 			}
 		],
-		"name": "curve",
+		"name": "claimFeesFor",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "claimable0",
 		"outputs": [
 			{
 				"internalType": "uint256",
@@ -323,7 +376,120 @@ export const pairABI = [
 				"type": "uint256"
 			}
 		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "claimable1",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "priceCumulativeStart",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "priceCumulativeEnd",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "timeElapsed",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amountIn",
+				"type": "uint256"
+			}
+		],
+		"name": "computeAmountOut",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "amountOut",
+				"type": "uint256"
+			}
+		],
 		"stateMutability": "pure",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "tokenIn",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amountIn",
+				"type": "uint256"
+			}
+		],
+		"name": "current",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "amountOut",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "currentBlockTimestamp",
+		"outputs": [
+			{
+				"internalType": "uint32",
+				"name": "",
+				"type": "uint32"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "currentCumulativePrices",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "price0Cumulative",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "price1Cumulative",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint32",
+				"name": "blockTimestamp",
+				"type": "uint32"
+			}
+		],
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -341,7 +507,7 @@ export const pairABI = [
 	},
 	{
 		"inputs": [],
-		"name": "factory",
+		"name": "fees",
 		"outputs": [
 			{
 				"internalType": "address",
@@ -353,17 +519,23 @@ export const pairABI = [
 		"type": "function"
 	},
 	{
-		"inputs": [],
-		"name": "getDecimals",
-		"outputs": [
+		"inputs": [
 			{
 				"internalType": "uint256",
-				"name": "_decimals0",
+				"name": "amountIn",
 				"type": "uint256"
 			},
 			{
+				"internalType": "address",
+				"name": "tokenIn",
+				"type": "address"
+			}
+		],
+		"name": "getAmountOut",
+		"outputs": [
+			{
 				"internalType": "uint256",
-				"name": "_decimals1",
+				"name": "",
 				"type": "uint256"
 			}
 		],
@@ -394,26 +566,8 @@ export const pairABI = [
 		"type": "function"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_token0",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "_token1",
-				"type": "address"
-			}
-		],
-		"name": "initialize",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
 		"inputs": [],
-		"name": "kLast",
+		"name": "index0",
 		"outputs": [
 			{
 				"internalType": "uint256",
@@ -425,19 +579,8 @@ export const pairABI = [
 		"type": "function"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "x",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "y",
-				"type": "uint256"
-			}
-		],
-		"name": "lp",
+		"inputs": [],
+		"name": "index1",
 		"outputs": [
 			{
 				"internalType": "uint256",
@@ -445,7 +588,37 @@ export const pairABI = [
 				"type": "uint256"
 			}
 		],
-		"stateMutability": "pure",
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "lastObservation",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "uint32",
+						"name": "timestamp",
+						"type": "uint32"
+					},
+					{
+						"internalType": "uint256",
+						"name": "price0Cumulative",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "price1Cumulative",
+						"type": "uint256"
+					}
+				],
+				"internalType": "struct BaseV1Pair.Observation",
+				"name": "",
+				"type": "tuple"
+			}
+		],
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -489,6 +662,61 @@ export const pairABI = [
 			}
 		],
 		"name": "nonces",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "observationLength",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "observations",
+		"outputs": [
+			{
+				"internalType": "uint32",
+				"name": "timestamp",
+				"type": "uint32"
+			},
+			{
+				"internalType": "uint256",
+				"name": "price0Cumulative",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "price1Cumulative",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "periodSize",
 		"outputs": [
 			{
 				"internalType": "uint256",
@@ -569,6 +797,64 @@ export const pairABI = [
 		"type": "function"
 	},
 	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "tokenIn",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amountIn",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "points",
+				"type": "uint256"
+			}
+		],
+		"name": "prices",
+		"outputs": [
+			{
+				"internalType": "uint256[]",
+				"name": "",
+				"type": "uint256[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "tokenIn",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amountIn",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "granularity",
+				"type": "uint256"
+			}
+		],
+		"name": "quote",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "amountOut",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"inputs": [],
 		"name": "reserve0",
 		"outputs": [
@@ -576,6 +862,19 @@ export const pairABI = [
 				"internalType": "uint112",
 				"name": "",
 				"type": "uint112"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "reserve0Last",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",
@@ -595,6 +894,53 @@ export const pairABI = [
 		"type": "function"
 	},
 	{
+		"inputs": [],
+		"name": "reserve1Last",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "tokenIn",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amountIn",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "points",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "window",
+				"type": "uint256"
+			}
+		],
+		"name": "sample",
+		"outputs": [
+			{
+				"internalType": "uint256[]",
+				"name": "",
+				"type": "uint256[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"inputs": [
 			{
 				"internalType": "address",
@@ -605,6 +951,57 @@ export const pairABI = [
 		"name": "skim",
 		"outputs": [],
 		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "stable",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "supplyIndex0",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "supplyIndex1",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
