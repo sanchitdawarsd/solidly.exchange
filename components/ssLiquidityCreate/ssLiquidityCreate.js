@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { Paper, Grid, Typography, Button, TextField, InputAdornment, CircularProgress, Tooltip, Dialog, MenuItem } from '@material-ui/core';
+import { Paper, Grid, Typography, Button, TextField, InputAdornment, CircularProgress, Tooltip, Dialog, MenuItem, IconButton } from '@material-ui/core';
 import BigNumber from 'bignumber.js';
 import { formatCurrency } from '../../utils';
 import classes from './ssLiquidityCreate.module.css';
+
 import AddIcon from '@material-ui/icons/Add';
 import SearchIcon from '@material-ui/icons/Search';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 
 import stores from '../../stores'
 import {
@@ -15,8 +17,6 @@ import {
 export default function SSLiquidityCreate() {
 
   const router = useRouter();
-  const [pair, setPair] = useState(null);
-
   const [ createLoading, setCreateLoading ] = useState(false)
 
   const [ amount0, setAmount0 ] = useState('');
@@ -33,17 +33,27 @@ export default function SSLiquidityCreate() {
 
   //might not be correct to d this every time store updates.
   const ssUpdated = async () => {
-    if(router.query.address) {
-      const pp = await stores.stableSwapStore.getPairByAddress(router.query.address)
-      setPair(pp)
-      callGetPairBalances(pp)
+    const storeAssetOptions = stores.stableSwapStore.getStore('baseAssets')
+    setAssetOptions(storeAssetOptions)
+
+    if(storeAssetOptions.length > 0 && asset0 == null) {
+      setAsset0(storeAssetOptions[0])
     }
-    setAssetOptions(stores.stableSwapStore.getStore('baseAssets'))
+
+    if(storeAssetOptions.length > 0 && asset1 == null) {
+      setAsset1(storeAssetOptions[1])
+    }
+
+    if(asset0 && asset1) {
+      //cant dispatch in a dispatch.
+      window.setTimeout(() => {
+        callGetCreatePairBalances(asset0, asset1)
+      }, 1)
+    }
   }
 
   useEffect(() => {
-
-    const depositReturned = () => {
+    const createReturned = () => {
       setCreateLoading(false)
     }
 
@@ -52,26 +62,21 @@ export default function SSLiquidityCreate() {
     }
 
     const balancesReturned = (res) => {
+      console.log(res)
       setBalances(res)
     }
 
-    const quoteAddReturned = (res) => {
-      if(res.inputs.amount0 === amount0 && res.inputs.amount1 === amount1) {
-        setQuote(res)
-      }
-    }
-
     stores.emitter.on(ACTIONS.UPDATED, ssUpdated)
-    stores.emitter.on(ACTIONS.GET_LIQUIDITY_BALANCES_RETURNED, balancesReturned)
-    stores.emitter.on(ACTIONS.PAIR_CREATED, depositReturned)
+    stores.emitter.on(ACTIONS.GET_CREATE_PAIR_BALANCES_RETURNED, balancesReturned)
+    stores.emitter.on(ACTIONS.PAIR_CREATED, createReturned)
     stores.emitter.on(ACTIONS.ERROR, errorReturned)
 
     ssUpdated()
 
     return () => {
       stores.emitter.removeListener(ACTIONS.UPDATED, ssUpdated)
-      stores.emitter.removeListener(ACTIONS.GET_LIQUIDITY_BALANCES_RETURNED, balancesReturned)
-      stores.emitter.removeListener(ACTIONS.PAIR_CREATED, depositReturned)
+      stores.emitter.removeListener(ACTIONS.GET_CREATE_PAIR_BALANCES_RETURNED, balancesReturned)
+      stores.emitter.removeListener(ACTIONS.PAIR_CREATED, createReturned)
       stores.emitter.removeListener(ACTIONS.ERROR, errorReturned)
     };
   }, []);
@@ -80,68 +85,33 @@ export default function SSLiquidityCreate() {
     ssUpdated()
   }, [router.query.address])
 
-
-  const callGetPairBalances = (pp) => {
-    if(pp) {
-      stores.dispatcher.dispatch({ type: ACTIONS.GET_LIQUIDITY_BALANCES, content: {
-        pair: pp
-      }})
-    }
-  }
-
-  const callQuoteAddLiquidity = (amountA, amountB) => {
-    stores.dispatcher.dispatch({ type: ACTIONS.QUOTE_ADD_LIQUIDITY, content: {
-        token0: pair.token0,
-        token1: pair.token1,
-        amount0: amountA,
-        amount1: amount1,
-        pair: pair
-      }
-    })
-  }
-
   const setAmountPercent = (input, percent) => {
     if(input === 'amount0') {
-      let am = BigNumber(pair.token0.balance).times(percent).div(100).toFixed(pair.token0.decimals)
-      setAmount0(am);
-
+      let am = BigNumber(asset0.balance).times(percent).div(100).toFixed(asset0.decimals)
+      setAmount0(am)
     } else if (input === 'amount1') {
-      let am = BigNumber(pair.token1.balance).times(percent).div(100).toFixed(pair.token1.decimals)
-      setAmount1(am);
-
-    } else if (input === 'withdraw') {
-      let am = BigNumber(pair.userPoolBalance).times(percent).div(100).toFixed(18)
-      setWithdrawAmount(am);
-
-      if(am === '') {
-        setWithdrawAmount0('')
-        setWithdrawAmount1('')
-      } else if(am !== '' && !isNaN(am)) {
-        const totalBalances = BigNumber(pair.token0.poolBalance).plus(pair.token1.poolBalance)
-        const coin0Ratio = BigNumber(pair.token0.poolBalance).div(totalBalances).toFixed(18)
-        const coin1Ratio = BigNumber(pair.token1.poolBalance).div(totalBalances).toFixed(18)
-        setWithdrawAmount0(BigNumber(coin0Ratio).times(am).toFixed(18))
-        setWithdrawAmount1(BigNumber(coin1Ratio).times(am).toFixed(18))
-      }
-    } else if (input === 'withdrawAmount0') {
-      setWithdrawAmount0Percent(percent)
-      setWithdrawAmount0(BigNumber(pair.token0.balance).times(percent).div(100).toFixed(pair.token0.decimals));
-    } else if (input === 'withdrawAmount1') {
-      setWithdrawAmount1Percent(percent)
-      setWithdrawAmount1(BigNumber(pair.token1.balance).times(percent).div(100).toFixed(pair.token1.decimals));
+      let am = BigNumber(asset1.balance).times(percent).div(100).toFixed(asset1.decimals)
+      setAmount1(am)
     }
   }
 
   const onCreate = () => {
     setCreateLoading(true)
-
-    stores.dispatcher.dispatch({ type: ACTIONS.ADD_LIQUIDITY, content: {
-      pair: pair,
-      token0: pair.token0,
-      token1: pair.token1,
+    stores.dispatcher.dispatch({ type: ACTIONS.CREATE_PAIR, content: {
+      token0: asset0,
+      token1: asset1,
       amount0: amount0,
       amount1: amount1,
-      minLiquidity: quote ? quote : '0'
+      isStable: true
+    } })
+  }
+
+  const callGetCreatePairBalances = (a0, a1, am0, am1) => {
+    stores.dispatcher.dispatch({ type: ACTIONS.GET_CREATE_PAIR_BALANCES, content: {
+      token0: a0,
+      token1: a1,
+      amount0: am0,
+      amount1: am1
     } })
   }
 
@@ -154,10 +124,12 @@ export default function SSLiquidityCreate() {
   }
 
   const onAssetSelect = (type, value) => {
-    if(type === 'asset0') {
+    if(type === 'amount0') {
       setAsset0(value)
+      callGetCreatePairBalances(value, asset1, amount0, amount1)
     } else {
       setAsset1(value)
+      callGetCreatePairBalances(asset0, value, amount0, amount1)
     }
   }
 
@@ -196,60 +168,85 @@ export default function SSLiquidityCreate() {
     )
   }
 
-  const renderDepositInformation = () => {
+  const renderMassiveTitleInput = (type, balance, assetValue, assetError, assetOptions, onAssetSelect) => {
     return (
-      <div className={ classes.depositInfoContainer }>
-        <Typography className={ classes.depositInfoHeading } >Price Info</Typography>
-        <div className={ classes.priceInfos}>
-          <div className={ classes.priceInfo }>
-            <Typography className={ classes.title } >0.000</Typography>
-            <Typography className={ classes.text } >{ `${pair?.token0?.symbol} per ${pair?.token1?.symbol}` }</Typography>
+      <div className={ classes.textField}>
+        <div className={ classes.inputTitleContainer }>
+          <div className={ classes.inputBalance }>
+            <Typography className={ classes.inputBalanceText } noWrap>
+              Balance: { balance ? ' ' + formatCurrency(balance) : '' }
+            </Typography>
           </div>
-          <div className={ classes.priceInfo }>
-            <Typography className={ classes.title } >0.000</Typography>
-            <Typography className={ classes.text } >{ `${pair?.token1?.symbol} per ${pair?.token0?.symbol}` }</Typography>
+        </div>
+        <div className={ `${classes.massiveInputContainer}` }>
+          <div className={ classes.massiveInputAssetSelect }>
+            <AssetSelect type={type} value={ assetValue } assetOptions={ assetOptions } onSelect={ onAssetSelect } />
           </div>
-          <div className={ classes.priceInfo }>
-            <Typography className={ classes.title } >0.000</Typography>
-            <Typography className={ classes.text } >{ `$ per LP ` }</Typography>
+          <div className={ classes.massiveInputAmount }>
+            <Typography className={classes.largeInput} fullWidth>{ assetValue?.name }</Typography>
           </div>
         </div>
       </div>
     )
   }
 
+  const renderCreateInformation = () => {
+    return (
+      <div className={ classes.depositInfoContainer }>
+        <Typography className={ classes.depositInfoHeading } >Price Info</Typography>
+        <div className={ classes.createPriceInfos}>
+          <div className={ classes.priceInfo }>
+            <Typography className={ classes.title } >0.000</Typography>
+            <Typography className={ classes.text } >{ `${asset0?.symbol} per ${asset1?.symbol}` }</Typography>
+          </div>
+          <div className={ classes.priceInfo }>
+            <Typography className={ classes.title } >0.000</Typography>
+            <Typography className={ classes.text } >{ `${asset1?.symbol} per ${asset0?.symbol}` }</Typography>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const onBack = () => {
+    router.push('/liquidity')
+  }
+
+
   return (
     <div className={classes.retain}>
       <Paper elevation={0} className={ classes.container }>
-        <Grid container spacing={0}>
-          <Grid item lg={12} md={12} sm={12}>
-            <div className={ classes.reAddPadding }>
-              <div className={ classes.inputsContainer }>
-                { renderMassiveInput('amount0', amount0, amount0Error, amount0Changed, balances?.token0, asset0, null, assetOptions, onAssetSelect) }
-                <div className={ classes.swapIconContainer }>
-                  <div className={ classes.swapIconSubContainer }>
-                    <AddIcon className={ classes.swapIcon } />
-                  </div>
-                </div>
-                { renderMassiveInput('amount1', amount1, amount1Error, amount1Changed, balances?.token1, asset1, null, assetOptions, onAssetSelect) }
-                { renderDepositInformation() }
-              </div>
-              <div className={ classes.actionsContainer }>
-                <Button
-                  variant='contained'
-                  size='large'
-                  className={ ((amount0 === '' && amount1 === '') || createLoading) ? classes.multiApprovalButton : classes.buttonOverride }
-                  color='primary'
-                  disabled={ (amount0 === '' && amount1 === '') || createLoading }
-                  onClick={ onCreate }
-                  >
-                  <Typography className={ classes.actionButtonText }>{ createLoading ? `Creating` : `Create Pair` }</Typography>
-                  { createLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
-                </Button>
+        <div className={ classes.titleSection }>
+          <IconButton onClick={ onBack }>
+            <ArrowBackIcon />
+          </IconButton>
+          <Typography className={ classes.titleText }>Create Liquidity Pair</Typography>
+        </div>
+        <div className={ classes.reAddPadding }>
+          <div className={ classes.inputsContainer }>
+            { renderMassiveTitleInput('amount0', balances?.token0, asset0, null, assetOptions, onAssetSelect) }
+            <div className={ classes.swapIconContainer }>
+              <div className={ classes.swapIconSubContainer }>
+                <AddIcon className={ classes.swapIcon } />
               </div>
             </div>
-          </Grid>
-        </Grid>
+            { renderMassiveTitleInput('amount1', balances?.token1, asset1, null, assetOptions, onAssetSelect) }
+            { renderCreateInformation() }
+          </div>
+          <div className={ classes.actionsContainer }>
+            <Button
+              variant='contained'
+              size='large'
+              className={ (createLoading) ? classes.multiApprovalButton : classes.buttonOverride }
+              color='primary'
+              disabled={ createLoading }
+              onClick={ onCreate }
+              >
+              <Typography className={ classes.actionButtonText }>{ createLoading ? `Creating` : `Create Pair` }</Typography>
+              { createLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
+            </Button>
+          </div>
+        </div>
       </Paper>
     </div>
   );

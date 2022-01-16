@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { Paper, Grid, Typography, Button, TextField, InputAdornment, CircularProgress, Tooltip } from '@material-ui/core';
+import { Paper, Grid, Typography, Button, TextField, InputAdornment, CircularProgress, Tooltip, IconButton } from '@material-ui/core';
 import BigNumber from 'bignumber.js';
 import { formatCurrency } from '../../utils';
 import classes from './ssLiquidityManage.module.css';
+
 import AddIcon from '@material-ui/icons/Add';
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 
 import stores from '../../stores'
 import {
@@ -96,6 +98,9 @@ export default function ssLiquidityManage() {
     ssUpdated()
   }, [router.query.address])
 
+  const onBack = () => {
+    router.push('/liquidity')
+  }
 
   const callGetPairBalances = (pp) => {
     if(pp) {
@@ -364,104 +369,104 @@ export default function ssLiquidityManage() {
   return (
     <div className={classes.retain}>
       <Paper elevation={0} className={ classes.container }>
-        <Grid container spacing={0}>
-          <Grid item lg={12} md={12} xs={12}>
-            <div className={classes.toggleButtons}>
-              <Grid container spacing={0}>
-                <Grid item lg={6} md={6} sm={6} xs={6}>
-                  <Paper className={ `${activeTab === 'deposit' ? classes.buttonActive : classes.button} ${ classes.topLeftButton }` } onClick={ toggleDeposit } disabled={ depositLoading }>
-                    <Typography variant='h5'>Deposit</Typography>
-                    <div className={ `${activeTab === 'deposit' ? classes.activeIcon : ''}` }></div>
-                  </Paper>
-                </Grid>
-                <Grid item lg={6} md={6} sm={6} xs={6}>
-                  <Paper className={ `${activeTab === 'withdraw' ? classes.buttonActive : classes.button}  ${ classes.bottomLeftButton }` } onClick={ toggleWithdraw } disabled={ depositLoading }>
-                    <Typography variant='h5'>Withdraw</Typography>
-                    <div className={ `${activeTab === 'withdraw' ? classes.activeIcon : ''}` }></div>
-                  </Paper>
-                </Grid>
-              </Grid>
-            </div>
+        <div className={classes.toggleButtons}>
+          <Grid container spacing={0}>
+            <Grid item lg={6} md={6} sm={6} xs={6}>
+              <Paper className={ `${activeTab === 'deposit' ? classes.buttonActive : classes.button} ${ classes.topLeftButton }` } onClick={ toggleDeposit } disabled={ depositLoading }>
+                <Typography variant='h5'>Deposit</Typography>
+                <div className={ `${activeTab === 'deposit' ? classes.activeIcon : ''}` }></div>
+              </Paper>
+            </Grid>
+            <Grid item lg={6} md={6} sm={6} xs={6}>
+              <Paper className={ `${activeTab === 'withdraw' ? classes.buttonActive : classes.button}  ${ classes.bottomLeftButton }` } onClick={ toggleWithdraw } disabled={ depositLoading }>
+                <Typography variant='h5'>Withdraw</Typography>
+                <div className={ `${activeTab === 'withdraw' ? classes.activeIcon : ''}` }></div>
+              </Paper>
+            </Grid>
           </Grid>
-          <Grid item lg={12} md={12} sm={12}>
-            <div className={ classes.reAddPadding }>
-              <div className={ classes.inputsContainer }>
-                {
-                  activeTab === 'deposit' &&
-                  <>
-                    { renderMassiveInput('amount0', amount0, amount0Error, amount0Changed, balances?.token0, pair?.token0?.logo) }
-                    <div className={ classes.swapIconContainer }>
-                      <div className={ classes.swapIconSubContainer }>
-                        <AddIcon className={ classes.swapIcon } />
-                      </div>
-                    </div>
-                    { renderMassiveInput('amount1', amount1, amount1Error, amount1Changed, balances?.token1, pair?.token1?.logo) }
-                    { renderDepositInformation() }
-                  </>
-                }
-                {
-                  activeTab === 'withdraw' &&
-                  <>
-                    { renderMassiveInput('withdraw', withdrawAmount, null, withdrawAmountChanged, balances?.poolBalance, pair?.logo) }
-                    <div className={ classes.swapIconContainer }>
-                      <div className={ classes.swapIconSubContainer }>
-                        <ArrowDownwardIcon className={ classes.swapIcon } />
-                      </div>
-                    </div>
-                    <div className={ classes.receiveAssets }>
-                      { renderMediumInput('withdrawAmount0', withdrawAmount0, pair?.token0?.logo, pair?.token0?.symbol) }
-                      { renderMediumInput('withdrawAmount1', withdrawAmount1, pair?.token1?.logo, pair?.token1?.symbol) }
-                    </div>
-                    { renderWithdrawInformation() }
-                  </>
-                }
-              </div>
-              {
-                activeTab === 'deposit' &&
-                <div className={ classes.actionsContainer }>
-                  {/*<Button
-                    variant='contained'
-                    size='large'
-                    className={ ((amount0 === '' && amount1 === '') || depositLoading || depositStakeLoading) ? classes.multiApprovalButton : classes.buttonOverride }
-                    color='primary'
-                    disabled={ (amount0 === '' && amount1 === '') || depositLoading || depositStakeLoading }
-                    onClick={ onDeposit }
-                    >
-                    <Typography className={ classes.actionButtonText }>{ depositLoading ? `Depositing` : `Deposit` }</Typography>
-                    { depositLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
-                  </Button>*/}
-                  <Button
-                    variant='contained'
-                    size='large'
-                    className={ ((amount0 === '' && amount1 === '') || depositLoading || depositStakeLoading) ? classes.multiApprovalButton : classes.buttonOverride }
-                    color='primary'
-                    disabled={ (amount0 === '' && amount1 === '') || depositLoading || depositStakeLoading }
-                    onClick={ onDepositAndStake }
-                    >
-                    <Typography className={ classes.actionButtonText }>{ depositStakeLoading ? `Depositing` : `Deposit & Stake` }</Typography>
-                    { depositStakeLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
-                  </Button>
+        </div>
+        <div className={ classes.titleSection }>
+          <IconButton onClick={ onBack }>
+            <ArrowBackIcon />
+          </IconButton>
+          <Typography className={ classes.titleText }>Manage Liquidity Pair</Typography>
+        </div>
+        <div className={ classes.reAddPadding }>
+          <div className={ classes.inputsContainer }>
+            {
+              activeTab === 'deposit' &&
+              <>
+                { renderMassiveInput('amount0', amount0, amount0Error, amount0Changed, balances?.token0, pair?.token0?.logo) }
+                <div className={ classes.swapIconContainer }>
+                  <div className={ classes.swapIconSubContainer }>
+                    <AddIcon className={ classes.swapIcon } />
+                  </div>
                 </div>
-              }
-              {
-                activeTab === 'withdraw' &&
-                <div className={ classes.actionsContainer }>
-                  <Button
-                    variant='contained'
-                    size='large'
-                    color='primary'
-                    className={ (depositLoading || withdrawAmount === '') ? classes.multiApprovalButton : classes.buttonOverride }
-                    disabled={ depositLoading || withdrawAmount === '' }
-                    onClick={ onWithdraw }
-                    >
-                    <Typography className={ classes.actionButtonText }>{ depositLoading ? `Withdrawing` : `Withdraw` }</Typography>
-                    { depositLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
-                  </Button>
+                { renderMassiveInput('amount1', amount1, amount1Error, amount1Changed, balances?.token1, pair?.token1?.logo) }
+                { renderDepositInformation() }
+              </>
+            }
+            {
+              activeTab === 'withdraw' &&
+              <>
+                { renderMassiveInput('withdraw', withdrawAmount, null, withdrawAmountChanged, balances?.poolBalance, pair?.logo) }
+                <div className={ classes.swapIconContainer }>
+                  <div className={ classes.swapIconSubContainer }>
+                    <ArrowDownwardIcon className={ classes.swapIcon } />
+                  </div>
                 </div>
-              }
+                <div className={ classes.receiveAssets }>
+                  { renderMediumInput('withdrawAmount0', withdrawAmount0, pair?.token0?.logo, pair?.token0?.symbol) }
+                  { renderMediumInput('withdrawAmount1', withdrawAmount1, pair?.token1?.logo, pair?.token1?.symbol) }
+                </div>
+                { renderWithdrawInformation() }
+              </>
+            }
+          </div>
+          {
+            activeTab === 'deposit' &&
+            <div className={ classes.actionsContainer }>
+              {/*<Button
+                variant='contained'
+                size='large'
+                className={ ((amount0 === '' && amount1 === '') || depositLoading || depositStakeLoading) ? classes.multiApprovalButton : classes.buttonOverride }
+                color='primary'
+                disabled={ (amount0 === '' && amount1 === '') || depositLoading || depositStakeLoading }
+                onClick={ onDeposit }
+                >
+                <Typography className={ classes.actionButtonText }>{ depositLoading ? `Depositing` : `Deposit` }</Typography>
+                { depositLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
+              </Button>*/}
+              <Button
+                variant='contained'
+                size='large'
+                className={ ((amount0 === '' && amount1 === '') || depositLoading || depositStakeLoading) ? classes.multiApprovalButton : classes.buttonOverride }
+                color='primary'
+                disabled={ (amount0 === '' && amount1 === '') || depositLoading || depositStakeLoading }
+                onClick={ onDepositAndStake }
+                >
+                <Typography className={ classes.actionButtonText }>{ depositStakeLoading ? `Depositing` : `Deposit & Stake` }</Typography>
+                { depositStakeLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
+              </Button>
             </div>
-          </Grid>
-        </Grid>
+          }
+          {
+            activeTab === 'withdraw' &&
+            <div className={ classes.actionsContainer }>
+              <Button
+                variant='contained'
+                size='large'
+                color='primary'
+                className={ (depositLoading || withdrawAmount === '') ? classes.multiApprovalButton : classes.buttonOverride }
+                disabled={ depositLoading || withdrawAmount === '' }
+                onClick={ onWithdraw }
+                >
+                <Typography className={ classes.actionButtonText }>{ depositLoading ? `Withdrawing` : `Withdraw` }</Typography>
+                { depositLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
+              </Button>
+            </div>
+          }
+        </div>
       </Paper>
     </div>
   );

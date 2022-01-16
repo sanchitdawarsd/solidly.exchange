@@ -194,6 +194,7 @@
 
 .reAddPadding {
   padding: 24px 0px;
+  width: 100%;
 }
 
 .loadingCircle {
@@ -441,6 +442,13 @@
   width: 100%;
 }
 
+.createPriceInfos {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-gap: 12px;
+  width: 100%;
+}
+
 .priceInfo {
   display: flex;
   flex-direction: column;
@@ -473,6 +481,15 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.titleSection {
+  display: flex;
+  align-items: center;
+}
+
+.titleText {
+  font-size: 24px !important;
 }
 
 

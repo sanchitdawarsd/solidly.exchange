@@ -53,7 +53,6 @@ export default function ssVest() {
           veToken={veToken}
         />
       )}
-      { router.query.id === 'create' && !nft && <Loading /> }
       { router.query.id !== 'create' && nft && BigNumber(nft.lockEnds).gte(moment().unix()) && BigNumber(nft.lockEnds).gt(0) && (
         <ExistingLock
           nft={nft}

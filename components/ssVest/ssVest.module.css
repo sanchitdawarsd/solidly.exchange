@@ -32,6 +32,18 @@
   grid-gap: 36px;
 }
 
+.container3 {
+  width: calc(100%);
+  border: 1px solid rgba(104, 108, 122, 0.25);
+  left: 0;
+  right: 0;
+  margin: auto;
+  padding: 24px;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-gap: 4px;
+}
+
 .contentBox {
   background: rgb(25, 33, 56);
   padding: 30px;

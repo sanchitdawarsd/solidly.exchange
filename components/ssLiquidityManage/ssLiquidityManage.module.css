@@ -435,6 +435,15 @@
   font-size: 14px !important;
 }
 
+.titleSection {
+  display: flex;
+  align-items: center;
+}
+
+.titleText {
+  font-size: 24px !important;
+}
+
 @media screen and (max-width: 1280px) {
   .actionsContainer {
     border-left: 0px solid rgba(104, 108, 122, 0.25) !important;

@@ -49,6 +49,9 @@ class Store {
           case ACTIONS.CREATE_PAIR:
             this.createPair(payload)
             break
+          case ACTIONS.GET_CREATE_PAIR_BALANCES:
+            this.getCreatePairBalances(payload)
+            break
           case ACTIONS.ADD_LIQUIDITY:
             this.addLiquidity(payload)
             break
@@ -62,7 +65,7 @@ class Store {
             this.getLiquidityBalances(payload)
             break
 
-          // LIQUIDITY
+          // SWAP
           case ACTIONS.QUOTE_SWAP:
             this.quoteSwap(payload)
             break
@@ -718,14 +721,55 @@ class Store {
         return null
       }
 
-      const { token0, token1 } = payload.content
+      const { token0, token1, isStable } = payload.content
+
+      // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
+      let createTXID = this.getTXUUID()
+      let createGaugeTXID = this.getTXUUID()
+
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CREATE ${token0.symbol} / ${token1.symbol} PAIR`, transactions: [
+        {
+          uuid: createTXID,
+          description: `CREATE ${token0.symbol} / ${token1.symbol} PAIR`,
+          status: 'WAITING'
+        },
+        {
+          uuid: createGaugeTXID,
+          description: `CREATE ${token0.symbol} / ${token1.symbol} GAUGE`,
+          status: 'WAITING'
+        },
+      ]})
+
       const gasPrice = await stores.accountStore.getGasPrice()
+
       const factoryContract = new web3.eth.Contract(CONTRACTS.FACTORY_ABI, CONTRACTS.FACTORY_ADDRESS)
-      this._callContractWait(web3, factoryContract, 'createPair', [token0.address, token1.address], account, gasPrice, null, null, null, (err) => {
+      const gaugesContract = new web3.eth.Contract(CONTRACTS.GAUGES_ABI, CONTRACTS.GAUGES_ADDRESS)
+
+      const pooolAddress = await factoryContract.methods.getPair(token0.address, token1.address, isStable).call()
+      if(pooolAddress && pooolAddress !== ZERO_ADDRESS) {
+        this.emitter.emit(ACTIONS.TX_REJECTED, { uuid: createTXID, error: 'Pool already exists' })
+        return this.emitter.emit(ACTIONS.ERROR, 'Pool already exists');
+      }
+
+      this._callContractWait(web3, factoryContract, 'createPair', [token0.address, token1.address, isStable], account, gasPrice, null, null, createTXID, async (err) => {
         if (err) {
           return this.emitter.emit(ACTIONS.ERROR, err);
         }
-        this.emitter.emit(ACTIONS.PAIR_CREATED)
+
+        const pooolAddress = await factoryContract.methods.getPair(token0.address, token1.address, isStable).call()
+
+        if(!pooolAddress || pooolAddress === ZERO_ADDRESS) {
+          this.emitter.emit(ACTIONS.TX_REJECTED, { uuid: createGaugeTXID, error: 'Pool address not found' })
+          return this.emitter.emit(ACTIONS.ERROR, 'Pool address not found');
+        }
+
+        this._callContractWait(web3, gaugesContract, 'createGauge', [pooolAddress], account, gasPrice, null, null, createGaugeTXID, (err) => {
+          if (err) {
+            return this.emitter.emit(ACTIONS.ERROR, err);
+          }
+
+          this.emitter.emit(ACTIONS.PAIR_CREATED)
+        })
       })
 
     } catch(ex) {
@@ -1184,6 +1228,46 @@ class Store {
     }
   }
 
+  getCreatePairBalances = async (payload) => {
+    try {
+      const account = stores.accountStore.getStore("account")
+      if (!account) {
+        console.warn('account not found')
+        return null
+      }
+
+      const web3 = await stores.accountStore.getWeb3Provider()
+      if (!web3) {
+        console.warn('web3 not found')
+        return null
+      }
+
+      const { token0, token1 } = payload.content
+
+      const token0Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, token0.address)
+      const token1Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, token1.address)
+
+      const balanceCalls = [
+        token0Contract.methods.balanceOf(account.address).call(),
+        token1Contract.methods.balanceOf(account.address).call(),
+      ]
+
+      // get asset prices -> needs some oracle somewhere.
+
+      const [ token0Balance, token1Balance ] = await Promise.all(balanceCalls);
+
+      const returnVal = {
+        token0: BigNumber(token0Balance).div(10**token0.decimals).toFixed(token0.decimals),
+        token1: BigNumber(token1Balance).div(10**token1.decimals).toFixed(token1.decimals),
+      }
+
+      this.emitter.emit(ACTIONS.GET_CREATE_PAIR_BALANCES_RETURNED, returnVal)
+    } catch(ex) {
+      console.error(ex)
+      this.emitter.emit(ACTIONS.ERROR, ex)
+    }
+  }
+
 
   quoteSwap = async (payload) => {
     try {
@@ -1456,11 +1540,11 @@ class Store {
             // maxFeePerGas: web3.utils.toWei(gasPrice, "gwei"),
             // maxPriorityFeePerGas: web3.utils.toWei("2", "gwei"),
           })
-          .on("transactionHash", function (hash) {
-            context.emitter.emit(ACTIONS.TX_SUBMITTED, { uuid })
+          .on("transactionHash", function (txHash) {
+            context.emitter.emit(ACTIONS.TX_SUBMITTED, { uuid, txHash })
           })
           .on("receipt", function (receipt) {
-            context.emitter.emit(ACTIONS.TX_CONFIRMED, { uuid })
+            context.emitter.emit(ACTIONS.TX_CONFIRMED, { uuid, txHash })
             callback(null, receipt.transactionHash)
             if (dispatchEvent) {
               context.dispatcher.dispatch({ type: dispatchEvent, content: dispatchContent })

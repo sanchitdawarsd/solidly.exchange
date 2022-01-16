@@ -202,7 +202,7 @@ export default function ssLock({ govToken, veToken }) {
 
   return (
     <>
-      <Paper elevation={0} className={ classes.container2 }>
+      <Paper elevation={0} className={ classes.container3 }>
         <div className={ classes.titleSection }>
           <IconButton onClick={ onBack }>
             <ArrowBackIcon />

@@ -52,7 +52,7 @@ class SnackbarController extends Component {
     });
   };
 
-  showHash = txHash => {
+  showHash = ({ txHash }) => {
     const snackbarObj = {
       snackbarMessage: null,
       snackbarType: null,

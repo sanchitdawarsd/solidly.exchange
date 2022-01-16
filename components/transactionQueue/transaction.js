@@ -9,6 +9,7 @@ import ErrorIcon from '@material-ui/icons/Error';
 import PauseIcon from '@material-ui/icons/Pause';
 
 import { ACTIONS, ETHERSCAN_URL } from '../../stores/constants';
+import { formatAddress } from '../../utils'
 
 export default function Transaction({ transaction }) {
 
@@ -68,11 +69,11 @@ export default function Transaction({ transaction }) {
       { expanded &&
         <div className={ classes.transactionExpanded }>
           { transaction.txHash &&
-            <div>
-              <Typography>{ transaction.txHash }</Typography>
+            <div className={ classes.transaactionHash }>
+              <Typography>{ formatAddress(transaction.txHash, 'long') }</Typography>
               <Button
                 onClick={ onViewTX }>
-                View TX in Explorer
+                View in Explorer
               </Button>
             </div>
           }

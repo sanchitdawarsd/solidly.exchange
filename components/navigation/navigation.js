@@ -118,6 +118,10 @@ function Navigation(props) {
           'Vote',
           'vote',
         )}
+        {/*renderSubNav(
+          'Bribe',
+          'bribe',
+        )*/}
       </ToggleButtonGroup>
     );
   };

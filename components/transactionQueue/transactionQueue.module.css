@@ -22,6 +22,10 @@
   cursor: pointer;
 }
 
+.transaction:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+
 .transactionInfo {
   display: flex;
   justify-content: space-between;
@@ -29,13 +33,13 @@
 }
 
 .transactionExpanded {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
 }
 
-.transaction:hover {
-  background: rgba(0, 0, 0, 0.2);
+.transaactionHash {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .orangeIcon {
