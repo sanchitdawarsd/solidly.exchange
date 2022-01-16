@@ -81,8 +81,20 @@ class Store {
 
 
           // VESTING
-            case ACTIONS.GET_VEST_NFTS:
+          case ACTIONS.GET_VEST_NFTS:
             this.getVestNFTs(payload)
+            break;
+          case ACTIONS.CREATE_VEST:
+            this.createVest(payload)
+            break;
+          case ACTIONS.INCREASE_VEST_AMOUNT:
+            this.increaseVestAmount(payload)
+            break;
+          case ACTIONS.INCREASE_VEST_DURATION:
+            this.increaseVestDuration(payload)
+            break;
+          case ACTIONS.WITHDRAW_VEST:
+            this.withdrawVest(payload)
             break;
           default: {
           }
@@ -1675,6 +1687,7 @@ class Store {
 
       const gasPrice = await stores.accountStore.getGasPrice()
 
+      const allowanceCallsPromises = []
 
       // SUBMIT REQUIRED ALLOWANCE TRANSACTIONS
       if(BigNumber(allowance).lt(fromAmount)) {
@@ -1691,8 +1704,10 @@ class Store {
           })
         })
 
-        const done = await tokenPromise()
+        allowanceCallsPromises.push(tokenPromise)
       }
+
+      const done = await Promise.all(allowanceCallsPromises)
 
       // SUBMIT SWAP TRANSACTION
       const sendFromAmount = BigNumber(fromAmount).times(10**fromAsset.decimals).toFixed(0)
@@ -1778,6 +1793,306 @@ class Store {
     }
   }
 
+  createVest = async (payload) => {
+    try {
+      const account = stores.accountStore.getStore("account")
+      if (!account) {
+        console.warn('account not found')
+        return null
+      }
+
+      const web3 = await stores.accountStore.getWeb3Provider()
+      if (!web3) {
+        console.warn('web3 not found')
+        return null
+      }
+
+      const govToken = this.getStore('govToken')
+      const { amount, unlockTime } = payload.content
+
+      // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
+      let allowanceTXID = this.getTXUUID()
+      let vestTXID = this.getTXUUID()
+
+      const unlockString = moment.unix(unlockTime).format('YYYY-MM-DD')
+
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `VEST ${govToken.symbol} UNTIL ${unlockString}`, transactions: [
+        {
+          uuid: allowanceTXID,
+          description: `CHECKING YOUR ${govToken.symbol} ALLOWANCES`,
+          status: 'WAITING'
+        },
+        {
+          uuid: vestTXID,
+          description: `SUBMIT VEST TRANSACTION`,
+          status: 'WAITING'
+        }
+      ]})
+
+
+      // CHECK ALLOWANCES AND SET TX DISPLAY
+      const allowance = await this._getVestAllowance(web3, govToken, account)
+
+      if(BigNumber(allowance).lt(amount)) {
+        this.emitter.emit(ACTIONS.TX_STATUS, {
+          uuid: allowanceTXID,
+          description: `ALLOW ROUTER TO SPEND YOUR ${govToken.symbol}`
+        })
+      } else {
+        this.emitter.emit(ACTIONS.TX_STATUS, {
+          uuid: allowanceTXID,
+          description: `ALLOWANCE ON ${govToken.symbol} SET`,
+          status: 'DONE'
+        })
+      }
+
+      const gasPrice = await stores.accountStore.getGasPrice()
+
+      const allowanceCallsPromises = []
+
+      // SUBMIT REQUIRED ALLOWANCE TRANSACTIONS
+      if(BigNumber(allowance).lt(amount)) {
+        const tokenContract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, govToken.address)
+
+        const tokenPromise = new Promise((resolve, reject) => {
+          this._callContractWait(web3, tokenContract, 'approve', [CONTRACTS.VE_TOKEN_ADDRESS, MAX_UINT256], account, gasPrice, null, null, allowanceTXID, (err) => {
+            if (err) {
+              reject(err)
+              return
+            }
+
+            resolve()
+          })
+        })
+
+        allowanceCallsPromises.push(tokenPromise)
+      }
+
+      const done = await Promise.all(allowanceCallsPromises)
+
+      // SUBMIT VEST TRANSACTION
+      const sendAmount = BigNumber(amount).times(10**govToken.decimals).toFixed(0)
+
+      const veTokenContract = new web3.eth.Contract(CONTRACTS.VE_TOKEN_ABI, CONTRACTS.VE_TOKEN_ADDRESS)
+
+      this._callContractWait(web3, veTokenContract, 'create_lock', [sendAmount, unlockTime+''], account, gasPrice, null, null, vestTXID, (err) => {
+        if (err) {
+          return this.emitter.emit(ACTIONS.ERROR, err);
+        }
+
+        this.emitter.emit(ACTIONS.CREATE_VEST_RETURNED)
+      })
+
+    } catch(ex) {
+      console.error(ex)
+      this.emitter.emit(ACTIONS.ERROR, ex)
+    }
+  }
+
+  _getVestAllowance = async (web3, token, account) => {
+    try {
+      const tokenContract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, token.address)
+      const allowance = await tokenContract.methods.allowance(account.address, CONTRACTS.VE_TOKEN_ADDRESS).call()
+      return BigNumber(allowance).div(10**token.decimals).toFixed(token.decimals)
+    } catch (ex) {
+      console.error(ex)
+      return null
+    }
+  }
+
+  increaseVestAmount = async (payload) => {
+    try {
+      const account = stores.accountStore.getStore("account")
+      if (!account) {
+        console.warn('account not found')
+        return null
+      }
+
+      const web3 = await stores.accountStore.getWeb3Provider()
+      if (!web3) {
+        console.warn('web3 not found')
+        return null
+      }
+
+      const govToken = this.getStore('govToken')
+      const { amount, tokenID } = payload.content
+
+      // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
+      let allowanceTXID = this.getTXUUID()
+      let vestTXID = this.getTXUUID()
+
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `INCREASE VEST AMOUNT ON TOKEN #${tokenID}`, transactions: [
+        {
+          uuid: allowanceTXID,
+          description: `CHECKING YOUR ${govToken.symbol} ALLOWANCES`,
+          status: 'WAITING'
+        },
+        {
+          uuid: vestTXID,
+          description: `SUBMIT VEST TRANSACTION`,
+          status: 'WAITING'
+        }
+      ]})
+
+
+      // CHECK ALLOWANCES AND SET TX DISPLAY
+      const allowance = await this._getVestAllowance(web3, govToken, account)
+
+      if(BigNumber(allowance).lt(amount)) {
+        this.emitter.emit(ACTIONS.TX_STATUS, {
+          uuid: allowanceTXID,
+          description: `ALLOW ROUTER TO SPEND YOUR ${govToken.symbol}`
+        })
+      } else {
+        this.emitter.emit(ACTIONS.TX_STATUS, {
+          uuid: allowanceTXID,
+          description: `ALLOWANCE ON ${govToken.symbol} SET`,
+          status: 'DONE'
+        })
+      }
+
+      const gasPrice = await stores.accountStore.getGasPrice()
+
+      const allowanceCallsPromises = []
+
+      // SUBMIT REQUIRED ALLOWANCE TRANSACTIONS
+      if(BigNumber(allowance).lt(amount)) {
+        const tokenContract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, govToken.address)
+
+        const tokenPromise = new Promise((resolve, reject) => {
+          this._callContractWait(web3, tokenContract, 'approve', [CONTRACTS.VE_TOKEN_ADDRESS, MAX_UINT256], account, gasPrice, null, null, allowanceTXID, (err) => {
+            if (err) {
+              reject(err)
+              return
+            }
+
+            resolve()
+          })
+        })
+
+        allowanceCallsPromises.push(tokenPromise)
+      }
+
+      const done = await Promise.all(allowanceCallsPromises)
+
+      // SUBMIT INCREASE TRANSACTION
+      const sendAmount = BigNumber(amount).times(10**govToken.decimals).toFixed(0)
+
+      const veTokenContract = new web3.eth.Contract(CONTRACTS.VE_TOKEN_ABI, CONTRACTS.VE_TOKEN_ADDRESS)
+
+      this._callContractWait(web3, veTokenContract, 'increase_amount', [tokenID, sendAmount], account, gasPrice, null, null, vestTXID, (err) => {
+        if (err) {
+          return this.emitter.emit(ACTIONS.ERROR, err);
+        }
+
+        this.emitter.emit(ACTIONS.INCREASE_VEST_AMOUNT_RETURNED)
+      })
+
+    } catch(ex) {
+      console.error(ex)
+      this.emitter.emit(ACTIONS.ERROR, ex)
+    }
+  }
+
+  increaseVestDuration = async (payload) => {
+    try {
+      const account = stores.accountStore.getStore("account")
+      if (!account) {
+        console.warn('account not found')
+        return null
+      }
+
+      const web3 = await stores.accountStore.getWeb3Provider()
+      if (!web3) {
+        console.warn('web3 not found')
+        return null
+      }
+
+      const govToken = this.getStore('govToken')
+      const { tokenID, unlockTime } = payload.content
+
+      // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
+      let vestTXID = this.getTXUUID()
+
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `INCREASE UNLOCK TIME ON TOKEN #${tokenID}`, transactions: [
+        {
+          uuid: vestTXID,
+          description: `SUBMIT VEST TRANSACTION`,
+          status: 'WAITING'
+        }
+      ]})
+
+
+      const gasPrice = await stores.accountStore.getGasPrice()
+
+      // SUBMIT INCREASE TRANSACTION
+      const sendAmount = BigNumber(amount).times(10**govToken.decimals).toFixed(0)
+
+      const veTokenContract = new web3.eth.Contract(CONTRACTS.VE_TOKEN_ABI, CONTRACTS.VE_TOKEN_ADDRESS)
+
+      this._callContractWait(web3, veTokenContract, 'increase_unlock_time', [tokenID, unlockTime+''], account, gasPrice, null, null, vestTXID, (err) => {
+        if (err) {
+          return this.emitter.emit(ACTIONS.ERROR, err);
+        }
+
+        this.emitter.emit(ACTIONS.INCREASE_VEST_DURATION_RETURNED)
+      })
+
+    } catch(ex) {
+      console.error(ex)
+      this.emitter.emit(ACTIONS.ERROR, ex)
+    }
+  }
+
+  withdrawVest = async (payload) => {
+    try {
+      const account = stores.accountStore.getStore("account")
+      if (!account) {
+        console.warn('account not found')
+        return null
+      }
+
+      const web3 = await stores.accountStore.getWeb3Provider()
+      if (!web3) {
+        console.warn('web3 not found')
+        return null
+      }
+
+      const govToken = this.getStore('govToken')
+      const { tokenID } = payload.content
+
+      // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
+      let vestTXID = this.getTXUUID()
+
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `WITHDRAW VEST AMOUNT ON TOKEN #${tokenID}`, transactions: [
+        {
+          uuid: vestTXID,
+          description: `SUBMIT WITHDRAW VEST TRANSACTION`,
+          status: 'WAITING'
+        }
+      ]})
+
+
+      const gasPrice = await stores.accountStore.getGasPrice()
+
+      // SUBMIT INCREASE TRANSACTION
+      const veTokenContract = new web3.eth.Contract(CONTRACTS.VE_TOKEN_ABI, CONTRACTS.VE_TOKEN_ADDRESS)
+
+      this._callContractWait(web3, veTokenContract, 'withdraw', [tokenID], account, gasPrice, null, null, vestTXID, (err) => {
+        if (err) {
+          return this.emitter.emit(ACTIONS.ERROR, err);
+        }
+
+        this.emitter.emit(ACTIONS.WITHDRAW_VEST_RETURNED)
+      })
+
+    } catch(ex) {
+      console.error(ex)
+      this.emitter.emit(ACTIONS.ERROR, ex)
+    }
+  }
+
+
   _callContractWait = (web3, contract, method, params, account, gasPrice, dispatchEvent, dispatchContent, uuid, callback, paddGasCost) => {
 
     console.log(contract)
@@ -1844,7 +2159,7 @@ class Store {
           this.emitter.emit(ACTIONS.TX_REJECTED, { uuid, error: ex.message })
           return callback(ex.message)
         }
-        this.emitter.emit(ACTIONS.TX_REJECTED, { uuid, error: ex })
+        this.emitter.emit(ACTIONS.TX_REJECTED, { uuid, error: 'Error estimating gas' })
         callback(ex)
       })
   }

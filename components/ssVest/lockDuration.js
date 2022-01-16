@@ -7,7 +7,7 @@ import {
   ACTIONS
 } from '../../stores/constants';
 
-export default function ffLockDuration({ govToken, veToken }) {
+export default function ffLockDuration({ nft, govToken, veToken }) {
 
   const inputEl = useRef(null);
   const [ lockLoading, setLockLoading ] = useState(false)
@@ -25,10 +25,10 @@ export default function ffLockDuration({ govToken, veToken }) {
     }
 
     stores.emitter.on(ACTIONS.ERROR, errorReturned);
-    stores.emitter.on(ACTIONS.FIXED_FOREX_DURATION_VESTED, lockReturned);
+    stores.emitter.on(ACTIONS.INCREASE_VEST_DURATION_RETURNED, lockReturned);
     return () => {
       stores.emitter.removeListener(ACTIONS.ERROR, errorReturned);
-      stores.emitter.removeListener(ACTIONS.FIXED_FOREX_DURATION_VESTED, lockReturned);
+      stores.emitter.removeListener(ACTIONS.INCREASE_VEST_DURATION_RETURNED, lockReturned);
     };
   }, []);
 
@@ -72,7 +72,7 @@ export default function ffLockDuration({ govToken, veToken }) {
     setLockLoading(true)
 
     const selectedDateUnix = moment(selectedDate).unix()
-    stores.dispatcher.dispatch({ type: ACTIONS.FIXED_FOREX_VEST_DURATION, content: { unlockTime: selectedDateUnix } })
+    stores.dispatcher.dispatch({ type: ACTIONS.INCREASE_VEST_DURATION, content: { unlockTime: selectedDateUnix, tokenID: nft.id } })
   }
 
   const focus = () => {

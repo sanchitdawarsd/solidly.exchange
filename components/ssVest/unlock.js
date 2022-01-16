@@ -25,16 +25,16 @@ export default function Unlock({ nft, govToken, veToken }) {
     }
 
     stores.emitter.on(ACTIONS.ERROR, errorReturned);
-    stores.emitter.on(ACTIONS.FIXED_FOREX_LOCK_WITHDRAWN, lockReturned);
+    stores.emitter.on(ACTIONS.WITHDRAW_VEST_RETURNED, lockReturned);
     return () => {
       stores.emitter.removeListener(ACTIONS.ERROR, errorReturned);
-      stores.emitter.removeListener(ACTIONS.FIXED_FOREX_LOCK_WITHDRAWN, lockReturned);
+      stores.emitter.removeListener(ACTIONS.WITHDRAW_VEST_RETURNED, lockReturned);
     };
   }, []);
 
   const onWithdraw = () => {
     setLockLoading(true)
-    stores.dispatcher.dispatch({ type: ACTIONS.FIXED_FOREX_WITHDRAW_LOCK, content: {  } })
+    stores.dispatcher.dispatch({ type: ACTIONS.WITHDRAW_VEST, content: { tokenID: nft.id } })
   }
 
   const onBack = () => {

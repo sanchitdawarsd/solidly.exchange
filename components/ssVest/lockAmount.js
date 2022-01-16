@@ -9,13 +9,14 @@ import {
   ACTIONS
 } from '../../stores/constants';
 
-export default function ffLockAmount({ govToken }) {
+export default function ffLockAmount({ nft, govToken }) {
 
   const [ approvalLoading, setApprovalLoading ] = useState(false)
   const [ lockLoading, setLockLoading ] = useState(false)
 
   const [amount, setAmount] = useState('');
   const [amountError, setAmountError] = useState(false);
+
 
   useEffect(() => {
     const lockReturned = () => {
@@ -28,10 +29,10 @@ export default function ffLockAmount({ govToken }) {
     }
 
     stores.emitter.on(ACTIONS.ERROR, errorReturned);
-    stores.emitter.on(ACTIONS.FIXED_FOREX_AMOUNT_VESTED, lockReturned);
+    stores.emitter.on(ACTIONS.INCREASE_VEST_AMOUNT_RETURNED, lockReturned);
     return () => {
       stores.emitter.removeListener(ACTIONS.ERROR, errorReturned);
-      stores.emitter.removeListener(ACTIONS.FIXED_FOREX_AMOUNT_VESTED, lockReturned);
+      stores.emitter.removeListener(ACTIONS.INCREASE_VEST_AMOUNT_RETURNED, lockReturned);
     };
   }, []);
 
@@ -41,7 +42,7 @@ export default function ffLockAmount({ govToken }) {
 
   const onLock = () => {
     setLockLoading(true)
-    stores.dispatcher.dispatch({ type: ACTIONS.FIXED_FOREX_VEST_AMOUNT, content: { amount } })
+    stores.dispatcher.dispatch({ type: ACTIONS.INCREASE_VEST_AMOUNT, content: { amount, tokenID: nft.id } })
   }
 
   const amountChanged = (event) => {

@@ -34,10 +34,10 @@ export default function ssLock({ govToken, veToken }) {
     }
 
     stores.emitter.on(ACTIONS.ERROR, errorReturned);
-    stores.emitter.on(ACTIONS.FIXED_FOREX_VESTED, lockReturned);
+    stores.emitter.on(ACTIONS.CREATE_VEST_RETURNED, lockReturned);
     return () => {
       stores.emitter.removeListener(ACTIONS.ERROR, errorReturned);
-      stores.emitter.removeListener(ACTIONS.FIXED_FOREX_VESTED, lockReturned);
+      stores.emitter.removeListener(ACTIONS.CREATE_VEST_RETURNED, lockReturned);
     };
   }, []);
 
@@ -78,7 +78,7 @@ export default function ssLock({ govToken, veToken }) {
     setLockLoading(true)
 
     const selectedDateUnix = moment(selectedDate).unix()
-    stores.dispatcher.dispatch({ type: ACTIONS.FIXED_FOREX_VEST, content: { amount, unlockTime: selectedDateUnix } })
+    stores.dispatcher.dispatch({ type: ACTIONS.CREATE_VEST, content: { amount, unlockTime: selectedDateUnix } })
   }
 
   let min = 0

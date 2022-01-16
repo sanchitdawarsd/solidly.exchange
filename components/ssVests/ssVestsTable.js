@@ -43,19 +43,19 @@ const headCells = [
     id: 'Locked Amount',
     numeric: true,
     disablePadding: false,
-    label: 'Wallet',
+    label: 'Vest Amount',
   },
   {
     id: 'Lock Value',
     numeric: true,
     disablePadding: false,
-    label: 'Pool',
+    label: 'Vest Value',
   },
   {
     id: 'Lock Expires',
     numeric: true,
     disablePadding: false,
-    label: 'Staked',
+    label: 'Vest Expires',
   },
   {
     id: '',
@@ -330,10 +330,10 @@ export default function EnhancedTable({ vestNFTs }) {
                         />
                       </div>
                       <div>
-                        <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                        <Typography variant='h2' className={classes.textSpaced}>
                           {row.id}
                         </Typography>
-                        <Typography variant='h2' className={classes.textSpaced}>
+                        <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
                           NFT ID
                         </Typography>
                       </div>
@@ -344,7 +344,7 @@ export default function EnhancedTable({ vestNFTs }) {
                       {formatCurrency(row.lockAmount)}
                     </Typography>
                     <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                      Rock Solids
+                      Solids
                     </Typography>
                   </TableCell>
                   <TableCell className={classes.cell} align='right'>
@@ -352,7 +352,7 @@ export default function EnhancedTable({ vestNFTs }) {
                       {formatCurrency(row.lockValue)}
                     </Typography>
                     <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                      Rock Solids
+                      Solids
                     </Typography>
                   </TableCell>
                   <TableCell className={classes.cell} align='right'>
@@ -360,7 +360,7 @@ export default function EnhancedTable({ vestNFTs }) {
                       { moment.unix(row.lockEnds).format('YYYY-MM-DD') }
                     </Typography>
                     <Typography variant="h5" className={classes.textSpaced} color='textSecondary'>
-                      { moment.unix(row.lockEnds).fromNow() }
+                      Expires { moment.unix(row.lockEnds).fromNow() }
                     </Typography>
                   </TableCell>
                   <TableCell className={classes.cell} align='right'>
