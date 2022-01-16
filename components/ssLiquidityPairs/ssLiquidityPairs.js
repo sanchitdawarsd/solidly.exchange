@@ -14,6 +14,7 @@ export default function ssLiquidityPairs() {
   const forceUpdate = useCallback(() => updateState({}), []);
 
   const [pairs, setPairs] = useState([])
+  const [pairBalancesLoading, setPairBalancesLoading] = useState(false)
 
   useEffect(() => {
     const stableSwapUpdated = () => {

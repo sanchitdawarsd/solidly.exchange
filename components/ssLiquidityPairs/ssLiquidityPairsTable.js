@@ -50,13 +50,25 @@ const headCells = [
     id: 'poolBalance',
     numeric: true,
     disablePadding: false,
-    label: 'Pool',
+    label: 'My Pool Amount',
   },
   {
     id: 'stakedBalance',
     numeric: true,
     disablePadding: false,
-    label: 'Staked',
+    label: 'My Staked Amount',
+  },
+  {
+    id: 'reserve0',
+    numeric: true,
+    disablePadding: false,
+    label: 'Total Pool Amount',
+  },
+  {
+    id: 'apy',
+    numeric: true,
+    disablePadding: false,
+    label: 'APY',
   },
   {
     id: '',
@@ -134,6 +146,8 @@ const useStyles = makeStyles((theme) => ({
   },
   textSpaced: {
     lineHeight: '1.5',
+    fontWeight: '200',
+    fontSize: '12px'
   },
   cell: {},
   cellSuccess: {
@@ -368,36 +382,56 @@ export default function EnhancedTable({ pairs }) {
                         />
                       </div>
                       <div>
-                        <Typography variant='h2' className={classes.textSpaced}>
-                          {row.symbol}
-                        </Typography>
-                        <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                          {row.name}
+                        <Typography variant='h2' >
+                          {row?.token0?.symbol}/{row?.token1?.symbol}
                         </Typography>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell className={classes.cell} align='right'>
                     <Typography variant='h2' className={classes.textSpaced}>
-                      {formatCurrency(row.balance)}
+                      {formatCurrency(row?.token0?.balance)} / {formatCurrency(row?.token1?.balance)}
                     </Typography>
                     <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                      {row.symbol}
+                      {row?.token0?.symbol}/{row?.token1?.symbol}
                     </Typography>
                   </TableCell>
                   <TableCell className={classes.cell} align='right'>
                     <Typography variant='h2' className={classes.textSpaced}>
-                      {formatCurrency(row.poolBalance)}
+                      {formatCurrency(row?.balance)}
                     </Typography>
                     <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                      0.00%
+                      {formatCurrency(BigNumber(row?.balance).times(100).div(row?.totalSupply))}%
                     </Typography>
                   </TableCell>
                   <TableCell className={classes.cell} align='right'>
                     <Typography variant='h2' className={classes.textSpaced}>
-                      {formatCurrency(row.stakedBalance)}
+                      {formatCurrency(row?.gauge?.balance)}
                     </Typography>
                     <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                      {formatCurrency(BigNumber(row?.gauge?.balance).times(100).div(row?.gauge?.totalSupply))}
+                    </Typography>
+                  </TableCell>
+                  <TableCell className={classes.cell} align='right'>
+                    <div className={ classes.inline }>
+                      <Typography variant='h2' className={classes.textSpaced}>
+                        {formatCurrency(row?.gauge?.reserve0)}
+                      </Typography>
+                      <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                        { row?.token0?.symbol }
+                      </Typography>
+                    </div>
+                    <div className={ classes.inline }>
+                      <Typography variant='h2' className={classes.textSpaced}>
+                        {formatCurrency(row?.gauge?.reserve1)}
+                      </Typography>
+                      <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                        { row?.token1?.symbol }
+                      </Typography>
+                    </div>
+                  </TableCell>
+                  <TableCell className={classes.cell} align='right'>
+                    <Typography variant='h2' className={classes.textSpaced}>
                       0.00%
                     </Typography>
                   </TableCell>
@@ -409,7 +443,7 @@ export default function EnhancedTable({ pairs }) {
                         onView(row);
                       }}
                     >
-                      Manage
+                      { BigNumber(row.poolBalance).gt(0) ? 'Manage' : 'Deposit' }
                     </Button>
                   </TableCell>
                 </TableRow>

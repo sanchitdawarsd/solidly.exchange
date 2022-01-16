@@ -536,7 +536,7 @@ class Store {
 
           const pairContract = new web3.eth.Contract(CONTRACTS.PAIR_ABI, pairAddress)
 
-          const [ token0, token1, totalSupply, symbol, reserve0, reserve1, decimals, gaugeAddress ] = await Promise.all([
+          const [ token0, token1, totalSupply, symbol, reserve0, reserve1, decimals, balanceOf, gaugeAddress ] = await Promise.all([
             pairContract.methods.token0().call(),
             pairContract.methods.token1().call(),
             pairContract.methods.totalSupply().call(),
@@ -544,43 +544,52 @@ class Store {
             pairContract.methods.reserve0().call(),
             pairContract.methods.reserve1().call(),
             pairContract.methods.decimals().call(),
+            pairContract.methods.balanceOf(account.address).call(),
             gaugesContract.methods.gauges(pairAddress).call()
           ])
 
           const token0Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, token0)
           const token1Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, token1)
 
-          const [ token0Symbol, token0Decimals, token1Symbol, token1Decimals ] = await Promise.all([
+          const [ token0Symbol, token0Decimals, token0Balance, token1Symbol, token1Decimals, token1Balance ] = await Promise.all([
             token0Contract.methods.symbol().call(),
             token0Contract.methods.decimals().call(),
+            token0Contract.methods.balanceOf(account.address).call(),
             token1Contract.methods.symbol().call(),
-            token1Contract.methods.decimals().call()
+            token1Contract.methods.decimals().call(),
+            token1Contract.methods.balanceOf(account.address).call(),
           ])
 
           const thePair = {
             address: pairAddress,
             symbol: symbol,
+            decimals: parseInt(decimals),
             token0: {
               address: token0,
               symbol: token0Symbol,
+              balance: BigNumber(token0Balance).div(10**token0Decimals).toFixed(parseInt(token0Decimals)),
               decimals: parseInt(token0Decimals)
             },
             token1: {
               address: token1,
               symbol: token1Symbol,
+              balance: BigNumber(token1Balance).div(10**token1Decimals).toFixed(parseInt(token1Decimals)),
               decimals: parseInt(token1Decimals)
             },
+            balance: BigNumber(balanceOf).div(10**decimals).toFixed(parseInt(decimals)),
             totalSupply: BigNumber(totalSupply).div(10**decimals).toFixed(parseInt(decimals)),
             reserve0: BigNumber(reserve0).div(10**token0Decimals).toFixed(parseInt(token0Decimals)),
             reserve1: BigNumber(reserve1).div(10**token1Decimals).toFixed(parseInt(token1Decimals)),
           }
 
           if(gaugeAddress !== ZERO_ADDRESS) {
+            console.log(gaugeAddress)
             const gaugeContract = new web3.eth.Contract(CONTRACTS.GAUGE_ABI, gaugeAddress)
 
-            const [ incentivesLength, totalSupply ] = await Promise.all([
+            const [ incentivesLength, totalSupply, gaugeBalance ] = await Promise.all([
               gaugeContract.methods.incentivesLength().call(),
-              gaugeContract.methods.totalSupply().call()
+              gaugeContract.methods.totalSupply().call(),
+              gaugeContract.methods.balanceOf(account.address).call()
             ])
 
             const arr = Array.from({length: parseInt(incentivesLength)}, (v, i) => i)
@@ -599,7 +608,7 @@ class Store {
                   gaugeContract.methods.getRewardForDuration(incentiveAddress).call()
                 ])
 
-                //TODO: calc APY using rewardPerDuration
+                //TODO: calc APY using getRewardForDuration
 
                 return {
                   token: incentiveAsset,
@@ -611,6 +620,8 @@ class Store {
 
             thePair.gauge = {
               address: gaugeAddress,
+              decimals: 18,
+              balance: BigNumber(gaugeBalance).div(10**18).toFixed(18),
               totalSupply: BigNumber(totalSupply).div(10**18).toFixed(18),
               rewards: incentives
             }
