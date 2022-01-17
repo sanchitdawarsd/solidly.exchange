@@ -1,0 +1,32 @@
+.container {
+  max-width: 1400px;
+  width: calc(100% - 180px);
+  display: flex;
+  border: 1px solid rgba(104, 108, 122, 0.25);
+  margin: auto;
+  padding: 0 0 10px 0px;
+}
+
+.title {
+  font-size: 20px !important;
+  margin-bottom: 24px !important;
+}
+
+.tableContainer {
+  border: 1px solid rgba(104, 108, 122, 0.25);
+  margin: 0 auto;
+}
+
+.assetTableRow {
+  cursor: pointer !important;
+}
+
+@media screen and (max-width: 1200px) {
+  .container {
+    width: calc(100% - 40px);
+    border: 1px solid rgba(104, 108, 122, 0.25);
+    margin: auto;
+    padding: 0 0 10px 0px;
+    margin-bottom: 20px;
+  }
+}

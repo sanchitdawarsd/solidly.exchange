@@ -1,4 +1,5 @@
 .container {
+  max-width: 1400px;
   width: calc(100% - 180px);
   display: flex;
   flex-direction: column;
@@ -46,11 +47,14 @@
 }
 
 .buttonOverride {
-  background: #114DF0 !important;
-  color: #FFF !important;
+  background: rgb(23, 52, 72) !important;
+  color: rgb(6, 211, 215) !important;
   font-weight: 700 !important;
-  box-shadow: none !important;
-  width: 216px;
+  min-width: 200px !important;
+}
+
+.buttonOverride:hover {
+  background: rgb(19, 44, 60) !important;
 }
 
 .tokenIDContainer {

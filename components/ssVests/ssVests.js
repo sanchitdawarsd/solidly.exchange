@@ -14,6 +14,22 @@ export default function ssVests() {
   const forceUpdate = useCallback(() => updateState({}), []);
 
   const [vestNFTs, setVestNFTs] = useState([])
+  const [govToken, setGovToken] = useState(null);
+  const [veToken, setVeToken] = useState(null);
+  
+  useEffect(() => {
+    const ssUpdated = async () => {
+      setGovToken(stores.stableSwapStore.getStore("govToken"));
+      setVeToken(stores.stableSwapStore.getStore("veToken"));
+    };
+
+    ssUpdated()
+
+    stores.emitter.on(ACTIONS.UPDATED, ssUpdated);
+    return () => {
+      stores.emitter.removeListener(ACTIONS.UPDATED, ssUpdated);
+    };
+  }, []);
 
   useEffect(() => {
     const vestNFTsReturned = (nfts) => {
@@ -33,7 +49,7 @@ export default function ssVests() {
 
   return (
     <Paper elevation={0} className={ classes.container}>
-      <ParisTable vestNFTs={vestNFTs} />
+      <ParisTable vestNFTs={vestNFTs} govToken={ govToken } veToken={ veToken } />
     </Paper>
   );
 }

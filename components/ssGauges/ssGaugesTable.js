@@ -308,15 +308,15 @@ export default function EnhancedTable({ gauges, setParentSliderValues, defaultVo
                   </TableCell>
                   <TableCell className={classes.cell} align="right">
                     <Typography variant="h2" className={classes.textSpaced}>
-                      { formatCurrency(row?.gauge?.balance) } { row.symbol }
+                      { formatCurrency(row?.gauge?.balance) }
                     </Typography>
                     <Typography variant="h5" className={classes.textSpaced} color='textSecondary'>
-                      $ { formatCurrency(0.00) }
+                      { row.symbol }
                     </Typography>
                   </TableCell>
                   <TableCell className={classes.cell} align="right">
                     <Typography variant="h2" className={classes.textSpaced}>
-                      { formatCurrency(row?.gauge?.weight) } {veToken?.symbol}
+                      { formatCurrency(row?.gauge?.weight) }
                     </Typography>
                     <Typography variant="h5" className={classes.textSpaced} color='textSecondary'>
                       { formatCurrency(row?.gauge?.weightPercent) } %
@@ -324,7 +324,7 @@ export default function EnhancedTable({ gauges, setParentSliderValues, defaultVo
                   </TableCell>
                   <TableCell className={classes.cell} align="right">
                     <Typography variant="h2" className={classes.textSpaced}>
-                      { formatCurrency(row?.gauge?.weight) } {veToken?.symbol}
+                      { formatCurrency(row?.gauge?.weight) }
                     </Typography>
                     <Typography variant="h5" className={classes.textSpaced} color='textSecondary'>
                       { formatCurrency(row?.gauge?.weightPercent) } %

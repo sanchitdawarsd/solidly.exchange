@@ -615,10 +615,11 @@ class Store {
             console.log(gaugeAddress)
             const gaugeContract = new web3.eth.Contract(CONTRACTS.GAUGE_ABI, gaugeAddress)
 
-            const [ incentivesLength, totalSupply, gaugeBalance ] = await Promise.all([
+            const [ incentivesLength, totalSupply, gaugeBalance, bribeAddress ] = await Promise.all([
               gaugeContract.methods.incentivesLength().call(),
               gaugeContract.methods.totalSupply().call(),
-              gaugeContract.methods.balanceOf(account.address).call()
+              gaugeContract.methods.balanceOf(account.address).call(),
+              gaugeContract.methods.bribes(gaugeAddress).call()
             ])
 
             const arr = Array.from({length: parseInt(incentivesLength)}, (v, i) => i)

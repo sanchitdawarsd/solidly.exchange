@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import Skeleton from '@material-ui/lab/Skeleton';
-import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, Typography, Tooltip, Toolbar } from '@material-ui/core';
+import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, Typography, Tooltip, Toolbar, IconButton, TextField, InputAdornment } from '@material-ui/core';
 import { useRouter } from "next/router";
 import BigNumber from 'bignumber.js';
-import moment from 'moment';
+import FilterListIcon from '@material-ui/icons/FilterList';
+import SearchIcon from '@material-ui/icons/Search';
 
 import { formatCurrency } from '../../utils';
 
@@ -38,24 +39,42 @@ function stableSort(array, comparator) {
 }
 
 const headCells = [
-  { id: 'NFT', numeric: false, disablePadding: false, label: 'Pair' },
+  { id: 'pair', numeric: false, disablePadding: false, label: 'Pair' },
   {
-    id: 'Locked Amount',
+    id: 'balance',
     numeric: true,
     disablePadding: false,
-    label: 'Vest Amount',
+    label: 'Wallet',
   },
   {
-    id: 'Lock Value',
+    id: 'poolBalance',
     numeric: true,
     disablePadding: false,
-    label: 'Vest Value',
+    label: 'My Pool Amount',
   },
   {
-    id: 'Lock Expires',
+    id: 'stakedBalance',
     numeric: true,
     disablePadding: false,
-    label: 'Vest Expires',
+    label: 'My Staked Amount',
+  },
+  {
+    id: 'reserve0',
+    numeric: true,
+    disablePadding: false,
+    label: 'Total Pool Amount',
+  },
+  {
+    id: 'reserve1',
+    numeric: true,
+    disablePadding: false,
+    label: 'Total Pool Staked',
+  },
+  {
+    id: 'apy',
+    numeric: true,
+    disablePadding: false,
+    label: 'APY',
   },
   {
     id: '',
@@ -83,7 +102,7 @@ function EnhancedTableHead(props) {
             sortDirection={orderBy === headCell.id ? order : false}
           >
             <TableSortLabel active={orderBy === headCell.id} direction={orderBy === headCell.id ? order : 'asc'} onClick={createSortHandler(headCell.id)}>
-              <Typography variant='h5'>{headCell.label}</Typography>
+              <Typography variant='h5' className={ classes.headerText }>{headCell.label}</Typography>
               {orderBy === headCell.id ? <span className={classes.visuallyHidden}>{order === 'desc' ? 'sorted descending' : 'sorted ascending'}</span> : null}
             </TableSortLabel>
           </TableCell>
@@ -128,11 +147,22 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     alignItems: 'center',
   },
+  inlineEnd: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-end'
+  },
   icon: {
     marginRight: '12px',
   },
   textSpaced: {
     lineHeight: '1.5',
+    fontWeight: '200',
+    fontSize: '12px'
+  },
+  headerText: {
+    fontWeight: '200',
+    fontSize: '12px'
   },
   cell: {},
   cellSuccess: {
@@ -224,6 +254,12 @@ const useStyles = makeStyles((theme) => ({
     width: '70px',
     height: '35px'
   },
+  searchContainer: {
+    flex: 1,
+    minWidth: '300px',
+    marginLeft: '30px',
+    marginRight: '40px'
+  },
   buttonOverride: {
     color: 'rgb(6, 211, 215)',
     background: 'rgb(23, 52, 72)',
@@ -248,7 +284,7 @@ const EnhancedTableToolbar = (props) => {
   };
 
   const onCreate = () => {
-    router.push('/vest/create')
+    router.push('/liquidity/create')
   }
 
   return (
@@ -260,13 +296,33 @@ const EnhancedTableToolbar = (props) => {
         color='primary'
         onClick={ onCreate }
         >
-        <Typography className={ classes.actionButtonText }>Create Lock</Typography>
+        <Typography className={ classes.actionButtonText }>Create Pair</Typography>
       </Button>
+      <TextField
+        className={classes.searchContainer}
+        variant="outlined"
+        fullWidth
+        placeholder="ETH, CRV, ..."
+        value={search}
+        onChange={onSearchChanged}
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <SearchIcon />
+            </InputAdornment>
+          ),
+        }}
+      />
+      <Tooltip title="Filter list">
+        <IconButton aria-label="filter list">
+          <FilterListIcon />
+        </IconButton>
+      </Tooltip>
     </Toolbar>
   );
 };
 
-export default function EnhancedTable({ vestNFTs, govToken, veToken }) {
+export default function EnhancedTable({ pairs }) {
   const classes = useStyles();
   const router = useRouter();
 
@@ -279,7 +335,7 @@ export default function EnhancedTable({ vestNFTs, govToken, veToken }) {
     setOrderBy(property);
   };
 
-  if (!vestNFTs) {
+  if (!pairs) {
     return (
       <div className={classes.root}>
         <Skeleton variant="rect" width={'100%'} height={40} className={classes.skelly1} />
@@ -292,8 +348,8 @@ export default function EnhancedTable({ vestNFTs, govToken, veToken }) {
     );
   }
 
-  const onView = (nft) => {
-    router.push(`/vest/${nft.id}`);
+  const onView = (pair) => {
+    router.push(`/liquidity/${pair.address}`);
   };
 
   return (
@@ -303,7 +359,7 @@ export default function EnhancedTable({ vestNFTs, govToken, veToken }) {
         <Table className={classes.table} aria-labelledby='tableTitle' size={'medium'} aria-label='enhanced table'>
           <EnhancedTableHead classes={classes} order={order} orderBy={orderBy} onRequestSort={handleRequestSort} />
           <TableBody>
-            {stableSort(vestNFTs, getComparator(order, orderBy)).map((row, index) => {
+            {stableSort(pairs, getComparator(order, orderBy)).map((row, index) => {
               if (!row) {
                 return null;
               }
@@ -328,39 +384,110 @@ export default function EnhancedTable({ vestNFTs, govToken, veToken }) {
                             e.target.src = '/tokens/unknown-logo.png';
                           }}
                         />
+                        <img
+                          className={classes.img2Logo}
+                          src={``}
+                          width='35'
+                          height='35'
+                          alt=''
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = '/tokens/unknown-logo.png';
+                          }}
+                        />
                       </div>
                       <div>
-                        <Typography variant='h2' className={classes.textSpaced}>
-                          {row.id}
-                        </Typography>
-                        <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                          NFT ID
+                        <Typography variant='h2' noWrap>
+                          {row?.symbol}
                         </Typography>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell className={classes.cell} align='right'>
                     <Typography variant='h2' className={classes.textSpaced}>
-                      {formatCurrency(row.lockAmount)}
+                      {formatCurrency(row?.token0?.balance)} / {formatCurrency(row?.token1?.balance)}
                     </Typography>
                     <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                      { govToken?.symbol }
+                      {row?.token0?.symbol}/{row?.token1?.symbol}
                     </Typography>
                   </TableCell>
                   <TableCell className={classes.cell} align='right'>
                     <Typography variant='h2' className={classes.textSpaced}>
-                      {formatCurrency(row.lockValue)}
+                      {formatCurrency(row?.balance)}
                     </Typography>
                     <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                      { veToken?.symbol }
+                      {formatCurrency(BigNumber(row?.balance).times(100).div(row?.totalSupply))}%
                     </Typography>
                   </TableCell>
+                  {
+                    (row && row.gauge && row.gauge.address) &&
+                      <TableCell className={classes.cell} align='right'>
+                        <Typography variant='h2' className={classes.textSpaced}>
+                          {formatCurrency(row?.gauge?.balance)}
+                        </Typography>
+                        <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                          {formatCurrency(BigNumber(row?.gauge?.balance).times(100).div(row?.gauge?.totalSupply))}
+                        </Typography>
+                      </TableCell>
+                  }
+                  {
+                    !(row && row.gauge && row.gauge.address) &&
+                      <TableCell className={classes.cell} align='right'>
+                        <Typography variant='h2' className={classes.textSpaced}>
+                          Gauge not available
+                        </Typography>
+                      </TableCell>
+                  }
                   <TableCell className={classes.cell} align='right'>
-                    <Typography variant="h2" className={classes.textSpaced}>
-                      { moment.unix(row.lockEnds).format('YYYY-MM-DD') }
-                    </Typography>
-                    <Typography variant="h5" className={classes.textSpaced} color='textSecondary'>
-                      Expires { moment.unix(row.lockEnds).fromNow() }
+                    <div className={ classes.inlineEnd }>
+                      <Typography variant='h2' className={classes.textSpaced}>
+                        {formatCurrency(row?.reserve0)}
+                      </Typography>
+                      <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                        { row?.token0?.symbol }
+                      </Typography>
+                    </div>
+                    <div className={ classes.inlineEnd }>
+                      <Typography variant='h2' className={classes.textSpaced}>
+                        {formatCurrency(row?.reserve1)}
+                      </Typography>
+                      <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                        { row?.token1?.symbol }
+                      </Typography>
+                    </div>
+                  </TableCell>
+                  {
+                    (row && row.gauge && row.gauge.address) &&
+                      <TableCell className={classes.cell} align='right'>
+                        <div className={ classes.inlineEnd }>
+                          <Typography variant='h2' className={classes.textSpaced}>
+                            {formatCurrency(row?.gauge?.reserve0)}
+                          </Typography>
+                          <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                            { row?.token0?.symbol }
+                          </Typography>
+                        </div>
+                        <div className={ classes.inlineEnd }>
+                          <Typography variant='h2' className={classes.textSpaced}>
+                            {formatCurrency(row?.gauge?.reserve1)}
+                          </Typography>
+                          <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                            { row?.token1?.symbol }
+                          </Typography>
+                        </div>
+                      </TableCell>
+                  }
+                  {
+                    !(row && row.gauge && row.gauge.address) &&
+                      <TableCell className={classes.cell} align='right'>
+                        <Typography variant='h2' className={classes.textSpaced}>
+                          Gauge not available
+                        </Typography>
+                      </TableCell>
+                  }
+                  <TableCell className={classes.cell} align='right'>
+                    <Typography variant='h2' className={classes.textSpaced}>
+                      0.00%
                     </Typography>
                   </TableCell>
                   <TableCell className={classes.cell} align='right'>
@@ -371,7 +498,7 @@ export default function EnhancedTable({ vestNFTs, govToken, veToken }) {
                         onView(row);
                       }}
                     >
-                      Manage
+                      { BigNumber(row.poolBalance).gt(0) ? 'Manage' : 'Deposit' }
                     </Button>
                   </TableCell>
                 </TableRow>

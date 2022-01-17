@@ -92,6 +92,9 @@ function Navigation(props) {
     if(activePath.includes('vote')) {
       setActive('vote')
     }
+    if(activePath.includes('bribe')) {
+      setActive('bribe')
+    }
   }, [])
 
   const renderNavs = () => {
