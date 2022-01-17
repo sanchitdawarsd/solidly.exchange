@@ -322,7 +322,7 @@ const EnhancedTableToolbar = (props) => {
   );
 };
 
-export default function EnhancedTable({ pairs }) {
+export default function EnhancedTable({ gauges }) {
   const classes = useStyles();
   const router = useRouter();
 
@@ -335,7 +335,7 @@ export default function EnhancedTable({ pairs }) {
     setOrderBy(property);
   };
 
-  if (!pairs) {
+  if (!gauges) {
     return (
       <div className={classes.root}>
         <Skeleton variant="rect" width={'100%'} height={40} className={classes.skelly1} />
@@ -359,7 +359,7 @@ export default function EnhancedTable({ pairs }) {
         <Table className={classes.table} aria-labelledby='tableTitle' size={'medium'} aria-label='enhanced table'>
           <EnhancedTableHead classes={classes} order={order} orderBy={orderBy} onRequestSort={handleRequestSort} />
           <TableBody>
-            {stableSort(pairs, getComparator(order, orderBy)).map((row, index) => {
+            {stableSort(gauges, getComparator(order, orderBy)).map((row, index) => {
               if (!row) {
                 return null;
               }

@@ -387,6 +387,7 @@ class Store {
     } catch(ex) {
       console.log(ex)
       this.emitter.emit(ACTIONS.ERROR, ex)
+      return null
     }
   }
 
@@ -612,14 +613,13 @@ class Store {
           }
 
           if(gaugeAddress !== ZERO_ADDRESS) {
-            console.log(gaugeAddress)
             const gaugeContract = new web3.eth.Contract(CONTRACTS.GAUGE_ABI, gaugeAddress)
 
             const [ incentivesLength, totalSupply, gaugeBalance, bribeAddress ] = await Promise.all([
               gaugeContract.methods.incentivesLength().call(),
               gaugeContract.methods.totalSupply().call(),
               gaugeContract.methods.balanceOf(account.address).call(),
-              gaugeContract.methods.bribes(gaugeAddress).call()
+              gaugesContract.methods.bribes(gaugeAddress).call()
             ])
 
             const arr = Array.from({length: parseInt(incentivesLength)}, (v, i) => i)
@@ -648,14 +648,40 @@ class Store {
               })
             )
 
+            const bribeContract = new web3.eth.Contract(CONTRACTS.BRIBE_ABI, bribeAddress)
+
+            const tokensLength = await bribeContract.methods.rewardsListLength().call()
+            const arry = Array.from({length: parseInt(tokensLength)}, (v, i) => i)
+
+            const bribes = await Promise.all(
+              arry.map(async (idx) => {
+
+                const tokenAddress = await bribeContract.methods.rewards(idx).call()
+                const token = await this.getBaseAsset(tokenAddress)
+
+                const [ earned, rewardPerTokenStored ] = await Promise.all([
+                  bribeContract.methods.earned(tokenAddress).call(),
+                  bribeContract.methods.rewardPerTokenStored(tokenAddress).call()
+                ])
+
+                return {
+                  token: token,
+                  earned: BigNumber(earned).div(10**token.decimals).toFixed(token.decimals),
+                  rewardPerToken: BigNumber(rewardPerTokenStored).div(10**token.decimals).toFixed(token.decimals),
+                }
+              })
+            )
+
             thePair.gauge = {
               address: gaugeAddress,
+              bribeAddress: bribeAddress,
               decimals: 18,
               balance: BigNumber(gaugeBalance).div(10**18).toFixed(18),
               totalSupply: BigNumber(totalSupply).div(10**18).toFixed(18),
               weight: BigNumber(gaugeWeight).div(19**18).toFixed(18),
               weightPercent: BigNumber(gaugeWeight).times(100).div(totalWeight).toFixed(2),
               rewards: incentives,
+              bribes: bribes,
             }
           }
 

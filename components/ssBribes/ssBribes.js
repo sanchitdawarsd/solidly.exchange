@@ -13,15 +13,15 @@ export default function ssBribes() {
   const [, updateState] = useState();
   const forceUpdate = useCallback(() => updateState({}), []);
 
-  const [bribes, setBribes] = useState([])
+  const [gauges, setGauges] = useState([])
 
   useEffect(() => {
     const stableSwapUpdated = () => {
-      setBribes(stores.stableSwapStore.getStore('bribes'))
+      setGauges(stores.stableSwapStore.getStore('gauges'))
       forceUpdate()
     }
 
-    setBribes(stores.stableSwapStore.getStore('bribes'))
+    setGauges(stores.stableSwapStore.getStore('gauges'))
 
     stores.emitter.on(ACTIONS.UPDATED, stableSwapUpdated);
     return () => {
@@ -31,7 +31,7 @@ export default function ssBribes() {
 
   return (
     <Paper elevation={0} className={ classes.container}>
-      <BribesTable bribes={bribes} />
+      <BribesTable gauges={gauges} />
     </Paper>
   );
 }

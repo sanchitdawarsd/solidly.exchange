@@ -498,7 +498,7 @@ export default function EnhancedTable({ pairs }) {
                         onView(row);
                       }}
                     >
-                      { BigNumber(row.poolBalance).gt(0) ? 'Manage' : 'Deposit' }
+                      Manage
                     </Button>
                   </TableCell>
                 </TableRow>
