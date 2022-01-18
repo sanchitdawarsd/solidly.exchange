@@ -652,7 +652,7 @@ class Store {
               decimals: 18,
               balance: BigNumber(gaugeBalance).div(10**18).toFixed(18),
               totalSupply: BigNumber(totalSupply).div(10**18).toFixed(18),
-              weight: BigNumber(gaugeWeight).div(19**18).toFixed(18),
+              weight: BigNumber(gaugeWeight).div(10**18).toFixed(18),
               weightPercent: BigNumber(gaugeWeight).times(100).div(totalWeight).toFixed(2),
               bribes: bribes,
             }
