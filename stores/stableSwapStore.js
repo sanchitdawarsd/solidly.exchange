@@ -2123,7 +2123,7 @@ class Store {
       // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
       let voteTXID = this.getTXUUID()
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CAST VOTES USING #${tokenID}`, transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CAST VOTES USING TOKEN #${tokenID}`, transactions: [
         {
           uuid: voteTXID,
           description: `SUBMIT VOTE TRANSACTION`,
@@ -2149,7 +2149,7 @@ class Store {
           return this.emitter.emit(ACTIONS.ERROR, err);
         }
 
-        this.emitter.emit(ACTIONS.WITHDRAW_VEST_RETURNED)
+        this.emitter.emit(ACTIONS.VOTE_RETURNED)
       })
 
     } catch(ex) {

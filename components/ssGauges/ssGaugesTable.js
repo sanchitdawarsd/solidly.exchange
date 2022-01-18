@@ -230,7 +230,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function EnhancedTable({ gauges, setParentSliderValues, defaultVotes, veToken }) {
+export default function EnhancedTable({ gauges, setParentSliderValues, defaultVotes, veToken, token }) {
   const classes = useStyles();
 
   const [order, setOrder] = useState('desc');
@@ -238,7 +238,6 @@ export default function EnhancedTable({ gauges, setParentSliderValues, defaultVo
   const [sliderValues, setSliderValues] = useState(defaultVotes)
 
   useEffect(() => {
-    console.log(defaultVotes)
     setSliderValues(defaultVotes)
   }, [defaultVotes]);
 
@@ -324,10 +323,10 @@ export default function EnhancedTable({ gauges, setParentSliderValues, defaultVo
                   </TableCell>
                   <TableCell className={classes.cell} align="right">
                     <Typography variant="h2" className={classes.textSpaced}>
-                      { formatCurrency(row?.gauge?.weight) }
+                      { formatCurrency(BigNumber(sliderValue).div(100).times(token?.lockValue)) }
                     </Typography>
                     <Typography variant="h5" className={classes.textSpaced} color='textSecondary'>
-                      { formatCurrency(row?.gauge?.weightPercent) } %
+                      { formatCurrency(sliderValue) } %
                     </Typography>
                   </TableCell>
                   <TableCell className={classes.cell} align="right">

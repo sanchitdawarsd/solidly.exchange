@@ -3,6 +3,7 @@ import { Paper, Typography, Button, CircularProgress, TextField, MenuItem, Selec
 import BigNumber from 'bignumber.js';
 
 import classes from './ssGauges.module.css';
+import { formatCurrency } from '../../utils';
 
 import GaugesTable from './ssGaugesTable.js'
 
@@ -16,19 +17,18 @@ export default function ssGauges() {
   const [ votes, setVotes ] = useState([])
   const [ veToken, setVeToken ] = useState(null)
   const [ token, setToken ] = useState(null)
-  const [vestNFTs, setVestNFTs] = useState([])
+  const [ vestNFTs, setVestNFTs ] = useState([])
 
   useEffect(() => {
     const vestNFTsReturned = (nfts) => {
       setVestNFTs(nfts)
       if(nfts.length > 0) {
-        setToken(nfts[0].id);
+        setToken(nfts[0]);
         stores.dispatcher.dispatch({ type: ACTIONS.GET_VEST_VOTES, content: { tokenID: nfts[0].id } })
       }
     }
 
     const vestVotesReturned = (vals) => {
-      console.log(vals)
       setVotes(vals.map((asset) => {
         return {
           address: asset?.address,
@@ -57,8 +57,8 @@ export default function ssGauges() {
     })
     setGauges(filteredAssets)
 
-    if(vestNFTs && vestNFTs.length > 0 && filteredAssets && filteredAssets.length > 0 && token) {
-      stores.dispatcher.dispatch({ type: ACTIONS.GET_VEST_VOTES, content: { tokenID: vestNFTs[token].id } })
+    if(vestNFTs && vestNFTs.length > 0 && filteredAssets && filteredAssets.length > 0 && token && token.id) {
+      stores.dispatcher.dispatch({ type: ACTIONS.GET_VEST_VOTES, content: { tokenID: token.id } })
     }
   }
 
@@ -85,15 +85,14 @@ export default function ssGauges() {
 
   const onVote = () => {
     setVoteLoading(true)
-    stores.dispatcher.dispatch({ type: ACTIONS.VOTE, content: { votes, tokenID: token }})
+    stores.dispatcher.dispatch({ type: ACTIONS.VOTE, content: { votes, tokenID: token.id }})
   }
 
   let totalVotes = votes.reduce((acc, curr) => { return BigNumber(acc).plus(curr.value).toNumber() }, 0 )
 
   const handleChange = (event) => {
     setToken(event.target.value);
-    console.log('go')
-    stores.dispatcher.dispatch({ type: ACTIONS.GET_VEST_VOTES, content: { tokenID: event.target.value } })
+    stores.dispatcher.dispatch({ type: ACTIONS.GET_VEST_VOTES, content: { tokenID: event.target.value.id } })
   }
 
   const renderMediumInput = (value, options) => {
@@ -111,11 +110,11 @@ export default function ssGauges() {
             >
               { options && options.map((option) => {
                 return (
-                  <MenuItem key={option.id} value={option.id}>
+                  <MenuItem key={option.id} value={option}>
                     <div className={ classes.menuOption }>
                       <Typography>Token #{option.id}</Typography>
                       <div>
-                        <Typography align='right' className={ classes.smallerText }>{option.lockValue}</Typography>
+                        <Typography align='right' className={ classes.smallerText }>{ formatCurrency(option.lockValue) }</Typography>
                         <Typography color='textSecondary' className={ classes.smallerText }>{veToken?.symbol}</Typography>
                       </div>
                     </div>
@@ -134,7 +133,7 @@ export default function ssGauges() {
       <div className={ classes.tokenIDContainer }>
         { renderMediumInput(token, vestNFTs) }
       </div>
-      <GaugesTable gauges={gauges} setParentSliderValues={setVotes} defaultVotes={votes} veToken={veToken} />
+      <GaugesTable gauges={gauges} setParentSliderValues={setVotes} defaultVotes={votes} veToken={veToken} token={ token } />
       <div className={ classes.infoSection }>
         <Typography>Voting Power Used: </Typography>
         <Typography className={ `${BigNumber(totalVotes).gt(100) ? classes.errorText : classes.helpText}` }>{ totalVotes } %</Typography>
