@@ -353,15 +353,13 @@ class Store {
             const tokenAddress = await bribeContract.methods.rewards(idx).call()
             const token = await this.getBaseAsset(tokenAddress)
 
-            const [ earned, rewardPerTokenStored ] = await Promise.all([
-              bribeContract.methods.earned(tokenAddress).call(),
-              bribeContract.methods.rewardPerTokenStored(tokenAddress).call()
+            const [ earned, rewardForDuration ] = await Promise.all([
+              bribeContract.methods.getRewardForDuration(tokenAddress).call()
             ])
 
             return {
               token: token,
-              earned: BigNumber(earned).div(10**token.decimals).toFixed(token.decimals),
-              rewardPerToken: BigNumber(rewardPerTokenStored).div(10**token.decimals).toFixed(token.decimals),
+              rewardForDuration: BigNumber(rewardForDuration).div(10**token.decimals).toFixed(token.decimals),
             }
           })
         )
@@ -484,15 +482,13 @@ class Store {
             const tokenAddress = await bribeContract.methods.rewards(idx).call()
             const token = await this.getBaseAsset(tokenAddress)
 
-            const [ earned, rewardPerTokenStored ] = await Promise.all([
-              bribeContract.methods.earned(tokenAddress).call(),
-              bribeContract.methods.rewardPerTokenStored(tokenAddress).call()
+            const [ earned, rewardForDuration ] = await Promise.all([
+              bribeContract.methods.getRewardForDuration(tokenAddress).call()
             ])
 
             return {
               token: token,
-              earned: BigNumber(earned).div(10**token.decimals).toFixed(token.decimals),
-              rewardPerToken: BigNumber(rewardPerTokenStored).div(10**token.decimals).toFixed(token.decimals),
+              rewardForDuration: BigNumber(rewardForDuration).div(10**token.decimals).toFixed(token.decimals),
             }
           })
         )
@@ -781,13 +777,13 @@ class Store {
                 const tokenAddress = await bribeContract.methods.rewards(idx).call()
                 const token = await this.getBaseAsset(tokenAddress)
 
-                const [ earned, rewardPerTokenStored ] = await Promise.all([
-                  bribeContract.methods.rewardPerTokenStored(tokenAddress).call()
+                const [ earned, rewardForDuration ] = await Promise.all([
+                  bribeContract.methods.getRewardForDuration(tokenAddress).call()
                 ])
 
                 return {
                   token: token,
-                  rewardPerToken: BigNumber(rewardPerTokenStored).div(10**token.decimals).toFixed(token.decimals),
+                  rewardForDuration: BigNumber(rewardForDuration).div(10**token.decimals).toFixed(token.decimals),
                 }
               })
             )

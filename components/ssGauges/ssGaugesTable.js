@@ -149,6 +149,12 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     alignItems: 'center',
   },
+  inlineBetween :{
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '12px 0px'
+  },
   icon: {
     marginRight: '12px',
   },
@@ -240,6 +246,10 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: '200',
     fontSize: '12px'
   },
+  tooltipContainer: {
+    minWidth: '240px',
+    padding: '24px'
+  }
 }));
 
 export default function EnhancedTable({ gauges, setParentSliderValues, defaultVotes, veToken, token }) {
@@ -287,11 +297,19 @@ export default function EnhancedTable({ gauges, setParentSliderValues, defaultVo
 
   const renderTooltip = (pair) => {
     return (
-      <div>
-        <Typography>Fees</Typography>
-        <Typography>0.00</Typography>
-        <Typography>Bribes</Typography>
-        <Typography>0.00</Typography>
+      <div className={ classes.tooltipContainer }>
+        <div className={ classes.inlineBetween }>
+          <Typography>Fees:</Typography>
+          <Typography>0.00</Typography>
+        </div>
+        {
+          pair?.gauge?.bribes.map((bribe) => {
+            return (<div className={ classes.inlineBetween }>
+              <Typography>Bribe:</Typography>
+              <Typography>{ formatCurrency(bribe.rewardForDuration) } { bribe.token.symbol }</Typography>
+            </div>)
+          })
+        }
       </div>
     )
   }

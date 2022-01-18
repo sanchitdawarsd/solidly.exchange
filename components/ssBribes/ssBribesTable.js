@@ -421,7 +421,7 @@ export default function EnhancedTable({ gauges }) {
                           <>
                             <TableCell className={classes.cell} align='right'>
                               <Typography variant='h2' className={classes.textSpaced}>
-                                {formatCurrency(bribe?.rewardPerToken)}
+                                {formatCurrency(bribe?.rewardForDuration)}
                               </Typography>
                               <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
                                 { bribe?.token?.symbol }
