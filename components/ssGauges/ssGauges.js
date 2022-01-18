@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Paper, Typography, Button, CircularProgress, TextField, MenuItem, Select } from '@material-ui/core';
 import BigNumber from 'bignumber.js';
+import { useRouter } from "next/router";
 
 import classes from './ssGauges.module.css';
 import { formatCurrency } from '../../utils';
@@ -11,6 +12,7 @@ import stores from '../../stores'
 import { ACTIONS } from '../../stores/constants';
 
 export default function ssGauges() {
+  const router = useRouter()
 
   const [ gauges, setGauges ] = useState([])
   const [ voteLoading, setVoteLoading ] = useState(false)
@@ -95,6 +97,10 @@ export default function ssGauges() {
     stores.dispatcher.dispatch({ type: ACTIONS.GET_VEST_VOTES, content: { tokenID: event.target.value.id } })
   }
 
+  const onBribe = () => {
+    router.push('/bribe/create')
+  }
+
   const renderMediumInput = (value, options) => {
     return (
       <div className={ classes.textField}>
@@ -130,8 +136,19 @@ export default function ssGauges() {
 
   return (
     <div className={ classes.container }>
-      <div className={ classes.tokenIDContainer }>
-        { renderMediumInput(token, vestNFTs) }
+      <div className={ classes.topBarContainer }>
+        <Button
+          className={ classes.buttonOverride }
+          variant='contained'
+          size='large'
+          color='primary'
+          onClick={ onBribe }
+          >
+          <Typography className={ classes.actionButtonText }>{ `Create Bribe` }</Typography>
+        </Button>
+        <div className={ classes.tokenIDContainer }>
+          { renderMediumInput(token, vestNFTs) }
+        </div>
       </div>
       <Paper elevation={0} className={ classes.tableContainer }>
         <GaugesTable gauges={gauges} setParentSliderValues={setVotes} defaultVotes={votes} veToken={veToken} token={ token } />

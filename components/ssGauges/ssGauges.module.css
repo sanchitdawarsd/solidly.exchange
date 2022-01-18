@@ -65,10 +65,16 @@
 }
 
 .tokenIDContainer {
+  border: 1px solid rgba(104, 108, 122, 0.25);
+  border-radius: 12px;
+}
+
+.topBarContainer {
   padding: 24px 0px;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
+  width: 100%;
 }
 
 .mediumInputContainer {
@@ -106,7 +112,7 @@
   align-items: center !important;
   justify-content: space-between !important;
   width: calc(100% - 24px);
-  padding: 18px 12px;
+  padding: 6px 12px;
 }
 
 .smallerText {

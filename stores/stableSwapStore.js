@@ -103,6 +103,9 @@ class Store {
           case ACTIONS.GET_VEST_VOTES:
             this.getVestVotes(payload)
             break;
+          case ACTIONS.CREATE_BRIBE:
+            this.createBribe(payload)
+            break;
           default: {
           }
         }
@@ -779,43 +782,38 @@ class Store {
                 const token = await this.getBaseAsset(tokenAddress)
 
                 const [ earned, rewardPerTokenStored ] = await Promise.all([
-                  bribeContract.methods.earned(tokenAddress).call(),
                   bribeContract.methods.rewardPerTokenStored(tokenAddress).call()
                 ])
 
                 return {
                   token: token,
-                  earned: BigNumber(earned).div(10**token.decimals).toFixed(token.decimals),
                   rewardPerToken: BigNumber(rewardPerTokenStored).div(10**token.decimals).toFixed(token.decimals),
                 }
               })
             )
 
-            bribes.push({
-              token: {
-                address: '0x123',
-                symbol: 'AN',
-                decimals: 18,
-              },
-              earned: '0',
-              rewardPerToken: '12'
-            },{
-              token: {
-                address: '0x123',
-                symbol: 'BN',
-                decimals: 18,
-              },
-              earned: '0',
-              rewardPerToken: '123123.213132'
-            },{
-              token: {
-                address: '0x123',
-                symbol: 'CN',
-                decimals: 18,
-              },
-              earned: '0',
-              rewardPerToken: '0.1233'
-            })
+            // bribes.push({
+            //   token: {
+            //     address: '0x123',
+            //     symbol: 'AN',
+            //     decimals: 18,
+            //   },
+            //   rewardPerToken: '12'
+            // },{
+            //   token: {
+            //     address: '0x123',
+            //     symbol: 'BN',
+            //     decimals: 18,
+            //   },
+            //   rewardPerToken: '123123.213132'
+            // },{
+            //   token: {
+            //     address: '0x123',
+            //     symbol: 'CN',
+            //     decimals: 18,
+            //   },
+            //   rewardPerToken: '0.1233'
+            // })
 
             thePair.gauge = {
               address: gaugeAddress,
@@ -2404,6 +2402,108 @@ class Store {
     }
   }
 
+  createBribe = async (payload) => {
+    try {
+      const account = stores.accountStore.getStore("account")
+      if (!account) {
+        console.warn('account not found')
+        return null
+      }
+
+      const web3 = await stores.accountStore.getWeb3Provider()
+      if (!web3) {
+        console.warn('web3 not found')
+        return null
+      }
+
+      const { asset, amount, gauge } = payload.content
+
+      // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
+      let allowanceTXID = this.getTXUUID()
+      let bribeTXID = this.getTXUUID()
+
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CREATE BRIBE ON ${gauge.token0.symbol}/${gauge.token1.symbol}`, transactions: [
+        {
+          uuid: allowanceTXID,
+          description: `CHECKING YOUR ${asset.symbol} ALLOWANCES`,
+          status: 'WAITING'
+        },
+        {
+          uuid: bribeTXID,
+          description: `SUBMIT BRIBE TRANSACTION`,
+          status: 'WAITING'
+        }
+      ]})
+
+
+      // CHECK ALLOWANCES AND SET TX DISPLAY
+      const allowance = await this._getBribeAllowance(web3, asset, gauge, account)
+
+      if(BigNumber(allowance).lt(amount)) {
+        this.emitter.emit(ACTIONS.TX_STATUS, {
+          uuid: allowanceTXID,
+          description: `ALLOW BRIBE CONTRACT SPEND YOUR ${asset.symbol}`
+        })
+      } else {
+        this.emitter.emit(ACTIONS.TX_STATUS, {
+          uuid: allowanceTXID,
+          description: `ALLOWANCE ON ${asset.symbol} SET`,
+          status: 'DONE'
+        })
+      }
+
+      const gasPrice = await stores.accountStore.getGasPrice()
+
+      const allowanceCallsPromises = []
+
+      // SUBMIT REQUIRED ALLOWANCE TRANSACTIONS
+      if(BigNumber(allowance).lt(amount)) {
+        const tokenContract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, asset.address)
+
+        const tokenPromise = new Promise((resolve, reject) => {
+          this._callContractWait(web3, tokenContract, 'approve', [gauge.gauge.bribeAddress, MAX_UINT256], account, gasPrice, null, null, allowanceTXID, (err) => {
+            if (err) {
+              reject(err)
+              return
+            }
+
+            resolve()
+          })
+        })
+
+        allowanceCallsPromises.push(tokenPromise)
+      }
+
+      const done = await Promise.all(allowanceCallsPromises)
+
+      // SUBMIT BRIBE TRANSACTION
+      const bribeContract = new web3.eth.Contract(CONTRACTS.BRIBE_ABI, gauge.gauge.bribeAddress)
+
+      const sendAmount = BigNumber(amount).times(10**asset.decimals).toFixed(0)
+
+      this._callContractWait(web3, bribeContract, 'notifyRewardAmount', [asset.address, sendAmount], account, gasPrice, null, null, bribeTXID, (err) => {
+        if (err) {
+          return this.emitter.emit(ACTIONS.ERROR, err);
+        }
+
+        this.emitter.emit(ACTIONS.BRIBE_CREATED)
+      })
+    } catch(ex) {
+      console.error(ex)
+      this.emitter.emit(ACTIONS.ERROR, ex)
+    }
+  }
+
+  _getBribeAllowance = async (web3, token, pair, account) => {
+    try {
+      const tokenContract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, token.address)
+      const allowance = await tokenContract.methods.allowance(account.address, pair.gauge.bribeAddress).call()
+      return BigNumber(allowance).div(10**token.decimals).toFixed(token.decimals)
+    } catch (ex) {
+      console.error(ex)
+      return null
+    }
+  }
 
   _callContractWait = (web3, contract, method, params, account, gasPrice, dispatchEvent, dispatchContent, uuid, callback, paddGasCost) => {
 

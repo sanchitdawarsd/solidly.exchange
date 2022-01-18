@@ -360,6 +360,15 @@ export default function EnhancedTable({ pairs }) {
     router.push(`/liquidity/${pair.address}`);
   };
 
+  const renderTooltip = (pair) => {
+    return (
+      <div>
+        <Typography>Ve Emissions</Typography>
+        <Typography>0.00</Typography>
+      </div>
+    )
+  }
+
   return (
 
     <div className={classes.root}>
@@ -496,9 +505,11 @@ export default function EnhancedTable({ pairs }) {
                         </TableCell>
                     }
                     <TableCell className={classes.cell} align='right'>
-                      <Typography variant='h2' className={classes.textSpaced}>
-                        0.00%
-                      </Typography>
+                      <Tooltip title={ renderTooltip(row)}>
+                        <Typography variant='h2' className={classes.textSpaced}>
+                          0.00%
+                        </Typography>
+                      </Tooltip>
                     </TableCell>
                     <TableCell className={classes.cell} align='right'>
                       <Button

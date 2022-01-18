@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { lighten, makeStyles, withStyles } from '@material-ui/core/styles';
 import Skeleton from '@material-ui/lab/Skeleton';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, Typography, Slider } from '@material-ui/core';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, Typography, Slider, Tooltip } from '@material-ui/core';
 import BigNumber from 'bignumber.js';
 
 import { formatCurrency } from '../../utils';
@@ -285,6 +285,17 @@ export default function EnhancedTable({ gauges, setParentSliderValues, defaultVo
     );
   }
 
+  const renderTooltip = (pair) => {
+    return (
+      <div>
+        <Typography>Fees</Typography>
+        <Typography>0.00</Typography>
+        <Typography>Bribes</Typography>
+        <Typography>0.00</Typography>
+      </div>
+    )
+  }
+
   return (
     <div className={classes.root}>
       <TableContainer className={ classes.tableContainer }>
@@ -334,9 +345,11 @@ export default function EnhancedTable({ gauges, setParentSliderValues, defaultVo
                     </Typography>
                   </TableCell>
                   <TableCell className={classes.cell} align='right'>
-                    <Typography variant='h2' className={classes.textSpaced}>
-                      0.00%
-                    </Typography>
+                    <Tooltip title={ renderTooltip(row)}>
+                      <Typography variant='h2' className={classes.textSpaced}>
+                        0.00%
+                      </Typography>
+                    </Tooltip>
                   </TableCell>
                   <TableCell className={classes.cell} align="right">
                     <Typography variant="h2" className={classes.textSpaced}>

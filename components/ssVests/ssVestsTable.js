@@ -83,7 +83,7 @@ function EnhancedTableHead(props) {
             sortDirection={orderBy === headCell.id ? order : false}
           >
             <TableSortLabel active={orderBy === headCell.id} direction={orderBy === headCell.id ? order : 'asc'} onClick={createSortHandler(headCell.id)}>
-              <Typography variant='h5'>{headCell.label}</Typography>
+              <Typography variant='h5' className={ classes.headerText }>{headCell.label}</Typography>
               {orderBy === headCell.id ? <span className={classes.visuallyHidden}>{order === 'desc' ? 'sorted descending' : 'sorted ascending'}</span> : null}
             </TableSortLabel>
           </TableCell>
@@ -133,6 +133,12 @@ const useStyles = makeStyles((theme) => ({
   },
   textSpaced: {
     lineHeight: '1.5',
+    fontWeight: '200',
+    fontSize: '12px'
+  },
+  headerText: {
+    fontWeight: '200',
+    fontSize: '12px'
   },
   cell: {},
   cellSuccess: {
