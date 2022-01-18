@@ -11,6 +11,7 @@ import {
 } from '../../stores/constants';
 
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import VestingInfo from "./vestingInfo"
 
 export default function ssLock({ govToken, veToken }) {
 
@@ -81,13 +82,6 @@ export default function ssLock({ govToken, veToken }) {
     stores.dispatcher.dispatch({ type: ACTIONS.CREATE_VEST, content: { amount, unlockTime: selectedDateUnix } })
   }
 
-  let min = 0
-  if(BigNumber(veToken?.vestingInfo?.lockEnds).gt(0)) {
-    min = moment.unix(veToken?.vestingInfo?.lockEnds).format('YYYY-MM-DD')
-  } else {
-    min = moment().add(7, 'days').format('YYYY-MM-DD')
-  }
-
   const focus = () => {
     inputEl.current.focus();
   }
@@ -124,7 +118,7 @@ export default function ssLock({ govToken, veToken }) {
               onChange={ amountChanged }
               disabled={ lockLoading }
               inputProps={{
-                min: min,
+                min: moment().add(7, 'days').format('YYYY-MM-DD'),
                 max: moment().add(1460, 'days').format('YYYY-MM-DD')
               }}
               InputProps={{
@@ -202,24 +196,14 @@ export default function ssLock({ govToken, veToken }) {
     const now = moment()
     const expiry = moment(selectedDate)
     const dayToExpire = expiry.diff(now, 'days')
-    return (
-      <div className={ classes.vestInfoContainer }>
-        <Typography className={ classes.title }>Your starting voting power will be:</Typography>
-        <div className={ classes.mainSection }>
-          <Typography className={ classes.amount }>{ formatCurrency(BigNumber(amount).times(parseInt(dayToExpire)+1).div(1460) ) } { veToken?.symbol}</Typography>
-          <div className={ classes.values }>
-            <Typography color='textSecondary' align='right' className={ classes.val }>{ formatCurrency(amount) } { govToken?.symbol } locked for { moment(selectedDate).fromNow() } </Typography>
-            <Typography color='textSecondary' align='right' className={ classes.val }>Locked until { moment(selectedDate).format('YYYY / MM / DD') }</Typography>
-          </div>
-        </div>
-        <div className={ classes.seccondSection }>
-          <Typography className={ classes.info} color='textSecondary'>1 { govToken?.symbol } locked for 4 years = 1.00 { veToken?.symbol }</Typography>
-          <Typography className={ classes.info} color='textSecondary'>1 { govToken?.symbol } locked for 3 years = 0.75 { veToken?.symbol }</Typography>
-          <Typography className={ classes.info} color='textSecondary'>1 { govToken?.symbol } locked for 2 years = 0.50 { veToken?.symbol }</Typography>
-          <Typography className={ classes.info} color='textSecondary'>1 { govToken?.symbol } locked for 1 years = 0.25 { veToken?.symbol }</Typography>
-        </div>
-      </div>
-    )
+
+    const tmpNFT = {
+      lockAmount: amount,
+      lockValue: BigNumber(amount).times(parseInt(dayToExpire)+1).div(1460).toFixed(18),
+      lockEnds: expiry.unix()
+    }
+
+    return (<VestingInfo futureNFT={tmpNFT} govToken={govToken} veToken={veToken} showVestingStructure={ true } />)
   }
 
   const onBack = () => {

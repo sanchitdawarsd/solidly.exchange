@@ -437,7 +437,6 @@
 }
 
 .vestInfoContainer {
-  padding: 24px 0px;
 }
 
 .vestInfoContainer > .title {
@@ -449,11 +448,12 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   padding-bottom: 12px;
+  margin-bottom: 12px;
 }
 
 .vestInfoContainer > .mainSection > .amount {
   font-size: 20px !important;
-  line-height: 3;
+  line-height: 2;
 }
 
 .vestInfoContainer > .mainSection > .values {
@@ -468,7 +468,6 @@
 }
 
 .vestInfoContainer > .seccondSection {
-  padding-top: 24px;
 }
 
 .vestInfoContainer > .seccondSection > .info {

@@ -1,20 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Grid, Typography, Button, TextField, CircularProgress, RadioGroup, Radio, FormControlLabel, InputAdornment } from '@material-ui/core';
 import moment from 'moment';
+import BigNumber from 'bignumber.js';
 import classes from "./ssVest.module.css";
 import stores from '../../stores'
 import {
   ACTIONS
 } from '../../stores/constants';
 
-export default function ffLockDuration({ nft, govToken, veToken }) {
+export default function ffLockDuration({ nft, updateLockDuration }) {
 
   const inputEl = useRef(null);
   const [ lockLoading, setLockLoading ] = useState(false)
 
   const [selectedDate, setSelectedDate] = useState(moment().add(8, 'days').format('YYYY-MM-DD'));
   const [selectedDateError, setSelectedDateError] = useState(false);
-  const [selectedValue, setSelectedValue] = useState('week');
+  const [selectedValue, setSelectedValue] = useState(null);
 
   useEffect(() => {
     const lockReturned = () => {
@@ -33,15 +34,17 @@ export default function ffLockDuration({ nft, govToken, veToken }) {
   }, []);
 
   useEffect(() => {
-    if(veToken && veToken.vestingInfo && veToken.vestingInfo.lockEnds) {
-      setSelectedDate(moment.unix(veToken.vestingInfo.lockEnds).format('YYYY-MM-DD'))
+    if(nft && nft.lockEnds) {
+      setSelectedDate(moment.unix(nft.lockEnds).format('YYYY-MM-DD'))
       setSelectedValue(null)
     }
-  }, [ veToken ])
+  }, [ nft ])
 
   const handleDateChange = (event) => {
     setSelectedDate(event.target.value);
     setSelectedValue(null);
+
+    updateLockDuration(event.target.value)
   }
 
   const handleChange = (event) => {
@@ -66,6 +69,7 @@ export default function ffLockDuration({ nft, govToken, veToken }) {
     const newDate = moment().add(days, 'days').format('YYYY-MM-DD');
 
     setSelectedDate(newDate);
+    updateLockDuration(newDate)
   }
 
   const onLock = () => {
@@ -77,6 +81,11 @@ export default function ffLockDuration({ nft, govToken, veToken }) {
 
   const focus = () => {
     inputEl.current.focus();
+  }
+
+  let min = moment().add(7, 'days').format('YYYY-MM-DD')
+  if(BigNumber(nft?.lockEnds).gt(0)) {
+    min = moment.unix(nft?.lockEnds).format('YYYY-MM-DD')
   }
 
   const renderMassiveInput = (type, amountValue, amountError, amountChanged, balance, logo) => {
@@ -106,6 +115,10 @@ export default function ffLockDuration({ nft, govToken, veToken }) {
               value={ amountValue }
               onChange={ amountChanged }
               disabled={ lockLoading }
+              inputProps={{
+                min: min,
+                max: moment().add(1460, 'days').format('YYYY-MM-DD')
+              }}
               InputProps={{
                 className: classes.largeInput,
                 shrink: true,

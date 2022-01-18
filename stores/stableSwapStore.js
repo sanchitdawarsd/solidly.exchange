@@ -153,40 +153,41 @@ class Store {
         return theNFT[0]
       }
 
-      // const web3 = await stores.accountStore.getWeb3Provider()
-      // if (!web3) {
-      //   console.warn('web3 not found')
-      //   return null
-      // }
-      //
-      // const vestingContract = new web3.eth.Contract(CONTRACTS.VE_TOKEN_ABI, CONTRACTS.VE_TOKEN_ADDRESS)
-      //
-      // const nftsLength = await vestingContract.methods.ownerToNFTokenCount(account.address).call()
-      // const arr = Array.from({length: parseInt(nftsLength)}, (v, i) => i)
-      //
-      // const nfts = await Promise.all(
-      //   arr.map(async (idx) => {
-      //
-      //     const tokenIndex = await vestingContract.methods.tokenOfOwnerByIndex(account.address, idx).call()
-      //     const token = await vestingContract.methods.tokenByIndex(tokenIndex).call()
-      //
-      //     // probably do some decimals math before returning info. Maybe get more info. I don't know what it returns.
-      //     return token
-      //   })
-      // )
+      const web3 = await stores.accountStore.getWeb3Provider()
+      if (!web3) {
+        console.warn('web3 not found')
+        return null
+      }
+      const account = stores.accountStore.getStore("account")
+      if (!account) {
+        console.warn('account not found')
+        return null
+      }
 
-      // Theoretical values for now
-      const nfts = [{
-        id: 0,
-        lockEnds: '1673452568',
-        lockAmount: '100',
-        lockValue: '25'
-      },{
-        id: 1,
-        lockEnds: '1704988568',
-        lockAmount: '70',
-        lockValue: '35.123'
-      }]
+      const veToken = this.getStore('veToken')
+      const govToken = this.getStore('govToken')
+
+      const vestingContract = new web3.eth.Contract(CONTRACTS.VE_TOKEN_ABI, CONTRACTS.VE_TOKEN_ADDRESS)
+
+      const nftsLength = await vestingContract.methods.balanceOf(account.address).call()
+      const arr = Array.from({length: parseInt(nftsLength)}, (v, i) => i)
+
+      const nfts = await Promise.all(
+        arr.map(async (idx) => {
+
+          const tokenIndex = await vestingContract.methods.tokenOfOwnerByIndex(account.address, idx).call()
+          const locked = await vestingContract.methods.locked(tokenIndex).call()
+          const lockValue = await vestingContract.methods.balanceOfNFT(tokenIndex).call()
+
+          // probably do some decimals math before returning info. Maybe get more info. I don't know what it returns.
+          return {
+            id: tokenIndex,
+            lockEnds: locked.end,
+            lockAmount: BigNumber(locked.amount).div(10**govToken.decimals).toFixed(govToken.decimals),
+            lockValue: BigNumber(lockValue).div(10**veToken.decimals).toFixed(veToken.decimals)
+          }
+        })
+      )
 
       theNFT = nfts.filter((nft) => {
         return nft.id == id
@@ -611,8 +612,6 @@ class Store {
             reserve0: BigNumber(reserve0).div(10**token0Decimals).toFixed(parseInt(token0Decimals)),
             reserve1: BigNumber(reserve1).div(10**token1Decimals).toFixed(parseInt(token1Decimals)),
           }
-
-          console.log(gaugeAddress)
 
           if(gaugeAddress !== ZERO_ADDRESS) {
             const gaugeContract = new web3.eth.Contract(CONTRACTS.GAUGE_ABI, gaugeAddress)
@@ -1773,34 +1772,30 @@ class Store {
         return null
       }
 
-      // const vestingContract = new web3.eth.Contract(CONTRACTS.VE_TOKEN_ABI, CONTRACTS.VE_TOKEN_ADDRESS)
-      //
-      // const nftsLength = await vestingContract.methods.ownerToNFTokenCount(account.address).call()
-      // const arr = Array.from({length: parseInt(nftsLength)}, (v, i) => i)
-      //
-      // const nfts = await Promise.all(
-      //   arr.map(async (idx) => {
-      //
-      //     const tokenIndex = await vestingContract.methods.tokenOfOwnerByIndex(account.address, idx).call()
-      //     const token = await vestingContract.methods.tokenByIndex(tokenIndex).call()
-      //
-      //     // probably do some decimals math before returning info. Maybe get more info. I don't know what it returns.
-      //     return token
-      //   })
-      // )
+      const veToken = this.getStore('veToken')
+      const govToken = this.getStore('govToken')
 
-      // Theoretical values for now
-      const nfts = [{
-        id: 0,
-        lockEnds: '1673452568',
-        lockAmount: '100',
-        lockValue: '25'
-      },{
-        id: 1,
-        lockEnds: '1704988568',
-        lockAmount: '70',
-        lockValue: '35.123'
-      }]
+      const vestingContract = new web3.eth.Contract(CONTRACTS.VE_TOKEN_ABI, CONTRACTS.VE_TOKEN_ADDRESS)
+
+      const nftsLength = await vestingContract.methods.balanceOf(account.address).call()
+      const arr = Array.from({length: parseInt(nftsLength)}, (v, i) => i)
+
+      const nfts = await Promise.all(
+        arr.map(async (idx) => {
+
+          const tokenIndex = await vestingContract.methods.tokenOfOwnerByIndex(account.address, idx).call()
+          const locked = await vestingContract.methods.locked(tokenIndex).call()
+          const lockValue = await vestingContract.methods.balanceOfNFT(tokenIndex).call()
+
+          // probably do some decimals math before returning info. Maybe get more info. I don't know what it returns.
+          return {
+            id: tokenIndex,
+            lockEnds: locked.end,
+            lockAmount: BigNumber(locked.amount).div(10**govToken.decimals).toFixed(govToken.decimals),
+            lockValue: BigNumber(lockValue).div(10**veToken.decimals).toFixed(veToken.decimals)
+          }
+        })
+      )
 
       this.setStore({ vestNFTs: nfts })
       this.emitter.emit(ACTIONS.VEST_NFTS_RETURNED, nfts)
@@ -1959,7 +1954,7 @@ class Store {
       if(BigNumber(allowance).lt(amount)) {
         this.emitter.emit(ACTIONS.TX_STATUS, {
           uuid: allowanceTXID,
-          description: `ALLOW ROUTER TO SPEND YOUR ${govToken.symbol}`
+          description: `ALLOW VESTING CONTRACT SPEND YOUR${govToken.symbol}`
         })
       } else {
         this.emitter.emit(ACTIONS.TX_STATUS, {
@@ -2044,8 +2039,6 @@ class Store {
       const gasPrice = await stores.accountStore.getGasPrice()
 
       // SUBMIT INCREASE TRANSACTION
-      const sendAmount = BigNumber(amount).times(10**govToken.decimals).toFixed(0)
-
       const veTokenContract = new web3.eth.Contract(CONTRACTS.VE_TOKEN_ABI, CONTRACTS.VE_TOKEN_ADDRESS)
 
       this._callContractWait(web3, veTokenContract, 'increase_unlock_time', [tokenID, unlockTime+''], account, gasPrice, null, null, vestTXID, (err) => {

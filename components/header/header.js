@@ -176,7 +176,7 @@ function Header(props) {
   return (
     <div>
       <div className={classes.headerContainer}>
-        <div style={{ width: '230px' }}>
+        <div style={{ width: '260px' }}>
 
         </div>
         {/*<a onClick={() => router.push('/dashboard')} className={classes.linkz}>
@@ -185,7 +185,7 @@ function Header(props) {
 
         <Navigation changeTheme={props.changeTheme} />
 
-        <div style={{ width: '230px' }}>
+        <div style={{ width: '260px', display: 'flex', justifyContent: 'flex-end' }}>
           { transactionQueueLength > 0 &&
             <IconButton
               className={classes.accountButton}

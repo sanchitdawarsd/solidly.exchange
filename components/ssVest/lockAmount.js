@@ -9,7 +9,7 @@ import {
   ACTIONS
 } from '../../stores/constants';
 
-export default function ffLockAmount({ nft, govToken }) {
+export default function ffLockAmount({ nft, govToken, updateLockAmount }) {
 
   const [ approvalLoading, setApprovalLoading ] = useState(false)
   const [ lockLoading, setLockLoading ] = useState(false)
@@ -37,7 +37,9 @@ export default function ffLockAmount({ nft, govToken }) {
   }, []);
 
   const setAmountPercent = (percent) => {
-    setAmount(BigNumber(govToken.balance).times(percent).div(100).toFixed(govToken.decimals));
+    const val = BigNumber(govToken.balance).times(percent).div(100).toFixed(govToken.decimals)
+    setAmount(val);
+    updateLockAmount(val)
   }
 
   const onLock = () => {
@@ -47,6 +49,7 @@ export default function ffLockAmount({ nft, govToken }) {
 
   const amountChanged = (event) => {
     setAmount(event.target.value);
+    updateLockAmount(event.target.value)
   }
 
   const renderMassiveInput = (type, amountValue, amountError, amountChanged, balance, logo) => {
