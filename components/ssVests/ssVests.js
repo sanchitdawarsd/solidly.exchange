@@ -3,7 +3,7 @@ import { Paper } from '@material-ui/core';
 
 import classes from './ssVests.module.css';
 
-import ParisTable from './ssVestsTable.js'
+import VestsTable from './ssVestsTable.js'
 
 import stores from '../../stores'
 import { ACTIONS } from '../../stores/constants';
@@ -16,7 +16,7 @@ export default function ssVests() {
   const [vestNFTs, setVestNFTs] = useState([])
   const [govToken, setGovToken] = useState(null);
   const [veToken, setVeToken] = useState(null);
-  
+
   useEffect(() => {
     const ssUpdated = async () => {
       setGovToken(stores.stableSwapStore.getStore("govToken"));
@@ -48,8 +48,8 @@ export default function ssVests() {
   }, []);
 
   return (
-    <Paper elevation={0} className={ classes.container}>
-      <ParisTable vestNFTs={vestNFTs} govToken={ govToken } veToken={ veToken } />
-    </Paper>
+    <div className={ classes.container}>
+      <VestsTable vestNFTs={vestNFTs} govToken={ govToken } veToken={ veToken } />
+    </div>
   );
 }

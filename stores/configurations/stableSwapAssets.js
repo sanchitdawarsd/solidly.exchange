@@ -17,4 +17,10 @@ export default [{
   symbol: 'MIM',
   decimals: 18,
   logo: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3/logo.png'
+},{
+  address: '0xd3C885b06E9308ed1BC0f4EEF9bAee17652Ed747',
+  name: 'BaseV1',
+  symbol: 'BaseV1',
+  decimals: 18,
+  logo: ''
 }]

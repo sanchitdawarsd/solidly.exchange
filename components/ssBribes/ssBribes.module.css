@@ -1,10 +1,7 @@
 .container {
   max-width: 1400px;
   width: calc(100% - 180px);
-  display: flex;
-  border: 1px solid rgba(104, 108, 122, 0.25);
-  margin: auto;
-  padding: 0 0 10px 0px;
+  margin: 0 auto;
 }
 
 .title {
@@ -12,13 +9,11 @@
   margin-bottom: 24px !important;
 }
 
-.tableContainer {
-  border: 1px solid rgba(104, 108, 122, 0.25);
-  margin: 0 auto;
-}
-
-.assetTableRow {
-  cursor: pointer !important;
+.bribesContainer {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-gap: 24px;
 }
 
 @media screen and (max-width: 1200px) {

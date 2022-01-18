@@ -129,15 +129,17 @@ export default function ssGauges() {
   }
 
   return (
-    <Paper elevation={0} className={ classes.container }>
+    <div className={ classes.container }>
       <div className={ classes.tokenIDContainer }>
         { renderMediumInput(token, vestNFTs) }
       </div>
-      <GaugesTable gauges={gauges} setParentSliderValues={setVotes} defaultVotes={votes} veToken={veToken} token={ token } />
-      <div className={ classes.infoSection }>
-        <Typography>Voting Power Used: </Typography>
-        <Typography className={ `${BigNumber(totalVotes).gt(100) ? classes.errorText : classes.helpText}` }>{ totalVotes } %</Typography>
-      </div>
+      <Paper elevation={0} className={ classes.tableContainer }>
+        <GaugesTable gauges={gauges} setParentSliderValues={setVotes} defaultVotes={votes} veToken={veToken} token={ token } />
+        <div className={ classes.infoSection }>
+          <Typography>Voting Power Used: </Typography>
+          <Typography className={ `${BigNumber(totalVotes).gt(100) ? classes.errorText : classes.helpText}` }>{ totalVotes } %</Typography>
+        </div>
+      </Paper>
       <div className={ classes.actionButtons }>
         <Button
           className={ classes.buttonOverride }
@@ -151,6 +153,6 @@ export default function ssGauges() {
           { voteLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
         </Button>
       </div>
-    </Paper>
+    </div>
   );
 }

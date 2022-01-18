@@ -78,6 +78,12 @@ const headCells = [
     label: 'Total Votes',
   },
   {
+    id: 'apy',
+    numeric: true,
+    disablePadding: false,
+    label: 'APY',
+  },
+  {
     id: 'myVotes',
     numeric: true,
     disablePadding: false,
@@ -103,7 +109,7 @@ function EnhancedTableHead(props) {
         {headCells.map((headCell) => (
           <TableCell className={classes.overrideTableHead} key={headCell.id} align={headCell.numeric ? 'right' : 'left'} padding={'normal'} sortDirection={orderBy === headCell.id ? order : false}>
             <TableSortLabel active={orderBy === headCell.id} direction={orderBy === headCell.id ? order : 'asc'} onClick={createSortHandler(headCell.id)}>
-              <Typography variant="h5">{headCell.label}</Typography>
+              <Typography variant="h5" className={ classes.headerText }>{headCell.label}</Typography>
               {orderBy === headCell.id ? <span className={classes.visuallyHidden}>{order === 'desc' ? 'sorted descending' : 'sorted ascending'}</span> : null}
             </TableSortLabel>
           </TableCell>
@@ -148,6 +154,8 @@ const useStyles = makeStyles((theme) => ({
   },
   textSpaced: {
     lineHeight: '1.5',
+    fontWeight: '200',
+    fontSize: '12px'
   },
   cell: {},
   cellSuccess: {
@@ -227,6 +235,10 @@ const useStyles = makeStyles((theme) => ({
   },
   overrideTableHead: {
     borderBottom: '1px solid rgba(104,108,122,0.2) !important',
+  },
+  headerText: {
+    fontWeight: '200',
+    fontSize: '12px'
   },
 }));
 
@@ -319,6 +331,11 @@ export default function EnhancedTable({ gauges, setParentSliderValues, defaultVo
                     </Typography>
                     <Typography variant="h5" className={classes.textSpaced} color='textSecondary'>
                       { formatCurrency(row?.gauge?.weightPercent) } %
+                    </Typography>
+                  </TableCell>
+                  <TableCell className={classes.cell} align='right'>
+                    <Typography variant='h2' className={classes.textSpaced}>
+                      0.00%
                     </Typography>
                   </TableCell>
                   <TableCell className={classes.cell} align="right">

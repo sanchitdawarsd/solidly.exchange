@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import Skeleton from '@material-ui/lab/Skeleton';
-import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, Typography, Tooltip, Toolbar } from '@material-ui/core';
+import { Paper, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, Typography, Tooltip, Toolbar } from '@material-ui/core';
 import { useRouter } from "next/router";
 import BigNumber from 'bignumber.js';
 import moment from 'moment';
@@ -233,7 +233,15 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   toolbar: {
-    paddingTop: '24px'
+    margin: '24px 0px',
+    padding: '0px',
+  },
+  tableContainer: {
+    border: '1px solid rgba(104, 108, 122, 0.25)',
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-end'
   }
 }));
 
@@ -299,87 +307,89 @@ export default function EnhancedTable({ vestNFTs, govToken, veToken }) {
   return (
     <div className={classes.root}>
       <EnhancedTableToolbar />
-      <TableContainer>
-        <Table className={classes.table} aria-labelledby='tableTitle' size={'medium'} aria-label='enhanced table'>
-          <EnhancedTableHead classes={classes} order={order} orderBy={orderBy} onRequestSort={handleRequestSort} />
-          <TableBody>
-            {stableSort(vestNFTs, getComparator(order, orderBy)).map((row, index) => {
-              if (!row) {
-                return null;
-              }
-              const labelId = `enhanced-table-checkbox-${index}`;
+      <Paper elevation={0} className={ classes.tableContainer}>
+        <TableContainer>
+          <Table className={classes.table} aria-labelledby='tableTitle' size={'medium'} aria-label='enhanced table'>
+            <EnhancedTableHead classes={classes} order={order} orderBy={orderBy} onRequestSort={handleRequestSort} />
+            <TableBody>
+              {stableSort(vestNFTs, getComparator(order, orderBy)).map((row, index) => {
+                if (!row) {
+                  return null;
+                }
+                const labelId = `enhanced-table-checkbox-${index}`;
 
-              return (
-                <TableRow
-                  key={labelId}
-                  className={classes.assetTableRow}
-                >
-                  <TableCell className={classes.cell}>
-                    <div className={classes.inline}>
-                      <div className={ classes.doubleImages}>
-                        <img
-                          className={classes.img1Logo}
-                          src={``}
-                          width='35'
-                          height='35'
-                          alt=''
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = '/tokens/unknown-logo.png';
-                          }}
-                        />
+                return (
+                  <TableRow
+                    key={labelId}
+                    className={classes.assetTableRow}
+                  >
+                    <TableCell className={classes.cell}>
+                      <div className={classes.inline}>
+                        <div className={ classes.doubleImages}>
+                          <img
+                            className={classes.img1Logo}
+                            src={``}
+                            width='35'
+                            height='35'
+                            alt=''
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = '/tokens/unknown-logo.png';
+                            }}
+                          />
+                        </div>
+                        <div>
+                          <Typography variant='h2' className={classes.textSpaced}>
+                            {row.id}
+                          </Typography>
+                          <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                            NFT ID
+                          </Typography>
+                        </div>
                       </div>
-                      <div>
-                        <Typography variant='h2' className={classes.textSpaced}>
-                          {row.id}
-                        </Typography>
-                        <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                          NFT ID
-                        </Typography>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className={classes.cell} align='right'>
-                    <Typography variant='h2' className={classes.textSpaced}>
-                      {formatCurrency(row.lockAmount)}
-                    </Typography>
-                    <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                      { govToken?.symbol }
-                    </Typography>
-                  </TableCell>
-                  <TableCell className={classes.cell} align='right'>
-                    <Typography variant='h2' className={classes.textSpaced}>
-                      {formatCurrency(row.lockValue)}
-                    </Typography>
-                    <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                      { veToken?.symbol }
-                    </Typography>
-                  </TableCell>
-                  <TableCell className={classes.cell} align='right'>
-                    <Typography variant="h2" className={classes.textSpaced}>
-                      { moment.unix(row.lockEnds).format('YYYY-MM-DD') }
-                    </Typography>
-                    <Typography variant="h5" className={classes.textSpaced} color='textSecondary'>
-                      Expires { moment.unix(row.lockEnds).fromNow() }
-                    </Typography>
-                  </TableCell>
-                  <TableCell className={classes.cell} align='right'>
-                    <Button
-                      variant='outlined'
-                      color='primary'
-                      onClick={() => {
-                        onView(row);
-                      }}
-                    >
-                      Manage
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
+                    </TableCell>
+                    <TableCell className={classes.cell} align='right'>
+                      <Typography variant='h2' className={classes.textSpaced}>
+                        {formatCurrency(row.lockAmount)}
+                      </Typography>
+                      <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                        { govToken?.symbol }
+                      </Typography>
+                    </TableCell>
+                    <TableCell className={classes.cell} align='right'>
+                      <Typography variant='h2' className={classes.textSpaced}>
+                        {formatCurrency(row.lockValue)}
+                      </Typography>
+                      <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                        { veToken?.symbol }
+                      </Typography>
+                    </TableCell>
+                    <TableCell className={classes.cell} align='right'>
+                      <Typography variant="h2" className={classes.textSpaced}>
+                        { moment.unix(row.lockEnds).format('YYYY-MM-DD') }
+                      </Typography>
+                      <Typography variant="h5" className={classes.textSpaced} color='textSecondary'>
+                        Expires { moment.unix(row.lockEnds).fromNow() }
+                      </Typography>
+                    </TableCell>
+                    <TableCell className={classes.cell} align='right'>
+                      <Button
+                        variant='outlined'
+                        color='primary'
+                        onClick={() => {
+                          onView(row);
+                        }}
+                      >
+                        Manage
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
     </div>
   );
 }

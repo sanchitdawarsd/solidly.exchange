@@ -41,12 +41,6 @@ function stableSort(array, comparator) {
 const headCells = [
   { id: 'pair', numeric: false, disablePadding: false, label: 'Pair' },
   {
-    id: 'balance',
-    numeric: true,
-    disablePadding: false,
-    label: 'Wallet',
-  },
-  {
     id: 'poolBalance',
     numeric: true,
     disablePadding: false,
@@ -59,16 +53,16 @@ const headCells = [
     label: 'My Staked Amount',
   },
   {
-    id: 'reserve0',
+    id: 'rewardPerToken',
     numeric: true,
     disablePadding: false,
-    label: 'Total Pool Amount',
+    label: 'Bribe Amount',
   },
   {
-    id: 'reserve1',
+    id: 'earned',
     numeric: true,
     disablePadding: false,
-    label: 'Total Pool Staked',
+    label: 'Earned',
   },
   {
     id: 'apy',
@@ -283,8 +277,8 @@ const EnhancedTableToolbar = (props) => {
     setSearch(event.target.value);
   };
 
-  const onCreate = () => {
-    router.push('/liquidity/create')
+  const onAdd = () => {
+    router.push('/bribe/create')
   }
 
   return (
@@ -294,9 +288,9 @@ const EnhancedTableToolbar = (props) => {
         size='large'
         className={ classes.buttonOverride }
         color='primary'
-        onClick={ onCreate }
+        onClick={ onAdd }
         >
-        <Typography className={ classes.actionButtonText }>Create Pair</Typography>
+        <Typography className={ classes.actionButtonText }>Add Bribe</Typography>
       </Button>
       <TextField
         className={classes.searchContainer}
@@ -366,142 +360,102 @@ export default function EnhancedTable({ gauges }) {
               const labelId = `enhanced-table-checkbox-${index}`;
 
               return (
-                <TableRow
-                  key={labelId}
-                  className={classes.assetTableRow}
-                >
-                  <TableCell className={classes.cell}>
-                    <div className={classes.inline}>
-                      <div className={ classes.doubleImages}>
-                        <img
-                          className={classes.img1Logo}
-                          src={``}
-                          width='35'
-                          height='35'
-                          alt=''
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = '/tokens/unknown-logo.png';
-                          }}
-                        />
-                        <img
-                          className={classes.img2Logo}
-                          src={``}
-                          width='35'
-                          height='35'
-                          alt=''
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = '/tokens/unknown-logo.png';
-                          }}
-                        />
-                      </div>
-                      <div>
-                        <Typography variant='h2' noWrap>
-                          {row?.symbol}
-                        </Typography>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className={classes.cell} align='right'>
-                    <Typography variant='h2' className={classes.textSpaced}>
-                      {formatCurrency(row?.token0?.balance)} / {formatCurrency(row?.token1?.balance)}
-                    </Typography>
-                    <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                      {row?.token0?.symbol}/{row?.token1?.symbol}
-                    </Typography>
-                  </TableCell>
-                  <TableCell className={classes.cell} align='right'>
-                    <Typography variant='h2' className={classes.textSpaced}>
-                      {formatCurrency(row?.balance)}
-                    </Typography>
-                    <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                      {formatCurrency(BigNumber(row?.balance).times(100).div(row?.totalSupply))}%
-                    </Typography>
-                  </TableCell>
-                  {
-                    (row && row.gauge && row.gauge.address) &&
-                      <TableCell className={classes.cell} align='right'>
-                        <Typography variant='h2' className={classes.textSpaced}>
-                          {formatCurrency(row?.gauge?.balance)}
-                        </Typography>
-                        <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                          {formatCurrency(BigNumber(row?.gauge?.balance).times(100).div(row?.gauge?.totalSupply))}
-                        </Typography>
-                      </TableCell>
-                  }
-                  {
-                    !(row && row.gauge && row.gauge.address) &&
-                      <TableCell className={classes.cell} align='right'>
-                        <Typography variant='h2' className={classes.textSpaced}>
-                          Gauge not available
-                        </Typography>
-                      </TableCell>
-                  }
-                  <TableCell className={classes.cell} align='right'>
-                    <div className={ classes.inlineEnd }>
-                      <Typography variant='h2' className={classes.textSpaced}>
-                        {formatCurrency(row?.reserve0)}
-                      </Typography>
-                      <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                        { row?.token0?.symbol }
-                      </Typography>
-                    </div>
-                    <div className={ classes.inlineEnd }>
-                      <Typography variant='h2' className={classes.textSpaced}>
-                        {formatCurrency(row?.reserve1)}
-                      </Typography>
-                      <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                        { row?.token1?.symbol }
-                      </Typography>
-                    </div>
-                  </TableCell>
-                  {
-                    (row && row.gauge && row.gauge.address) &&
-                      <TableCell className={classes.cell} align='right'>
-                        <div className={ classes.inlineEnd }>
-                          <Typography variant='h2' className={classes.textSpaced}>
-                            {formatCurrency(row?.gauge?.reserve0)}
-                          </Typography>
-                          <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                            { row?.token0?.symbol }
+                <>
+                  <TableRow
+                    key={labelId}
+                    className={classes.assetTableRow}
+                  >
+                    <TableCell className={classes.cell} rowSpan={ row.gauge.bribes.length }>
+                      <div className={classes.inline}>
+                        <div className={ classes.doubleImages}>
+                          <img
+                            className={classes.img1Logo}
+                            src={``}
+                            width='35'
+                            height='35'
+                            alt=''
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = '/tokens/unknown-logo.png';
+                            }}
+                          />
+                          <img
+                            className={classes.img2Logo}
+                            src={``}
+                            width='35'
+                            height='35'
+                            alt=''
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = '/tokens/unknown-logo.png';
+                            }}
+                          />
+                        </div>
+                        <div>
+                          <Typography variant='h2' noWrap>
+                            {row?.symbol}
                           </Typography>
                         </div>
-                        <div className={ classes.inlineEnd }>
-                          <Typography variant='h2' className={classes.textSpaced}>
-                            {formatCurrency(row?.gauge?.reserve1)}
-                          </Typography>
-                          <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                            { row?.token1?.symbol }
-                          </Typography>
-                        </div>
-                      </TableCell>
-                  }
+                      </div>
+                    </TableCell>
+                    <TableCell className={classes.cell} align='right' rowSpan={ row.gauge.bribes.length }>
+                      <Typography variant='h2' className={classes.textSpaced}>
+                        {formatCurrency(row?.balance)}
+                      </Typography>
+                      <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                        {formatCurrency(BigNumber(row?.balance).times(100).div(row?.totalSupply))}%
+                      </Typography>
+                    </TableCell>
+                    <TableCell className={classes.cell} align='right' rowSpan={ row.gauge.bribes.length }>
+                      <Typography variant='h2' className={classes.textSpaced}>
+                        {formatCurrency(row?.gauge?.balance)}
+                      </Typography>
+                      <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                        {formatCurrency(BigNumber(row?.gauge?.balance).times(100).div(row?.gauge?.totalSupply))}
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
                   {
-                    !(row && row.gauge && row.gauge.address) &&
-                      <TableCell className={classes.cell} align='right'>
-                        <Typography variant='h2' className={classes.textSpaced}>
-                          Gauge not available
-                        </Typography>
-                      </TableCell>
+                      row.gauge.bribes.map((bribe) => {
+                        return (
+                          <>
+                            <TableCell className={classes.cell} align='right'>
+                              <Typography variant='h2' className={classes.textSpaced}>
+                                {formatCurrency(bribe?.rewardPerToken)}
+                              </Typography>
+                              <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                                { bribe?.token?.symbol }
+                              </Typography>
+                            </TableCell>
+                            <TableCell className={classes.cell} align='right'>
+                              <Typography variant='h2' className={classes.textSpaced}>
+                                {formatCurrency(bribe?.earned)}
+                              </Typography>
+                              <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                                { bribe?.token?.symbol }
+                              </Typography>
+                            </TableCell>
+                            <TableCell className={classes.cell} align='right'>
+                              <Typography variant='h2' className={classes.textSpaced}>
+                                0.00%
+                              </Typography>
+                            </TableCell>
+                            <TableCell className={classes.cell} align='right'>
+                              <Button
+                                variant='outlined'
+                                color='primary'
+                                onClick={() => {
+                                  onView(row);
+                                }}
+                              >
+                                { BigNumber(row.poolBalance).gt(0) ? 'Manage' : 'Deposit' }
+                              </Button>
+                            </TableCell>
+                          </>
+                        )
+                    })
                   }
-                  <TableCell className={classes.cell} align='right'>
-                    <Typography variant='h2' className={classes.textSpaced}>
-                      0.00%
-                    </Typography>
-                  </TableCell>
-                  <TableCell className={classes.cell} align='right'>
-                    <Button
-                      variant='outlined'
-                      color='primary'
-                      onClick={() => {
-                        onView(row);
-                      }}
-                    >
-                      { BigNumber(row.poolBalance).gt(0) ? 'Manage' : 'Deposit' }
-                    </Button>
-                  </TableCell>
-                </TableRow>
+                </>
               );
             })}
           </TableBody>

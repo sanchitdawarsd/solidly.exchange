@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import Skeleton from '@material-ui/lab/Skeleton';
-import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, Typography, Tooltip, Toolbar, IconButton, TextField, InputAdornment } from '@material-ui/core';
+import { Paper, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, Typography, Tooltip, Toolbar, IconButton, TextField, InputAdornment } from '@material-ui/core';
 import { useRouter } from "next/router";
 import BigNumber from 'bignumber.js';
 import FilterListIcon from '@material-ui/icons/FilterList';
@@ -269,7 +269,15 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   toolbar: {
-    paddingTop: '24px'
+    margin: '24px 0px',
+    padding: '0px',
+  },
+  tableContainer: {
+    border: '1px solid rgba(104, 108, 122, 0.25)',
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-end'
   }
 }));
 
@@ -353,160 +361,163 @@ export default function EnhancedTable({ pairs }) {
   };
 
   return (
+
     <div className={classes.root}>
       <EnhancedTableToolbar />
-      <TableContainer>
-        <Table className={classes.table} aria-labelledby='tableTitle' size={'medium'} aria-label='enhanced table'>
-          <EnhancedTableHead classes={classes} order={order} orderBy={orderBy} onRequestSort={handleRequestSort} />
-          <TableBody>
-            {stableSort(pairs, getComparator(order, orderBy)).map((row, index) => {
-              if (!row) {
-                return null;
-              }
-              const labelId = `enhanced-table-checkbox-${index}`;
+      <Paper elevation={0} className={ classes.tableContainer}>
+        <TableContainer>
+          <Table className={classes.table} aria-labelledby='tableTitle' size={'medium'} aria-label='enhanced table'>
+            <EnhancedTableHead classes={classes} order={order} orderBy={orderBy} onRequestSort={handleRequestSort} />
+            <TableBody>
+              {stableSort(pairs, getComparator(order, orderBy)).map((row, index) => {
+                if (!row) {
+                  return null;
+                }
+                const labelId = `enhanced-table-checkbox-${index}`;
 
-              return (
-                <TableRow
-                  key={labelId}
-                  className={classes.assetTableRow}
-                >
-                  <TableCell className={classes.cell}>
-                    <div className={classes.inline}>
-                      <div className={ classes.doubleImages}>
-                        <img
-                          className={classes.img1Logo}
-                          src={``}
-                          width='35'
-                          height='35'
-                          alt=''
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = '/tokens/unknown-logo.png';
-                          }}
-                        />
-                        <img
-                          className={classes.img2Logo}
-                          src={``}
-                          width='35'
-                          height='35'
-                          alt=''
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = '/tokens/unknown-logo.png';
-                          }}
-                        />
+                return (
+                  <TableRow
+                    key={labelId}
+                    className={classes.assetTableRow}
+                  >
+                    <TableCell className={classes.cell}>
+                      <div className={classes.inline}>
+                        <div className={ classes.doubleImages}>
+                          <img
+                            className={classes.img1Logo}
+                            src={``}
+                            width='35'
+                            height='35'
+                            alt=''
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = '/tokens/unknown-logo.png';
+                            }}
+                          />
+                          <img
+                            className={classes.img2Logo}
+                            src={``}
+                            width='35'
+                            height='35'
+                            alt=''
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = '/tokens/unknown-logo.png';
+                            }}
+                          />
+                        </div>
+                        <div>
+                          <Typography variant='h2' noWrap>
+                            {row?.symbol}
+                          </Typography>
+                        </div>
                       </div>
-                      <div>
-                        <Typography variant='h2' noWrap>
-                          {row?.symbol}
-                        </Typography>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className={classes.cell} align='right'>
-                    <Typography variant='h2' className={classes.textSpaced}>
-                      {formatCurrency(row?.token0?.balance)} / {formatCurrency(row?.token1?.balance)}
-                    </Typography>
-                    <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                      {row?.token0?.symbol}/{row?.token1?.symbol}
-                    </Typography>
-                  </TableCell>
-                  <TableCell className={classes.cell} align='right'>
-                    <Typography variant='h2' className={classes.textSpaced}>
-                      {formatCurrency(row?.balance)}
-                    </Typography>
-                    <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                      {formatCurrency(BigNumber(row?.balance).times(100).div(row?.totalSupply))}%
-                    </Typography>
-                  </TableCell>
-                  {
-                    (row && row.gauge && row.gauge.address) &&
-                      <TableCell className={classes.cell} align='right'>
+                    </TableCell>
+                    <TableCell className={classes.cell} align='right'>
+                      <Typography variant='h2' className={classes.textSpaced}>
+                        {formatCurrency(row?.token0?.balance)} / {formatCurrency(row?.token1?.balance)}
+                      </Typography>
+                      <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                        {row?.token0?.symbol}/{row?.token1?.symbol}
+                      </Typography>
+                    </TableCell>
+                    <TableCell className={classes.cell} align='right'>
+                      <Typography variant='h2' className={classes.textSpaced}>
+                        {formatCurrency(row?.balance)}
+                      </Typography>
+                      <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                        {formatCurrency(BigNumber(row?.balance).times(100).div(row?.totalSupply))}%
+                      </Typography>
+                    </TableCell>
+                    {
+                      (row && row.gauge && row.gauge.address) &&
+                        <TableCell className={classes.cell} align='right'>
+                          <Typography variant='h2' className={classes.textSpaced}>
+                            {formatCurrency(row?.gauge?.balance)}
+                          </Typography>
+                          <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                            {formatCurrency(BigNumber(row?.gauge?.balance).times(100).div(row?.gauge?.totalSupply))}
+                          </Typography>
+                        </TableCell>
+                    }
+                    {
+                      !(row && row.gauge && row.gauge.address) &&
+                        <TableCell className={classes.cell} align='right'>
+                          <Typography variant='h2' className={classes.textSpaced}>
+                            Gauge not available
+                          </Typography>
+                        </TableCell>
+                    }
+                    <TableCell className={classes.cell} align='right'>
+                      <div className={ classes.inlineEnd }>
                         <Typography variant='h2' className={classes.textSpaced}>
-                          {formatCurrency(row?.gauge?.balance)}
+                          {formatCurrency(row?.reserve0)}
                         </Typography>
                         <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                          {formatCurrency(BigNumber(row?.gauge?.balance).times(100).div(row?.gauge?.totalSupply))}
+                          { row?.token0?.symbol }
                         </Typography>
-                      </TableCell>
-                  }
-                  {
-                    !(row && row.gauge && row.gauge.address) &&
-                      <TableCell className={classes.cell} align='right'>
+                      </div>
+                      <div className={ classes.inlineEnd }>
                         <Typography variant='h2' className={classes.textSpaced}>
-                          Gauge not available
+                          {formatCurrency(row?.reserve1)}
                         </Typography>
-                      </TableCell>
-                  }
-                  <TableCell className={classes.cell} align='right'>
-                    <div className={ classes.inlineEnd }>
-                      <Typography variant='h2' className={classes.textSpaced}>
-                        {formatCurrency(row?.reserve0)}
-                      </Typography>
-                      <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                        { row?.token0?.symbol }
-                      </Typography>
-                    </div>
-                    <div className={ classes.inlineEnd }>
-                      <Typography variant='h2' className={classes.textSpaced}>
-                        {formatCurrency(row?.reserve1)}
-                      </Typography>
-                      <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                        { row?.token1?.symbol }
-                      </Typography>
-                    </div>
-                  </TableCell>
-                  {
-                    (row && row.gauge && row.gauge.address) &&
-                      <TableCell className={classes.cell} align='right'>
-                        <div className={ classes.inlineEnd }>
-                          <Typography variant='h2' className={classes.textSpaced}>
-                            {formatCurrency(row?.gauge?.reserve0)}
-                          </Typography>
-                          <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                            { row?.token0?.symbol }
-                          </Typography>
-                        </div>
-                        <div className={ classes.inlineEnd }>
-                          <Typography variant='h2' className={classes.textSpaced}>
-                            {formatCurrency(row?.gauge?.reserve1)}
-                          </Typography>
-                          <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                            { row?.token1?.symbol }
-                          </Typography>
-                        </div>
-                      </TableCell>
-                  }
-                  {
-                    !(row && row.gauge && row.gauge.address) &&
-                      <TableCell className={classes.cell} align='right'>
-                        <Typography variant='h2' className={classes.textSpaced}>
-                          Gauge not available
+                        <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                          { row?.token1?.symbol }
                         </Typography>
-                      </TableCell>
-                  }
-                  <TableCell className={classes.cell} align='right'>
-                    <Typography variant='h2' className={classes.textSpaced}>
-                      0.00%
-                    </Typography>
-                  </TableCell>
-                  <TableCell className={classes.cell} align='right'>
-                    <Button
-                      variant='outlined'
-                      color='primary'
-                      onClick={() => {
-                        onView(row);
-                      }}
-                    >
-                      Manage
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
+                      </div>
+                    </TableCell>
+                    {
+                      (row && row.gauge && row.gauge.address) &&
+                        <TableCell className={classes.cell} align='right'>
+                          <div className={ classes.inlineEnd }>
+                            <Typography variant='h2' className={classes.textSpaced}>
+                              {formatCurrency(row?.gauge?.reserve0)}
+                            </Typography>
+                            <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                              { row?.token0?.symbol }
+                            </Typography>
+                          </div>
+                          <div className={ classes.inlineEnd }>
+                            <Typography variant='h2' className={classes.textSpaced}>
+                              {formatCurrency(row?.gauge?.reserve1)}
+                            </Typography>
+                            <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                              { row?.token1?.symbol }
+                            </Typography>
+                          </div>
+                        </TableCell>
+                    }
+                    {
+                      !(row && row.gauge && row.gauge.address) &&
+                        <TableCell className={classes.cell} align='right'>
+                          <Typography variant='h2' className={classes.textSpaced}>
+                            Gauge not available
+                          </Typography>
+                        </TableCell>
+                    }
+                    <TableCell className={classes.cell} align='right'>
+                      <Typography variant='h2' className={classes.textSpaced}>
+                        0.00%
+                      </Typography>
+                    </TableCell>
+                    <TableCell className={classes.cell} align='right'>
+                      <Button
+                        variant='outlined'
+                        color='primary'
+                        onClick={() => {
+                          onView(row);
+                        }}
+                      >
+                        Manage
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
     </div>
   );
 }

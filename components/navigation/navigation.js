@@ -121,10 +121,10 @@ function Navigation(props) {
           'Vote',
           'vote',
         )}
-        {renderSubNav(
+        {/*renderSubNav(
           'Bribe',
           'bribe',
-        )}
+        )*/}
       </ToggleButtonGroup>
     );
   };

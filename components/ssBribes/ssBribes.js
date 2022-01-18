@@ -3,7 +3,7 @@ import { Paper } from '@material-ui/core';
 
 import classes from './ssBribes.module.css';
 
-import BribesTable from './ssBribesTable.js'
+import BribeCard from '../ssBribeCard'
 
 import stores from '../../stores'
 import { ACTIONS } from '../../stores/constants';
@@ -13,15 +13,20 @@ export default function ssBribes() {
   const [, updateState] = useState();
   const forceUpdate = useCallback(() => updateState({}), []);
 
-  const [gauges, setGauges] = useState([])
+  const [pairs, setPairs] = useState([])
 
   useEffect(() => {
     const stableSwapUpdated = () => {
-      setGauges(stores.stableSwapStore.getStore('gauges'))
+      const pairs = stores.stableSwapStore.getStore('pairs')
+      const pairsWithBribes = pairs.filter((pair) => {
+        return pair && pair.gauge != null && pair.gauge.address && pair.gauge.bribes && pair.gauge.bribes.length > 0
+      })
+      console.log(pairsWithBribes)
+      setPairs(pairsWithBribes)
       forceUpdate()
     }
 
-    setGauges(stores.stableSwapStore.getStore('gauges'))
+    stableSwapUpdated()
 
     stores.emitter.on(ACTIONS.UPDATED, stableSwapUpdated);
     return () => {
@@ -30,8 +35,16 @@ export default function ssBribes() {
   }, []);
 
   return (
-    <Paper elevation={0} className={ classes.container}>
-      <BribesTable gauges={gauges} />
-    </Paper>
+    <div className={ classes.container}>
+      <div className={ classes.bribesContainer}>
+        {
+          (pairs && pairs && pairs.length > 0) && pairs.map((pair) => {
+            return pair.gauge.bribes.map((bribe) => {
+              return (<BribeCard pair={ pair } bribe={ bribe } />)
+            })
+          })
+        }
+      </div>
+    </div>
   );
 }
