@@ -612,41 +612,16 @@ class Store {
             reserve1: BigNumber(reserve1).div(10**token1Decimals).toFixed(parseInt(token1Decimals)),
           }
 
+          console.log(gaugeAddress)
+
           if(gaugeAddress !== ZERO_ADDRESS) {
             const gaugeContract = new web3.eth.Contract(CONTRACTS.GAUGE_ABI, gaugeAddress)
 
-            const [ incentivesLength, totalSupply, gaugeBalance, bribeAddress ] = await Promise.all([
-              gaugeContract.methods.incentivesLength().call(),
+            const [ totalSupply, gaugeBalance, bribeAddress ] = await Promise.all([
               gaugeContract.methods.totalSupply().call(),
               gaugeContract.methods.balanceOf(account.address).call(),
               gaugesContract.methods.bribes(gaugeAddress).call()
             ])
-
-            const arr = Array.from({length: parseInt(incentivesLength)}, (v, i) => i)
-
-            const incentives = await Promise.all(
-              arr.map(async (idx) => {
-                const [ incentiveAddress ] = await Promise.all([
-                  gaugeContract.methods.incentives(idx).call()
-                ])
-
-                const incentiveAsset = await this.getBaseAsset(incentiveAddress)
-                console.log(incentiveAsset)
-
-                const [ rewardPerToken, getRewardForDuration ] = await Promise.all([
-                  gaugeContract.methods.rewardPerToken(incentiveAddress).call(),
-                  gaugeContract.methods.getRewardForDuration(incentiveAddress).call()
-                ])
-
-                //TODO: calc APY using getRewardForDuration
-
-                return {
-                  token: incentiveAsset,
-                  rewardPerToken: BigNumber(rewardPerToken).div(10**incentiveAsset.decimals).toFixed(incentiveAsset.decimals),
-                  rewardPerDuration: BigNumber(getRewardForDuration).div(10**incentiveAsset.decimals).toFixed(incentiveAsset.decimals),
-                }
-              })
-            )
 
             const bribeContract = new web3.eth.Contract(CONTRACTS.BRIBE_ABI, bribeAddress)
 
@@ -680,7 +655,6 @@ class Store {
               totalSupply: BigNumber(totalSupply).div(10**18).toFixed(18),
               weight: BigNumber(gaugeWeight).div(19**18).toFixed(18),
               weightPercent: BigNumber(gaugeWeight).times(100).div(totalWeight).toFixed(2),
-              rewards: incentives,
               bribes: bribes,
             }
           }
@@ -832,12 +806,14 @@ class Store {
           return this.emitter.emit(ACTIONS.ERROR, 'Pool address not found');
         }
 
-        this._callContractWait(web3, gaugesContract, 'createGauge', [pooolAddress], account, gasPrice, null, null, createGaugeTXID, (err) => {
+        await this.sleep(2000)
+
+        this._callContractWait(web3, gaugesContract, 'createGauge', [pooolAddress], account, gasPrice, null, null, createGaugeTXID, async (err) => {
           if (err) {
             return this.emitter.emit(ACTIONS.ERROR, err);
           }
 
-          this.emitter.emit(ACTIONS.PAIR_CREATED)
+          this.emitter.emit(ACTIONS.PAIR_CREATED, pooolAddress)
         })
       })
 
@@ -845,6 +821,10 @@ class Store {
       console.error(ex)
       this.emitter.emit(ACTIONS.ERROR, ex)
     }
+  }
+
+  sleep = (ms) => {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   getTXUUID = () => {
@@ -1874,7 +1854,7 @@ class Store {
       if(BigNumber(allowance).lt(amount)) {
         this.emitter.emit(ACTIONS.TX_STATUS, {
           uuid: allowanceTXID,
-          description: `ALLOW ROUTER TO SPEND YOUR ${govToken.symbol}`
+          description: `ALLOW VESTING CONTRACT SPEND YOUR ${govToken.symbol}`
         })
       } else {
         this.emitter.emit(ACTIONS.TX_STATUS, {

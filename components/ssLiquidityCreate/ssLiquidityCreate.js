@@ -55,8 +55,9 @@ export default function SSLiquidityCreate() {
   }
 
   useEffect(() => {
-    const createReturned = () => {
+    const createReturned = (res) => {
       setCreateLoading(false)
+      router.push(`/liquidity/${res}`)
     }
 
     const errorReturned = () => {
@@ -216,7 +217,7 @@ export default function SSLiquidityCreate() {
             </div>
             { renderMassiveTitleInput('amount1', balances?.token1, asset1, null, assetOptions, onAssetSelect) }
             { renderMediumInputToggle('stable', stable) }
-            { renderCreateInformation() }
+            { /*renderCreateInformation()*/ }
           </div>
           <div className={ classes.actionsContainer }>
             <Button

@@ -65,7 +65,7 @@ export default function ssLock({ govToken, veToken }) {
         days = 365;
         break;
       case 'years':
-        days = 1461;
+        days = 1460;
         break;
       default:
     }
@@ -123,11 +123,13 @@ export default function ssLock({ govToken, veToken }) {
               value={ amountValue }
               onChange={ amountChanged }
               disabled={ lockLoading }
+              inputProps={{
+                min: min,
+                max: moment().add(1460, 'days').format('YYYY-MM-DD')
+              }}
               InputProps={{
                 className: classes.largeInput,
-                shrink: true,
-                min: min,
-                max: moment().add(1461, 'days').format('YYYY-MM-DD')
+                shrink: true
               }}
             />
           </div>
@@ -196,6 +198,30 @@ export default function ssLock({ govToken, veToken }) {
     )
   }
 
+  const renderVestInformation = () => {
+    const now = moment()
+    const expiry = moment(selectedDate)
+    const dayToExpire = expiry.diff(now, 'days')
+    return (
+      <div className={ classes.vestInfoContainer }>
+        <Typography className={ classes.title }>Your starting voting power will be:</Typography>
+        <div className={ classes.mainSection }>
+          <Typography className={ classes.amount }>{ formatCurrency(BigNumber(amount).times(parseInt(dayToExpire)+1).div(1460) ) } { veToken?.symbol}</Typography>
+          <div className={ classes.values }>
+            <Typography color='textSecondary' align='right' className={ classes.val }>{ formatCurrency(amount) } { govToken?.symbol } locked for { moment(selectedDate).fromNow() } </Typography>
+            <Typography color='textSecondary' align='right' className={ classes.val }>Locked until { moment(selectedDate).format('YYYY / MM / DD') }</Typography>
+          </div>
+        </div>
+        <div className={ classes.seccondSection }>
+          <Typography className={ classes.info} color='textSecondary'>1 { govToken?.symbol } locked for 4 years = 1.00 { veToken?.symbol }</Typography>
+          <Typography className={ classes.info} color='textSecondary'>1 { govToken?.symbol } locked for 3 years = 0.75 { veToken?.symbol }</Typography>
+          <Typography className={ classes.info} color='textSecondary'>1 { govToken?.symbol } locked for 2 years = 0.50 { veToken?.symbol }</Typography>
+          <Typography className={ classes.info} color='textSecondary'>1 { govToken?.symbol } locked for 1 years = 0.25 { veToken?.symbol }</Typography>
+        </div>
+      </div>
+    )
+  }
+
   const onBack = () => {
     router.push('/vest')
   }
@@ -222,6 +248,7 @@ export default function ssLock({ govToken, veToken }) {
             </RadioGroup>
           </div>
         </div>
+        { renderVestInformation() }
         <div className={ classes.actionsContainer }>
           <Button
             className={classes.buttonOverride}

@@ -436,6 +436,47 @@
   font-size: 24px !important;
 }
 
+.vestInfoContainer {
+  padding: 24px 0px;
+}
+
+.vestInfoContainer > .title {
+  font-size: 12px !important;
+}
+
+.vestInfoContainer > .mainSection {
+  border-bottom: 1px solid rgba(104, 108, 122, 0.25);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding-bottom: 12px;
+}
+
+.vestInfoContainer > .mainSection > .amount {
+  font-size: 20px !important;
+  line-height: 3;
+}
+
+.vestInfoContainer > .mainSection > .values {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.vestInfoContainer > .mainSection > .values > .val {
+  font-size: 10px !important;
+  padding: 3px 0px
+}
+
+.vestInfoContainer > .seccondSection {
+  padding-top: 24px;
+}
+
+.vestInfoContainer > .seccondSection > .info {
+  font-size: 12px !important;
+  font-style: italic;
+  padding: 3px 0px !important
+}
+
 
 @media screen and (max-width: 1200px) {
   .container {
