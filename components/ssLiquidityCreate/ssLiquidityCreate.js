@@ -153,22 +153,39 @@ export default function SSLiquidityCreate() {
     )
   }
 
-  const renderMassiveTitleInput = (type, balance, assetValue, assetError, assetOptions, onAssetSelect) => {
+  const renderMassiveInput = (type, amountValue, amountError, amountChanged, assetValue, assetError, assetOptions, onAssetSelect) => {
     return (
       <div className={ classes.textField}>
         <div className={ classes.inputTitleContainer }>
           <div className={ classes.inputBalance }>
-            <Typography className={ classes.inputBalanceText } noWrap>
-              Balance: { balance ? ' ' + formatCurrency(balance) : '' }
+            <Typography className={ classes.inputBalanceText } noWrap onClick={ () => {
+              setAmountPercent(type, 100)
+            }}>
+              Balance:
+              { (assetValue && assetValue.balance) ?
+                ' ' +   formatCurrency(assetValue.balance) :
+                ''
+              }
             </Typography>
           </div>
         </div>
-        <div className={ `${classes.massiveInputContainer}` }>
+        <div className={ `${classes.massiveInputContainer} ${ (amountError || assetError) && classes.error }` }>
           <div className={ classes.massiveInputAssetSelect }>
             <AssetSelect type={type} value={ assetValue } assetOptions={ assetOptions } onSelect={ onAssetSelect } />
           </div>
           <div className={ classes.massiveInputAmount }>
-            <Typography className={classes.largeInput} fullWidth>{ assetValue?.name }</Typography>
+            <TextField
+              placeholder='0.00'
+              fullWidth
+              error={ amountError }
+              helperText={ amountError }
+              value={ amountValue }
+              onChange={ amountChanged }
+              disabled={ createLoading }
+              InputProps={{
+                className: classes.largeInput
+              }}
+            />
           </div>
         </div>
       </div>
@@ -178,14 +195,14 @@ export default function SSLiquidityCreate() {
   const renderCreateInformation = () => {
     return (
       <div className={ classes.depositInfoContainer }>
-        <Typography className={ classes.depositInfoHeading } >Price Info</Typography>
+        <Typography className={ classes.depositInfoHeading } >Starting Liquidity Info</Typography>
         <div className={ classes.createPriceInfos}>
           <div className={ classes.priceInfo }>
-            <Typography className={ classes.title } >0.000</Typography>
+            <Typography className={ classes.title } >{ BigNumber(amount1).gt(0) ? formatCurrency(BigNumber(amount0).div(amount1)) : '0.00' }</Typography>
             <Typography className={ classes.text } >{ `${asset0?.symbol} per ${asset1?.symbol}` }</Typography>
           </div>
           <div className={ classes.priceInfo }>
-            <Typography className={ classes.title } >0.000</Typography>
+            <Typography className={ classes.title } >{ BigNumber(amount0).gt(0) ? formatCurrency(BigNumber(amount1).div(amount0)) : '0.00' }</Typography>
             <Typography className={ classes.text } >{ `${asset1?.symbol} per ${asset0?.symbol}` }</Typography>
           </div>
         </div>
@@ -209,15 +226,15 @@ export default function SSLiquidityCreate() {
         </div>
         <div className={ classes.reAddPadding }>
           <div className={ classes.inputsContainer }>
-            { renderMassiveTitleInput('amount0', balances?.token0, asset0, null, assetOptions, onAssetSelect) }
+            { renderMassiveInput('amount0', amount0, amount0Error, amount0Changed, asset0, null, assetOptions, onAssetSelect) }
             <div className={ classes.swapIconContainer }>
               <div className={ classes.swapIconSubContainer }>
                 <AddIcon className={ classes.swapIcon } />
               </div>
             </div>
-            { renderMassiveTitleInput('amount1', balances?.token1, asset1, null, assetOptions, onAssetSelect) }
+            { renderMassiveInput('amount1', amount1, amount1Error, amount1Changed, asset1, null, assetOptions, onAssetSelect) }
             { renderMediumInputToggle('stable', stable) }
-            { /*renderCreateInformation()*/ }
+            { renderCreateInformation() }
           </div>
           <div className={ classes.actionsContainer }>
             <Button

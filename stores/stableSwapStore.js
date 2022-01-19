@@ -260,11 +260,11 @@ class Store {
     }
   }
 
-  getPairByAddress = async (address) => {
+  getPairByAddress = async (pairAddress) => {
     try {
       const pairs = this.getStore('pairs')
       let thePair = pairs.filter((pair) => {
-        return (pair.address.toLowerCase() == address.toLowerCase())
+        return (pair.address.toLowerCase() == pairAddress.toLowerCase())
       })
 
       if(thePair.length > 0) {
@@ -283,6 +283,7 @@ class Store {
       }
 
       const pairContract = new web3.eth.Contract(CONTRACTS.PAIR_ABI, pairAddress)
+      const gaugesContract = new web3.eth.Contract(CONTRACTS.GAUGES_ABI, CONTRACTS.GAUGES_ADDRESS)
 
       const [ token0, token1, totalSupply, symbol, reserve0, reserve1, decimals, balanceOf, stable, gaugeAddress, gaugeWeight ] = await Promise.all([
         pairContract.methods.token0().call(),
@@ -412,6 +413,7 @@ class Store {
 
     if(pairAddress && pairAddress != ZERO_ADDRESS) {
       const pairContract = new web3.eth.Contract(CONTRACTS.PAIR_ABI, pairAddress)
+      const gaugesContract = new web3.eth.Contract(CONTRACTS.GAUGES_ABI, CONTRACTS.GAUGES_ADDRESS)
 
       const [ token0, token1, totalSupply, symbol, reserve0, reserve1, decimals, balanceOf, stable, gaugeAddress, gaugeWeight ] = await Promise.all([
         pairContract.methods.token0().call(),
@@ -788,29 +790,6 @@ class Store {
               })
             )
 
-            // bribes.push({
-            //   token: {
-            //     address: '0x123',
-            //     symbol: 'AN',
-            //     decimals: 18,
-            //   },
-            //   rewardPerToken: '12'
-            // },{
-            //   token: {
-            //     address: '0x123',
-            //     symbol: 'BN',
-            //     decimals: 18,
-            //   },
-            //   rewardPerToken: '123123.213132'
-            // },{
-            //   token: {
-            //     address: '0x123',
-            //     symbol: 'CN',
-            //     decimals: 18,
-            //   },
-            //   rewardPerToken: '0.1233'
-            // })
-
             thePair.gauge = {
               address: gaugeAddress,
               bribeAddress: bribeAddress,
@@ -916,6 +895,8 @@ class Store {
 
   createPair = async (payload) => {
     try {
+      const context = this
+
       const account = stores.accountStore.getStore("account")
       if (!account) {
         console.warn('account not found')
@@ -928,66 +909,287 @@ class Store {
         return null
       }
 
-      const { token0, token1, isStable } = payload.content
+      const { token0, token1, amount0, amount1, isStable } = payload.content
 
       // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
-      let createTXID = this.getTXUUID()
+      let allowance0TXID = this.getTXUUID()
+      let allowance1TXID = this.getTXUUID()
+      let depositTXID = this.getTXUUID()
       let createGaugeTXID = this.getTXUUID()
+      let stakeAllowanceTXID = this.getTXUUID()
+      let stakeTXID = this.getTXUUID()
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CREATE ${token0.symbol} / ${token1.symbol} PAIR`, transactions: [
+      //DOD A CHECK FOR IF THE POOL ALREADY EXISTS
+
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CREATE LIQUIDITY POOOL FOR ${token0.symbol}/${token1.symbol}`, transactions: [
         {
-          uuid: createTXID,
-          description: `CREATE ${token0.symbol} / ${token1.symbol} PAIR`,
+          uuid: allowance0TXID,
+          description: `CHECKING YOUR ${token0.symbol} ALLOWANCES`,
+          status: 'WAITING'
+        },
+        {
+          uuid: allowance1TXID,
+          description: `CHECKING YOUR ${token1.symbol} ALLOWANCES`,
+          status: 'WAITING'
+        },
+        {
+          uuid: depositTXID,
+          description: `CREATE LIQUIDITY POOL`,
           status: 'WAITING'
         },
         {
           uuid: createGaugeTXID,
-          description: `CREATE ${token0.symbol} / ${token1.symbol} GAUGE`,
+          description: `CREATE GAUGE`,
           status: 'WAITING'
         },
+        {
+          uuid: stakeAllowanceTXID,
+          description: `CHECKING YOUR LIQUIDITY POOL ALLOWANCES`,
+          status: 'WAITING'
+        },
+        {
+          uuid: stakeTXID,
+          description: `STAKE POOL TOKENS IN GAUGE`,
+          status: 'WAITING'
+        }
       ]})
+
+
+      // CHECK ALLOWANCES AND SET TX DISPLAY
+      const allowance0 = await this._getDepositAllowance(web3, token0, account)
+      const allowance1 = await this._getDepositAllowance(web3, token1, account)
+
+      if(BigNumber(allowance0).lt(amount0)) {
+        this.emitter.emit(ACTIONS.TX_STATUS, {
+          uuid: allowance0TXID,
+          description: `ALLOW ROUTER TO SPEND YOUR ${token0.symbol}`
+        })
+      } else {
+        this.emitter.emit(ACTIONS.TX_STATUS, {
+          uuid: allowance0TXID,
+          description: `ALLOWANCE ON ${token0.symbol} SET`,
+          status: 'DONE'
+        })
+      }
+
+      if(BigNumber(allowance1).lt(amount1)) {
+        this.emitter.emit(ACTIONS.TX_STATUS, {
+          uuid: allowance1TXID,
+          description: `ALLOW ROUTER TO SPEND YOUR ${token1.symbol}`
+        })
+      } else {
+        this.emitter.emit(ACTIONS.TX_STATUS, {
+          uuid: allowance1TXID,
+          description: `ALLOWANCE ON ${token1.symbol} SET`,
+          status: 'DONE'
+        })
+      }
 
       const gasPrice = await stores.accountStore.getGasPrice()
 
-      const factoryContract = new web3.eth.Contract(CONTRACTS.FACTORY_ABI, CONTRACTS.FACTORY_ADDRESS)
-      const gaugesContract = new web3.eth.Contract(CONTRACTS.GAUGES_ABI, CONTRACTS.GAUGES_ADDRESS)
+      const allowanceCallsPromises = []
 
-      const pooolAddress = await factoryContract.methods.getPair(token0.address, token1.address, isStable).call()
-      if(pooolAddress && pooolAddress !== ZERO_ADDRESS) {
-        this.emitter.emit(ACTIONS.TX_REJECTED, { uuid: createTXID, error: 'Pool already exists' })
-        return this.emitter.emit(ACTIONS.ERROR, 'Pool already exists');
+
+      // SUBMIT REQUIRED ALLOWANCE TRANSACTIONS
+      if(BigNumber(allowance0).lt(amount0)) {
+        const tokenContract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, token0.address)
+
+        const tokenPromise = new Promise((resolve, reject) => {
+          context._callContractWait(web3, tokenContract, 'approve', [CONTRACTS.ROUTER_ADDRESS, MAX_UINT256], account, gasPrice, null, null, allowance0TXID, (err) => {
+            if (err) {
+              reject(err)
+              return
+            }
+
+            resolve()
+          })
+        })
+
+        allowanceCallsPromises.push(tokenPromise)
       }
 
-      this._callContractWait(web3, factoryContract, 'createPair', [token0.address, token1.address, isStable], account, gasPrice, null, null, createTXID, async (err) => {
+
+      if(BigNumber(allowance1).lt(amount1)) {
+        const tokenContract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, token1.address)
+
+        const tokenPromise = new Promise((resolve, reject) => {
+          context._callContractWait(web3, tokenContract, 'approve', [CONTRACTS.ROUTER_ADDRESS, MAX_UINT256], account, gasPrice, null, null, allowance1TXID, (err) => {
+            if (err) {
+              reject(err)
+              return
+            }
+
+            resolve()
+          })
+        })
+
+        allowanceCallsPromises.push(tokenPromise)
+      }
+
+      const done = await Promise.all(allowanceCallsPromises)
+
+
+      // SUBMIT DEPOSIT TRANSACTION
+      const sendAmount0 = BigNumber(amount0).times(10**token0.decimals).toFixed(0)
+      const sendAmount1 = BigNumber(amount1).times(10**token1.decimals).toFixed(0)
+      const deadline = ''+moment().add(600, 'seconds').unix()
+      const sendAmount0Min = BigNumber(amount0).times(0.97).times(10**token0.decimals).toFixed(0)
+      const sendAmount1Min = BigNumber(amount1).times(0.97).times(10**token1.decimals).toFixed(0)
+
+
+      const routerContract = new web3.eth.Contract(CONTRACTS.ROUTER_ABI, CONTRACTS.ROUTER_ADDRESS)
+      this._callContractWait(web3, routerContract, 'addLiquidity', [token0.address, token1.address, isStable, sendAmount0, sendAmount1, sendAmount0Min, sendAmount1Min, account.address, deadline], account, gasPrice, null, null, depositTXID, async (err) => {
         if (err) {
           return this.emitter.emit(ACTIONS.ERROR, err);
         }
 
-        const pooolAddress = await factoryContract.methods.getPair(token0.address, token1.address, isStable).call()
+        // GET PAIR FOR NEWLY CREATED LIQUIDITY POOL
+        const pairFor = await routerContract.methods.pairFor(token0.address, token1.address, isStable).call()
+        console.log(pairFor)
 
-        if(!pooolAddress || pooolAddress === ZERO_ADDRESS) {
-          this.emitter.emit(ACTIONS.TX_REJECTED, { uuid: createGaugeTXID, error: 'Pool address not found' })
-          return this.emitter.emit(ACTIONS.ERROR, 'Pool address not found');
-        }
-
-        await this.sleep(2000)
-
-        this._callContractWait(web3, gaugesContract, 'createGauge', [pooolAddress], account, gasPrice, null, null, createGaugeTXID, async (err) => {
+        // SUBMIT CREATE GAUGE TRANSACTION
+        const gaugesContract = new web3.eth.Contract(CONTRACTS.GAUGES_ABI, CONTRACTS.GAUGES_ADDRESS)
+        this._callContractWait(web3, gaugesContract, 'createGauge', [pairFor], account, gasPrice, null, null, createGaugeTXID, async (err) => {
           if (err) {
             return this.emitter.emit(ACTIONS.ERROR, err);
           }
 
-          this._getPairInfo(web3, account)
+          const pair = this.getPairByAddress(pairFor)
 
-          this.emitter.emit(ACTIONS.PAIR_CREATED, pooolAddress)
+          const pairContract = new web3.eth.Contract(CONTRACTS.PAIR_ABI, pair.address)
+
+
+          const balanceOf = await pairContract.methods.balanceOf(account.address).call()
+          const pairBalance = BigNumber(balanceOf).div(10**pair.decimals).toFixed(pair.decimals)
+
+          const stakeAllowance = await this._getStakeAllowance(web3, pair, account)
+
+          if(BigNumber(stakeAllowance).lt(pairBalance)) {
+            this.emitter.emit(ACTIONS.TX_STATUS, {
+              uuid: stakeAllowanceTXID,
+              description: `ALLOW ROUTER TO SPEND YOUR ${pair.symbol}`
+            })
+          } else {
+            this.emitter.emit(ACTIONS.TX_STATUS, {
+              uuid: stakeAllowanceTXID,
+              description: `ALLOWANCE ON ${pair.symbol} SET`,
+              status: 'DONE'
+            })
+          }
+
+          const allowanceCallPromises = []
+
+          if(BigNumber(stakeAllowance).lt(pairBalance)) {
+            const pairContract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, pair.address)
+
+            const stakePromise = new Promise((resolve, reject) => {
+              context._callContractWait(web3, stakePromise, 'approve', [CONTRACTS.ROUTER_ADDRESS, MAX_UINT256], account, gasPrice, null, null, stakeAllowanceTXID, (err) => {
+                if (err) {
+                  reject(err)
+                  return
+                }
+
+                resolve()
+              })
+            })
+
+            allowanceCallPromises.push(stakePromise)
+          }
+
+          const done = await Promise.all(allowanceCallPromises)
+
+          const gaugeContract = new web3.eth.Contract(CONTRACTS.GAUGE_ABI, pair.gauge.address)
+          this._callContractWait(web3, gaugeContract, 'deposit', [balanceOf, account.address], account, gasPrice, null, null, stakeTXID, (err) => {
+            if (err) {
+              return this.emitter.emit(ACTIONS.ERROR, err);
+            }
+
+            this._getPairInfo(web3, account)
+
+            this.emitter.emit(ACTIONS.PAIR_CREATED, pairFor)
+          })
         })
       })
-
     } catch(ex) {
       console.error(ex)
       this.emitter.emit(ACTIONS.ERROR, ex)
     }
   }
+
+  // createPair = async (payload) => {
+  //   try {
+  //     const account = stores.accountStore.getStore("account")
+  //     if (!account) {
+  //       console.warn('account not found')
+  //       return null
+  //     }
+  //
+  //     const web3 = await stores.accountStore.getWeb3Provider()
+  //     if (!web3) {
+  //       console.warn('web3 not found')
+  //       return null
+  //     }
+  //
+  //     const { token0, token1, isStable } = payload.content
+  //
+  //     // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
+  //     let createTXID = this.getTXUUID()
+  //     let createGaugeTXID = this.getTXUUID()
+  //
+  //     this.emitter.emit(ACTIONS.TX_ADDED, { title: `CREATE ${token0.symbol} / ${token1.symbol} PAIR`, transactions: [
+  //       {
+  //         uuid: createTXID,
+  //         description: `CREATE ${token0.symbol} / ${token1.symbol} PAIR`,
+  //         status: 'WAITING'
+  //       },
+  //       {
+  //         uuid: createGaugeTXID,
+  //         description: `CREATE ${token0.symbol} / ${token1.symbol} GAUGE`,
+  //         status: 'WAITING'
+  //       },
+  //     ]})
+  //
+  //     const gasPrice = await stores.accountStore.getGasPrice()
+  //
+  //     const factoryContract = new web3.eth.Contract(CONTRACTS.FACTORY_ABI, CONTRACTS.FACTORY_ADDRESS)
+  //     const gaugesContract = new web3.eth.Contract(CONTRACTS.GAUGES_ABI, CONTRACTS.GAUGES_ADDRESS)
+  //
+  //     const pooolAddress = await factoryContract.methods.getPair(token0.address, token1.address, isStable).call()
+  //     if(pooolAddress && pooolAddress !== ZERO_ADDRESS) {
+  //       this.emitter.emit(ACTIONS.TX_REJECTED, { uuid: createTXID, error: 'Pool already exists' })
+  //       return this.emitter.emit(ACTIONS.ERROR, 'Pool already exists');
+  //     }
+  //
+  //     this._callContractWait(web3, factoryContract, 'createPair', [token0.address, token1.address, isStable], account, gasPrice, null, null, createTXID, async (err) => {
+  //       if (err) {
+  //         return this.emitter.emit(ACTIONS.ERROR, err);
+  //       }
+  //
+  //       const pooolAddress = await factoryContract.methods.getPair(token0.address, token1.address, isStable).call()
+  //
+  //       if(!pooolAddress || pooolAddress === ZERO_ADDRESS) {
+  //         this.emitter.emit(ACTIONS.TX_REJECTED, { uuid: createGaugeTXID, error: 'Pool address not found' })
+  //         return this.emitter.emit(ACTIONS.ERROR, 'Pool address not found');
+  //       }
+  //
+  //       await this.sleep(2000)
+  //
+  //       this._callContractWait(web3, gaugesContract, 'createGauge', [pooolAddress], account, gasPrice, null, null, createGaugeTXID, async (err) => {
+  //         if (err) {
+  //           return this.emitter.emit(ACTIONS.ERROR, err);
+  //         }
+  //
+  //         this._getPairInfo(web3, account)
+  //
+  //         this.emitter.emit(ACTIONS.PAIR_CREATED, pooolAddress)
+  //       })
+  //     })
+  //
+  //   } catch(ex) {
+  //     console.error(ex)
+  //     this.emitter.emit(ACTIONS.ERROR, ex)
+  //   }
+  // }
 
   sleep = (ms) => {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -2317,7 +2519,7 @@ class Store {
       const gasPrice = await stores.accountStore.getGasPrice()
 
       // SUBMIT INCREASE TRANSACTION
-      const veTokenContract = new web3.eth.Contract(CONTRACTS.GAUGES_ABI, CONTRACTS.GAUGES_ADDRESS)
+      const gaugesContract = new web3.eth.Contract(CONTRACTS.GAUGES_ABI, CONTRACTS.GAUGES_ADDRESS)
 
       let tokens = votes.map((v) => {
         return v.address;
@@ -2327,7 +2529,7 @@ class Store {
         return BigNumber(v.value).times(100).toFixed(0);
       });
 
-      this._callContractWait(web3, veTokenContract, 'vote', [tokenID, tokens, voteCounts], account, gasPrice, null, null, voteTXID, (err) => {
+      this._callContractWait(web3, gaugesContract, 'vote', [tokenID, tokens, voteCounts], account, gasPrice, null, null, voteTXID, (err) => {
         if (err) {
           return this.emitter.emit(ACTIONS.ERROR, err);
         }
