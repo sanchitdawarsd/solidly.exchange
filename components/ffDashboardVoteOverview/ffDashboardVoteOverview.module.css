@@ -2,18 +2,6 @@
   width: calc(100%);
 }
 
-@keyframes gradient {
-	0% {
-		background-position: 0% 50%;
-	}
-	50% {
-		background-position: 100% 50%;
-	}
-	100% {
-		background-position: 0% 50%;
-	}
-}
-
 .title {
   /* background: rgba(256, 256, 256, 0.2); */
   border-radius: 30px;
@@ -72,9 +60,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(-45deg, DarkViolet, DarkSlateBlue);
+  background: linear-gradient(-45deg, #00C0D6, #12FFDB);
 	background-size: 200% 200%;
-	animation: gradient 35s ease infinite;
 }
 
 .pieField {

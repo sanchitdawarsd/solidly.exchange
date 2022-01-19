@@ -407,6 +407,9 @@
 .inputBalanceText {
   font-weight: 100 !important;
   font-size: 12px !important;
+  color: #7e99b0;
+  margin-right: 6px !important;
+  margin-top: 6px !important;
 }
 
 .balances {
@@ -430,10 +433,30 @@
 .titleSection {
   display: flex;
   align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid #212B48;
+  border-radius: 10px;
+  width: calc(100% - 0px);
+  margin: 0px 0px 15px 0px;
+  position: relative;
+  min-height: 60px;
+}
+
+.backButton {
+  position: absolute !important;
+  left: 5px !important;
+  top: 5px;
+}
+
+.backIcon {
+  color: #06D3D7 !important;
 }
 
 .titleText {
-  font-size: 24px !important;
+  font-size: 18px !important;
+  letter-spacing: normal !important;
+  font-weight: bold !important;
 }
 
 .vestInfoContainer {

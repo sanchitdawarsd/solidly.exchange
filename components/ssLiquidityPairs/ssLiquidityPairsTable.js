@@ -237,13 +237,17 @@ const useStyles = makeStyles((theme) => ({
   img1Logo: {
     position: 'absolute',
     left: '0px',
-    top: '0px'
+    top: '0px',
+    border: '3px solid rgb(25, 33, 56)',
+    borderRadius: '30px',
   },
   img2Logo: {
     position: 'absolute',
-    left: '20px',
+    left: '23px',
     zIndex: '1',
-    top: '0px'
+    top: '0px',
+    border: '3px solid rgb(25, 33, 56)',
+    borderRadius: '30px',
   },
   overrideTableHead: {
     borderBottom: '1px solid rgba(104,108,122,0.2) !important',
@@ -395,8 +399,8 @@ export default function EnhancedTable({ pairs }) {
                           <img
                             className={classes.img1Logo}
                             src={``}
-                            width='35'
-                            height='35'
+                            width='37'
+                            height='37'
                             alt=''
                             onError={(e) => {
                               e.target.onerror = null;
@@ -406,8 +410,8 @@ export default function EnhancedTable({ pairs }) {
                           <img
                             className={classes.img2Logo}
                             src={``}
-                            width='35'
-                            height='35'
+                            width='37'
+                            height='37'
                             alt=''
                             onError={(e) => {
                               e.target.onerror = null;

@@ -437,8 +437,8 @@ export default function ssLiquidityManage() {
           </Grid>
         </div>
         <div className={ classes.titleSection }>
-          <IconButton onClick={ onBack }>
-            <ArrowBackIcon />
+          <IconButton className={ classes.backButton } onClick={ onBack }>
+            <ArrowBackIcon className={ classes.backIcon } />
           </IconButton>
           <Typography className={ classes.titleText }>Manage Liquidity Pair</Typography>
         </div>

@@ -125,6 +125,9 @@
 .inputBalanceText {
   font-weight: 100 !important;
   font-size: 12px !important;
+  color: #7e99b0;
+  margin-right: 6px !important;
+  margin-top: 6px !important;
 }
 
 .balances {
@@ -361,12 +364,16 @@
   position: absolute;
   left: 0px;
   top: 10px;
+  border: 5px solid #212b48;
+  border-radius: 100px;
 }
 .img2Logo {
   position: absolute;
   left: 60px;
   z-index: 1;
   top: 10px;
+  border: 5px solid #212b48;
+  border-radius: 100px;
 }
 .doubleImages {
   display: flex;
@@ -512,10 +519,30 @@
 .titleSection {
   display: flex;
   align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid #212B48;
+  border-radius: 10px;
+  width: calc(100% - 52px);
+  margin: 25px 25px 0px 25px;
+  position: relative;
+  min-height: 60px;
+}
+
+.backButton {
+  position: absolute !important;
+  left: 5px !important;
+  top: 5px;
+}
+
+.backIcon {
+  color: #06D3D7 !important;
 }
 
 .titleText {
-  font-size: 24px !important;
+  font-size: 18px !important;
+  letter-spacing: normal !important;
+  font-weight: bold !important;
 }
 
 .mediumInputContainer {

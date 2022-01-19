@@ -120,6 +120,9 @@
 .inputBalanceText {
   font-weight: 100 !important;
   font-size: 12px !important;
+  color: #7e99b0;
+  margin-right: 6px !important;
+  margin-top: 6px !important;
 }
 
 .balances {
@@ -405,8 +408,10 @@
 
 .depositInfoHeading {
   width: 100%;
-  padding-bottom: 12px !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.87);
+  font-weight: 700 !important;
+  color: #06D3D7 !important;
+  padding-bottom: 15px !important;
+  border-bottom: 1px solid rgba(126, 153, 176, 0.2);
   font-size: 14px !important;
 }
 
@@ -432,16 +437,36 @@
 }
 
 .priceInfo > .text {
-  font-size: 14px !important;
+  font-size: 13px !important;
+  color: #7e99b0;
 }
 
 .titleSection {
   display: flex;
   align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid #212B48;
+  border-radius: 10px;
+  width: calc(100% - 50px);
+  margin: 20px 25px 0 25px;
+  position: relative;
+  min-height: 60px;
+}
+
+.backButton {
+  position: absolute !important;
+  left: 5px !important;
+}
+
+.backIcon {
+  color: #06D3D7 !important;
 }
 
 .titleText {
-  font-size: 24px !important;
+  font-size: 18px !important;
+  letter-spacing: normal !important;
+  font-weight: bold !important;
 }
 
 @media screen and (max-width: 1280px) {

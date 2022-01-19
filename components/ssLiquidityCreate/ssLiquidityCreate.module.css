@@ -125,6 +125,9 @@
 .inputBalanceText {
   font-weight: 100 !important;
   font-size: 12px !important;
+  color: #7e99b0;
+  margin-right: 6px !important;
+  margin-top: 6px !important;
 }
 
 .balances {
@@ -486,10 +489,29 @@
 .titleSection {
   display: flex;
   align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid #212B48;
+  border-radius: 10px;
+  width: calc(100% - 50px);
+  margin: 20px 25px 0 25px;
+  position: relative;
+  min-height: 60px;
+}
+
+.backButton {
+  position: absolute !important;
+  left: 5px !important;
+}
+
+.backIcon {
+  color: #06D3D7 !important;
 }
 
 .titleText {
-  font-size: 24px !important;
+  font-size: 18px !important;
+  letter-spacing: normal !important;
+  font-weight: bold !important;
 }
 
 .mediumInputContainer {
