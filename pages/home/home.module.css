@@ -1,71 +1,115 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300&family=Roboto:wght@300&display=swap');
-
 .ffContainer {
   height: 100%;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
+  width: auto;
   margin-top: 0px;
-  padding-top: 60px;
   position: relative;
 }
 
-.viewCollateral,
-.viewVesting,
-.viewVoting,
-.viewRewards {
-  float: left;
-  margin: 39px 0 20px 15px !important;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 5px 11px 4px 11px;
-  border-radius: 20px;
-  border: 1px solid rgba(104,108,122,0.2);
-  cursor: pointer;
+.mainTitle {
+  font-family: 'Monument' !important;
+  font-size: 60px !important;
+  margin-bottom: 30px !important;
 }
 
-.connected {
-  background: none;
-  width: calc(100% - 180px);
-  margin: 0 auto;
-  padding-top: 20px;
-  margin-bottom: 100px;
+.appLogo {
+  transform: scale(6);
+  position: fixed;
+  left: 100px;
+  top: 30px;
 }
 
-.notConnectedContent {
-  width: calc(100% - 180px) !important;
-  margin: 80px auto 0 auto;
+.preTitle {
+  font-family: 'Monument' !important;
+  font-size: 18px !important;
+  text-transform: uppercase;
+  color: #06D3D7 !important;
+  margin-bottom: 20px !important;
+  font-weight: 100 !important;
+  letter-spacing: 3px;
+}
+
+.secTitle {
+  font-family: 'Monument' !important;
+  font-size: 30px !important;
+  margin-bottom: 20px !important;
+}
+
+.mainDescription {
+  font-size: 20px !important;
+  margin-bottom: 20px !important;
+  line-height: 1.7rem !important;
+  color: rgba(255,255,255,0.7) !important;
+}
+
+.secDescription {
+  font-size: 16px !important;
+  margin-bottom: 20px !important;
+  line-height: 1.7rem !important;
+  color: #7E99B0 !important;
+}
+
+.buttonSplit {
+  max-width: 30vw;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  position: relative;
+  margin-top: 30px !important;
+}
+
+.buttonInfo {
+  background: #212B48 !important;
+  font-family: 'Monument' !important;
+  padding: 12px 20px 10px 20px !important;
+  width: 100% !important;
+  text-transform: capitalize !important;
+  color: #7E99B0 !important;
+}
+
+.buttonEnter,
+.buttonEnterSingle {
+  background: rgba(6,211,215,0.1) !important;
+  font-family: 'Monument' !important;
+  padding: 12px 20px 10px 20px !important;
+  width: 100% !important;
+  text-transform: capitalize !important;
+  color: #06D3D7 !important;
+}
+
+.buttonEnterSingle {
+  width: 200px !important;
+}
+
+.contentContainerFull,
+.contentContainerFullTwo {
+  height: 100vh;
+  width: 100%;
+  position: relative;
+}
+
+.homeContentMain {
   text-align: center;
-  padding: 50px;
-  height: calc(100vh - 230px);
-  box-shadow: none !important;
-  border: 1px solid rgba(104,108,122, 0.2) !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  flex-direction: column;
+  max-width: 50vw;
+  height: auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
 }
 
-.contentGrid {
-  background: none !important;
-  margin-top: 0px !important;
-}
-
-.dashTitle {
-  background: none !important;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  float: left;
-  font-weight: 700 !important;
-  font-size: 1.2em !important;
-}
-
-.overviewIcon {
-  font-size: 100px !important;
-  margin-bottom: 30px;
-  margin-top: -80px;
+.floatingSphere {
+    height: 600px;
+    width: 600px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-image: url('/images/sphere_001.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    z-index: 1;
+    mix-blend-mode: lighten;
+    opacity: 0.5;
 }
 
 .mainHeading,

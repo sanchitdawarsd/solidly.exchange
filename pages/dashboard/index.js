@@ -25,7 +25,7 @@ function BalanceIcon(props) {
   );
 }
 
-function Rewards({ changeTheme }) {
+function Dashboard({ changeTheme }) {
 
   function handleNavigate(route) {
     router.push(route);
@@ -70,46 +70,36 @@ function Rewards({ changeTheme }) {
       <div className={classes.ffContainer}>
         {account && account.address ?
           <>
-          <Paper elevation={0} className={classes.accountInfo}>
-            <div className={classes.accountWrap}>
-            <Grid container spacing={0}>
-              <Grid item lg={12} md={12} sm={12} xs={12}>
-                <div className={classes.avatarWrap}>
-                  <Avatar className={classes.walletAvatar}>x0</Avatar>
-                </div>
-                <Typography className={classes.walletAddress}>{account && account.address ? formatAddress(account.address) : 'Connect Wallet'}</Typography>
-              </Grid>
-            </Grid>
-            </div>
-          </Paper>
 
           <div className={classes.connected}>
             <Grid container spacing={5} className={classes.contentGrid}>
-              <Grid item lg={9} md={12} sm={12} xs={12}>
-                <Grid container spacing={0}>
-                  <Grid item lg={12} md={12} sm={12} xs={12}>
+              <Grid item lg={12} md={12} sm={12} xs={12}>
+                <Grid container spacing={4}>
+                  <Grid item lg={3} md={6} sm={12} xs={12}>
                     <Typography className={classes.mainHeading} variant='h1'>Staking</Typography>
-                    <Paper elevation={0} onClick={() => router.push('/staking')} className={classes.viewCollateral}>View</Paper>
+                    <Paper elevation={0} onClick={() => router.push('/liquidity')} className={classes.viewCollateral}>View</Paper>
                     <Overview />
                   </Grid>
 
-                  <Grid item lg={12} md={12} sm={12} xs={12}>
+                  <Grid item lg={3} md={6} sm={12} xs={12}>
                     <Typography className={classes.mainHeading} variant='h1'>Vesting</Typography>
                     <Paper elevation={0} onClick={() => router.push('/vest')} className={classes.viewVesting}>View</Paper>
                     <Overview />
                   </Grid>
 
-                  <Grid item lg={12} md={12} sm={12} xs={12}>
+                  <Grid item lg={3} md={6} sm={12} xs={12}>
                     <Typography className={classes.mainHeading} variant='h1'>Voting</Typography>
                     <Paper elevation={0} onClick={() => router.push('/vote')} className={classes.viewVoting}>View</Paper>
                     <VoteOverview />
                   </Grid>
+
+                  <Grid item lg={3} md={6} sm={12} xs={12}>
+                    <Typography className={classes.mainHeadingRewards} variant='h1'>Rewards</Typography>
+                    <ClaimAll />
+                  </Grid>
                 </Grid>
               </Grid>
-              <Grid item lg={3} md={12} sm={12} xs={12}>
-                <Typography className={classes.mainHeadingRewards} variant='h1'>Rewards</Typography>
-                <ClaimAll />
-              </Grid>
+
             </Grid>
 
           </div>
@@ -135,4 +125,4 @@ function Rewards({ changeTheme }) {
   );
 }
 
-export default Rewards;
+export default Dashboard;

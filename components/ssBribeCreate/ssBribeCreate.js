@@ -116,14 +116,14 @@ export default function ssBribeCreate() {
                           className={ `${classes.someIcon} ${classes.img1Logo}` }
                           alt=""
                           src={ option ? `${option.logo}` : '' }
-                          height='80px'
+                          height='70px'
                           onError={(e)=>{e.target.onerror = null; e.target.src="/tokens/unknown-logo.png"}}
                         />
                         <img
                           className={ `${classes.someIcon} ${classes.img2Logo}` }
                           alt=""
                           src={ option ? `${option.logo}` : '' }
-                          height='80px'
+                          height='70px'
                           onError={(e)=>{e.target.onerror = null; e.target.src="/tokens/unknown-logo.png"}}
                         />
                       </div>
@@ -199,8 +199,8 @@ export default function ssBribeCreate() {
     <div className={classes.retain}>
       <Paper elevation={0} className={ classes.container }>
         <div className={ classes.titleSection }>
-          <IconButton onClick={ onBack }>
-            <ArrowBackIcon />
+          <IconButton className={ classes.backButton } onClick={ onBack }>
+            <ArrowBackIcon className={ classes.backIcon } />
           </IconButton>
           <Typography className={ classes.titleText }>Create Bribe</Typography>
         </div>

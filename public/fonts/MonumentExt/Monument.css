@@ -1,0 +1,21 @@
+@font-face {
+  font-family: "Monument";
+  src: url("/fonts/MonumentExt/MonumentExtended-Regular.otf");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Monument Bold";
+  src: url("/fonts/MonumentExt/MonumentExtended-Bold.otf");
+  font-style: medium;
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Monument Light";
+  src: url("/fonts/MonumentExt/MonumentExtended-Light.otf");
+  font-style: thin;
+  font-weight: 100;
+  font-display: swap;
+}

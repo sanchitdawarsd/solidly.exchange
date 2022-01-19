@@ -4,7 +4,8 @@
   align-items: center;
   background: rgb(33, 43, 72);
   border-radius: 12px;
-  border: 1px solid rgba(108,108,123, 0.2) !important;
+  border: 0 !important;
+  padding: 3px;
 }
 
 a.linkz { cursor: pointer !important; }
@@ -13,7 +14,6 @@ a.linkz { cursor: pointer !important; }
   width: 20px !important;
   height: 20px !important;
   margin: 5px 24px 5px 20px;
-  background: red;
 }
 
 .navigationHeading {
@@ -291,12 +291,17 @@ a.linkz { cursor: pointer !important; }
 }
 
 .navButton {
-  border-radius: 12px !important;
-}
+  border-radius: 10px !important;
+  padding: 8px 24px 10px 24px !important;
+  text-transform: capitalize !important;
+  border: 1px solid rgba(0,0,0,0) !important;
+  color: #7E99B0 !important;
+} /* Transparent border to eliminate position jittering from Active state */
 
 .testChange {
   border: 1px solid #06d3d7 !important;
   background-color: rgba(0,0,0,0) !important;
+  color: #FFF !important;
 }
 
 @media screen and (max-width: 1200px) {

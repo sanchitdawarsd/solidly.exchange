@@ -214,8 +214,8 @@ export default function ssLock({ govToken, veToken }) {
     <>
       <Paper elevation={0} className={ classes.container3 }>
         <div className={ classes.titleSection }>
-          <IconButton onClick={ onBack }>
-            <ArrowBackIcon />
+          <IconButton className={ classes.backButton } onClick={ onBack }>
+            <ArrowBackIcon className={ classes.backIcon } />
           </IconButton>
           <Typography className={ classes.titleText }>Create New Lock</Typography>
         </div>

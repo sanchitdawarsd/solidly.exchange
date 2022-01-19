@@ -9,3 +9,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   left: -115px;
   z-index: 9;
 }
+
+button {
+  text-transform: none !important;
+}
