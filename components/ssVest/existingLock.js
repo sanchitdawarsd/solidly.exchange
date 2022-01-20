@@ -69,8 +69,8 @@ export default function existingLock({ nft, govToken, veToken }) {
   return (
     <Paper elevation={0} className={ classes.container2 }>
       <div className={ classes.titleSection }>
-        <IconButton onClick={ onBack }>
-          <ArrowBackIcon />
+        <IconButton className={ classes.backButton } onClick={ onBack }>
+          <ArrowBackIcon className={ classes.backIcon } />
         </IconButton>
         <Typography className={ classes.titleText }>Manage Existing Lock</Typography>
       </div>

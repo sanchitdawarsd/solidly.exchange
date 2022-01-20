@@ -45,9 +45,11 @@
 }
 
 .contentBox {
-  background: rgb(25, 33, 56);
-  padding: 30px;
-  border-radius: 5px;
+}
+
+.para {
+  font-size: 14px !important;
+  font-style: italic;
 }
 
 .inputsContainer {

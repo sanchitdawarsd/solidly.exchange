@@ -61,7 +61,11 @@ export default function ssVest() {
         />
       )}
       { router.query.id !== 'create' && nft && BigNumber(nft.lockEnds).lt(moment().unix()) && BigNumber(nft.lockEnds).gt(0) && (
-          <Unlock />
+          <Unlock
+            nft={nft}
+            govToken={govToken}
+            veToken={veToken}
+          />
         )
       }
     </div>

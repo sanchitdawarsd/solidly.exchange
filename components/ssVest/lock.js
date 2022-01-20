@@ -78,8 +78,12 @@ export default function ssLock({ govToken, veToken }) {
   const onLock = () => {
     setLockLoading(true)
 
+    const now = moment()
+    const expiry = moment(selectedDate).add(1, 'days')
+    const secondsToExpire = expiry.diff(now, 'seconds')
+
     const selectedDateUnix = moment(selectedDate).unix()
-    stores.dispatcher.dispatch({ type: ACTIONS.CREATE_VEST, content: { amount, unlockTime: selectedDateUnix } })
+    stores.dispatcher.dispatch({ type: ACTIONS.CREATE_VEST, content: { amount, unlockTime: secondsToExpire } })
   }
 
   const focus = () => {

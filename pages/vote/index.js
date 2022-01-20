@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Typography, Button, Paper, SvgIcon } from "@material-ui/core";
 import Head from 'next/head';
 import Layout from '../../components/layout/layout.js';
-import Gauges from '../../components/ssGauges';
+import Gauges from '../../components/ssVotes';
 import Unlock from '../../components/unlock';
 import classes from './vote.module.css';
 

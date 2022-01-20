@@ -1,18 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Paper, Typography, Button, CircularProgress, TextField, MenuItem, Select } from '@material-ui/core';
 import BigNumber from 'bignumber.js';
 import { useRouter } from "next/router";
 
-import classes from './ssGauges.module.css';
+import classes from './ssVotes.module.css';
 import { formatCurrency } from '../../utils';
 
-import GaugesTable from './ssGaugesTable.js'
+import GaugesTable from './ssVotesTable.js'
 
 import stores from '../../stores'
 import { ACTIONS } from '../../stores/constants';
 
-export default function ssGauges() {
+export default function ssVotes() {
   const router = useRouter()
+
+  const [, updateState] = useState();
+  const forceUpdate = useCallback(() => updateState({}), []);
 
   const [ gauges, setGauges ] = useState([])
   const [ voteLoading, setVoteLoading ] = useState(false)
@@ -37,6 +40,7 @@ export default function ssGauges() {
           value: BigNumber((asset && asset.votePercent) ? asset.votePercent : 0).toNumber(0)
         }
       }))
+      forceUpdate()
     }
 
     window.setTimeout(() => {
@@ -62,6 +66,8 @@ export default function ssGauges() {
     if(vestNFTs && vestNFTs.length > 0 && filteredAssets && filteredAssets.length > 0 && token && token.id) {
       stores.dispatcher.dispatch({ type: ACTIONS.GET_VEST_VOTES, content: { tokenID: token.id } })
     }
+
+    forceUpdate()
   }
 
   useEffect(() => {
