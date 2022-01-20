@@ -7,6 +7,9 @@ import classes from './home.module.css';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from "next/router";
 
+function Transition(props) {
+  return <Slide direction="up" {...props} />;
+}
 
 function SiteLogo(props) {
   const { color, className } = props;
@@ -42,7 +45,7 @@ function Home({ changeTheme }) {
   return (
     <Layout changeTheme={changeTheme}>
       <Head>
-        <title>Solid Swap</title>
+        <title>Solidly</title>
       </Head>
       <div className={classes.ffContainer}>
 

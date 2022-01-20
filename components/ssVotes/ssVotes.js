@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Paper, Typography, Button, CircularProgress, InputAdornment, TextField, MenuItem, Select } from '@material-ui/core';
+import { Paper, Typography, Button, CircularProgress, InputAdornment, TextField, MenuItem, Select, Grid } from '@material-ui/core';
 import BigNumber from 'bignumber.js';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import { useRouter } from "next/router";
@@ -162,24 +162,30 @@ export default function ssVotes() {
       </div>
       <Paper elevation={0} className={ classes.tableContainer }>
         <GaugesTable gauges={gauges} setParentSliderValues={setVotes} defaultVotes={votes} veToken={veToken} token={ token } />
-        <div className={ classes.infoSection }>
-          <Typography>Voting Power Used: </Typography>
-          <Typography className={ `${BigNumber(totalVotes).gt(100) ? classes.errorText : classes.helpText}` }>{ totalVotes } %</Typography>
-        </div>
       </Paper>
-      <div className={ classes.actionButtons }>
-        <Button
-          className={ classes.buttonOverride }
-          variant='contained'
-          size='large'
-          color='primary'
-          disabled={ voteLoading || BigNumber(totalVotes).eq(0) || BigNumber(totalVotes).gt(100) }
-          onClick={ onVote }
-          >
-          <Typography className={ classes.actionButtonText }>{ voteLoading ? `Casting Votes` : `Cast Votes` }</Typography>
-          { voteLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
-        </Button>
-      </div>
+      <Paper elevation={10} className={ classes.actionButtons }>
+        <Grid container spacing={2}>
+          <Grid item lg={6}>
+            <div className={ classes.infoSection }>
+              <Typography>Voting Power Used: </Typography>
+              <Typography className={ `${BigNumber(totalVotes).gt(100) ? classes.errorText : classes.helpText}` }>{ totalVotes } %</Typography>
+            </div>
+          </Grid>
+          <Grid item lg={6}>
+            <Button
+              className={ classes.buttonOverrideFixed }
+              variant='contained'
+              size='large'
+              color='primary'
+              disabled={ voteLoading || BigNumber(totalVotes).eq(0) || BigNumber(totalVotes).gt(100) }
+              onClick={ onVote }
+              >
+              <Typography className={ classes.actionButtonText }>{ voteLoading ? `Casting Votes` : `Cast Votes` }</Typography>
+              { voteLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
+            </Button>
+          </Grid>
+        </Grid>
+      </Paper>
     </div>
   );
 }

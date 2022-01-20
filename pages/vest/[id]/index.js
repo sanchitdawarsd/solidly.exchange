@@ -77,7 +77,7 @@ function Vest({ changeTheme }) {
   return (
     <Layout changeTheme={changeTheme} title={ '' }>
       <Head>
-        <title>Solid Swap</title>
+        <title>Solidly</title>
       </Head>
       <div className={classes.ffContainer}>
         {
