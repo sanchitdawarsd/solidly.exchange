@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { Paper, Grid, Typography, Button, TextField, InputAdornment, CircularProgress, Tooltip, Dialog, MenuItem, IconButton } from '@material-ui/core';
+import { Paper, Grid, Typography, Button, TextField, InputAdornment, CircularProgress, Tooltip, Dialog, MenuItem, IconButton, Select, FormControlLabel, Switch } from '@material-ui/core';
 import BigNumber from 'bignumber.js';
 import { formatCurrency } from '../../utils';
 import classes from './ssLiquidityCreate.module.css';
@@ -18,6 +18,7 @@ export default function SSLiquidityCreate() {
 
   const router = useRouter();
   const [ createLoading, setCreateLoading ] = useState(false)
+  const [ depositLoading, setDepositLoading ] = useState(false)
 
   const [ amount0, setAmount0 ] = useState('')
   const [ amount0Error/*, setAmount0Error*/ ] = useState(false)
@@ -33,6 +34,11 @@ export default function SSLiquidityCreate() {
   const [ balances, setBalances ] = useState(null)
   const [ quote, setQuote ] = useState(null)
 
+  const [ token, setToken ] = useState(null)
+  const [ vestNFTs, setVestNFTs ] = useState([])
+  const [ veToken, setVeToken ] = useState(null)
+  const [ advanced, setAdvanced ] = useState(false)
+
   //might not be correct to d this every time store updates.
   const ssUpdated = async () => {
     const storeAssetOptions = stores.stableSwapStore.getStore('baseAssets')
@@ -46,6 +52,15 @@ export default function SSLiquidityCreate() {
       setAsset1(storeAssetOptions[1])
     }
 
+    setVeToken(stores.stableSwapStore.getStore('veToken'))
+    const nfts = stores.stableSwapStore.getStore('vestNFTs')
+    setVestNFTs(nfts)
+    if(nfts.length > 0) {
+      if(token == null) {
+        setToken(nfts[0]);
+      }
+    }
+
     if(asset0 && asset1) {
       //cant dispatch in a dispatch.
       window.setTimeout(() => {
@@ -57,15 +72,16 @@ export default function SSLiquidityCreate() {
   useEffect(() => {
     const createReturned = (res) => {
       setCreateLoading(false)
+      setDepositLoading(false)
       router.push(`/liquidity/${res}`)
     }
 
     const errorReturned = () => {
       setCreateLoading(false)
+      setDepositLoading(false)
     }
 
     const balancesReturned = (res) => {
-      console.log(res)
       setBalances(res)
     }
 
@@ -98,14 +114,27 @@ export default function SSLiquidityCreate() {
     }
   }
 
-  const onCreate = () => {
+  const onCreateAndStake = () => {
     setCreateLoading(true)
-    stores.dispatcher.dispatch({ type: ACTIONS.CREATE_PAIR, content: {
+    stores.dispatcher.dispatch({ type: ACTIONS.CREATE_PAIR_AND_STAKE, content: {
       token0: asset0,
       token1: asset1,
       amount0: amount0,
       amount1: amount1,
-      isStable: stable
+      isStable: stable,
+      token: token
+    } })
+  }
+
+  const onCreateAndDeposit = () => {
+    setDepositLoading(true)
+    stores.dispatcher.dispatch({ type: ACTIONS.CREATE_PAIR_AND_DEPOSIT, content: {
+      token0: asset0,
+      token1: asset1,
+      amount0: amount0,
+      amount1: amount1,
+      isStable: stable,
+      token: token
     } })
   }
 
@@ -124,6 +153,10 @@ export default function SSLiquidityCreate() {
 
   const amount1Changed = (event) => {
     setAmount1(event.target.value)
+  }
+
+  const handleChange = (event) => {
+    setToken(event.target.value);
   }
 
   const onAssetSelect = (type, value) => {
@@ -210,10 +243,46 @@ export default function SSLiquidityCreate() {
     )
   }
 
+  const renderTokenSelect = () => {
+    return (
+      <div className={ classes.textField}>
+        <div className={ classes.mediumInputContainer}>
+          <div className={ classes.mediumInputAmount }>
+            <Select
+              fullWidth
+              value={ token }
+              onChange={ handleChange }
+              InputProps={{
+                className: classes.mediumInput,
+              }}
+            >
+              { vestNFTs && vestNFTs.map((option) => {
+                return (
+                  <MenuItem key={option.id} value={option}>
+                    <div className={ classes.menuOption }>
+                      <Typography>Token #{option.id}</Typography>
+                      <div>
+                        <Typography align='right' className={ classes.smallerText }>{ formatCurrency(option.lockValue) }</Typography>
+                        <Typography color='textSecondary' className={ classes.smallerText }>{veToken?.symbol}</Typography>
+                      </div>
+                    </div>
+                  </MenuItem>
+                )
+              })}
+            </Select>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   const onBack = () => {
     router.push('/liquidity')
   }
 
+  const toggleAdvanced = () => {
+    setAdvanced(!advanced)
+  }
 
   return (
     <div className={classes.retain}>
@@ -236,20 +305,51 @@ export default function SSLiquidityCreate() {
             </div>
             { renderMassiveInput('amount1', amount1, amount1Error, amount1Changed, asset1, null, assetOptions, onAssetSelect) }
             { renderMediumInputToggle('stable', stable) }
+            { renderTokenSelect() }
             { renderCreateInformation() }
+          </div>
+          <div className={ classes.advancedToggleContainer }>
+            <FormControlLabel
+              control={
+                <Switch
+                  size="small"
+                  checked={ advanced }
+                  onChange={ toggleAdvanced }
+                  color={ 'primary' }
+                />
+              }
+              className={ classes.some }
+              label="Advanced"
+              labelPlacement="start"
+            />
           </div>
           <div className={ classes.actionsContainer }>
             <Button
               variant='contained'
               size='large'
-              className={ (createLoading) ? classes.multiApprovalButton : classes.buttonOverride }
+              className={ (createLoading || depositLoading) ? classes.multiApprovalButton : classes.buttonOverride }
               color='primary'
-              disabled={ createLoading }
-              onClick={ onCreate }
+              disabled={ createLoading || depositLoading }
+              onClick={ onCreateAndStake }
               >
-              <Typography className={ classes.actionButtonText }>{ createLoading ? `Creating` : `Create Pair` }</Typography>
+              <Typography className={ classes.actionButtonText }>{ createLoading ? `Creating` : `Create Pair And Stake` }</Typography>
               { createLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
             </Button>
+            { advanced &&
+                <>
+                  <Button
+                    variant='contained'
+                    size='large'
+                    className={ (createLoading || depositLoading) ? classes.multiApprovalButton : classes.buttonOverride }
+                    color='primary'
+                    disabled={ createLoading || depositLoading }
+                    onClick={ onCreateAndDeposit }
+                    >
+                    <Typography className={ classes.actionButtonText }>{ depositLoading ? `Depositing` : `Create Pair And Deposit` }</Typography>
+                    { depositLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
+                  </Button>
+                </>
+            }
           </div>
         </div>
       </Paper>

@@ -593,6 +593,28 @@
   text-align: center;
 }
 
+.menuOption {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: calc(100% - 24px);
+  padding: 6px 12px;
+}
+
+.advancedToggleContainer {
+  padding: 0px 32px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.smallerText {
+  font-size: 12px !important;
+}
+
+.some > span {
+  font-size: 13px !important;
+}
+
 @media screen and (max-width: 1280px) {
   .actionsContainer {
     border-left: 0px solid rgba(104, 108, 122, 0.25) !important;

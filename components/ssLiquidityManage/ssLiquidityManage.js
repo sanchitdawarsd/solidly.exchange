@@ -40,6 +40,7 @@ export default function ssLiquidityManage() {
   const [ activeTab, setActiveTab ] = useState('deposit')
   const [ balances, setBalances ] = useState(null)
   const [ quote, setQuote ] = useState(null)
+  const [ withdrawQuote, setWithdrawQuote ] = useState(null)
 
   const [ priorityAsset, setPriorityAsset ] = useState(0)
   const [ advanced, setAdvanced ] = useState(false)
@@ -74,6 +75,10 @@ export default function ssLiquidityManage() {
       setAmount0('')
       setAmount1('')
       setQuote(null)
+      setWithdrawAmount('')
+      setWithdrawAmount0('')
+      setWithdrawAmount1('')
+      setWithdrawQuote(null)
     }
 
     const errorReturned = () => {
@@ -90,6 +95,13 @@ export default function ssLiquidityManage() {
       setQuote(res.output)
     }
 
+    const quoteRemoveReturned = (res) => {
+      console.log(res)
+      setWithdrawQuote(res.output)
+      setWithdrawAmount0(res.output.amount0)
+      setWithdrawAmount1(res.output.amount1)
+    }
+
     stores.emitter.on(ACTIONS.UPDATED, ssUpdated)
     stores.emitter.on(ACTIONS.GET_LIQUIDITY_BALANCES_RETURNED, balancesReturned)
     stores.emitter.on(ACTIONS.LIQUIDITY_ADDED, depositReturned)
@@ -98,6 +110,7 @@ export default function ssLiquidityManage() {
     stores.emitter.on(ACTIONS.REMOVE_LIQUIDITY_AND_UNSTAKED, depositReturned)
     stores.emitter.on(ACTIONS.LIQUIDITY_STAKED, depositReturned)
     stores.emitter.on(ACTIONS.QUOTE_ADD_LIQUIDITY_RETURNED, quoteAddReturned)
+    stores.emitter.on(ACTIONS.QUOTE_REMOVE_LIQUIDITY_RETURNED, quoteRemoveReturned)
     stores.emitter.on(ACTIONS.ERROR, errorReturned)
 
     ssUpdated()
@@ -111,6 +124,7 @@ export default function ssLiquidityManage() {
       stores.emitter.removeListener(ACTIONS.REMOVE_LIQUIDITY_AND_UNSTAKED, depositReturned)
       stores.emitter.removeListener(ACTIONS.LIQUIDITY_STAKED, depositReturned)
       stores.emitter.removeListener(ACTIONS.QUOTE_ADD_LIQUIDITY_RETURNED, quoteAddReturned)
+      stores.emitter.removeListener(ACTIONS.QUOTE_REMOVE_LIQUIDITY_RETURNED, quoteRemoveReturned)
       stores.emitter.removeListener(ACTIONS.ERROR, errorReturned)
     };
   }, []);
@@ -163,6 +177,20 @@ export default function ssLiquidityManage() {
     })
   }
 
+  const callQuoteRemoveLiquidity = (amount) => {
+    if(!pair) {
+      return null
+    }
+
+    stores.dispatcher.dispatch({ type: ACTIONS.QHOTE_REMOVE_LIQUIDITY, content: {
+        pair: pair,
+        token0: pair.token0,
+        token1: pair.token1,
+        withdrawAmount: amount
+      }
+    })
+  }
+
   const handleChange = (event) => {
     setToken(event.target.value);
   }
@@ -177,18 +205,20 @@ export default function ssLiquidityManage() {
       setAmount1(am);
 
     } else if (input === 'withdraw') {
-      let am = BigNumber(pair.balance).times(percent).div(100).toFixed(18)
-      setWithdrawAmount(am);
+      let am = ''
+      if(pair && pair.gauge) {
+        am = BigNumber(pair.gauge.balance).times(percent).div(100).toFixed(18)
+        setWithdrawAmount(am);
+      } else {
+        am = BigNumber(pair.balance).times(percent).div(100).toFixed(18)
+        setWithdrawAmount(am);
+      }
 
       if(am === '') {
         setWithdrawAmount0('')
         setWithdrawAmount1('')
       } else if(am !== '' && !isNaN(am)) {
-        const totalBalances = BigNumber(pair.reserve0).plus(pair.reserve1)
-        const coin0Ratio = BigNumber(pair.reserve0).div(totalBalances).toFixed(18)
-        const coin1Ratio = BigNumber(pair.reserve1).div(totalBalances).toFixed(18)
-        setWithdrawAmount0(BigNumber(coin0Ratio).times(am).toFixed(18))
-        setWithdrawAmount1(BigNumber(coin1Ratio).times(am).toFixed(18))
+        callQuoteRemoveLiquidity(am)
       }
     } else if (input === 'withdrawAmount0') {
       setWithdrawAmount0Percent(percent)
@@ -241,9 +271,7 @@ export default function ssLiquidityManage() {
       pair: pair,
       token0: pair.token0,
       token1: pair.token1,
-      amount: withdrawAmount,
-      amount0: withdrawAmount0,
-      amount1: withdrawAmount1
+      quote: withdrawQuote
     } })
   }
 
@@ -255,7 +283,8 @@ export default function ssLiquidityManage() {
       token1: pair.token1,
       amount: withdrawAmount,
       amount0: withdrawAmount0,
-      amount1: withdrawAmount1
+      amount1: withdrawAmount1,
+      quote: withdrawQuote
     } })
   }
 
@@ -267,7 +296,8 @@ export default function ssLiquidityManage() {
       token1: pair.token1,
       amount: withdrawAmount,
       amount0: withdrawAmount0,
-      amount1: withdrawAmount1
+      amount1: withdrawAmount1,
+      quote: withdrawQuote
     } })
   }
 
@@ -311,6 +341,7 @@ export default function ssLiquidityManage() {
       setWithdrawAmount0(BigNumber(coin0Ratio).times(pair.virtualPrice).times(event.target.value).toFixed(18))
       setWithdrawAmount1(BigNumber(coin1Ratio).times(pair.virtualPrice).times(event.target.value).toFixed(18))
     }
+    callQuoteRemoveLiquidity(event.target.value)
   }
 
   const renderMediumInput = (type, value, logo, symbol) => {
@@ -549,7 +580,7 @@ export default function ssLiquidityManage() {
             {
               activeTab === 'withdraw' &&
               <>
-                { renderMassiveInput('withdraw', withdrawAmount, null, withdrawAmountChanged, pair?.balance, pair?.logo) }
+                { renderMassiveInput('withdraw', withdrawAmount, null, withdrawAmountChanged, ((pair && pair.gauge) ? (pair?.gauge?.balance) : (pair?.balance)), pair?.logo) }
                 <div className={ classes.swapIconContainer }>
                   <div className={ classes.swapIconSubContainer }>
                     <ArrowDownwardIcon className={ classes.swapIcon } />
@@ -663,36 +694,36 @@ export default function ssLiquidityManage() {
                       variant='contained'
                       size='large'
                       color='primary'
-                      className={ (depositLoading || withdrawAmount === '') ? classes.multiApprovalButton : classes.buttonOverride }
-                      disabled={ depositLoading || withdrawAmount === '' }
+                      className={ (depositLoading || stakeLoading || depositStakeLoading || withdrawAmount === '') ? classes.multiApprovalButton : classes.buttonOverride }
+                      disabled={ depositLoading || stakeLoading || depositStakeLoading || withdrawAmount === '' }
                       onClick={ onUnstakeAndWithdraw }
                       >
-                      <Typography className={ classes.actionButtonText }>{ depositLoading ? `Withdrawing` : `Unstake and Withdraw` }</Typography>
-                      { depositLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
+                      <Typography className={ classes.actionButtonText }>{ depositStakeLoading ? `Withdrawing` : `Unstake and Withdraw` }</Typography>
+                      { depositStakeLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
                     </Button>
                     { advanced &&
                         <>
                           <Button
                             variant='contained'
                             size='large'
-                            className={ ((withdrawAmount === '') || depositLoading || stakeLoading || depositStakeLoading) ? classes.multiApprovalButton : classes.buttonOverride }
+                            className={ (withdrawAmount === '' || depositLoading || stakeLoading || depositStakeLoading) ? classes.multiApprovalButton : classes.buttonOverride }
                             color='primary'
-                            disabled={ (withdrawAmount === '') || depositLoading || stakeLoading || depositStakeLoading }
-                            onClick={ onWithdraw }
+                            disabled={ withdrawAmount === '' || depositLoading || stakeLoading || depositStakeLoading }
+                            onClick={ onUnstake }
                             >
-                            <Typography className={ classes.actionButtonText }>{ depositLoading ? `Withdrawing` : `Withdraw LP` }</Typography>
-                            { depositLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
+                            <Typography className={ classes.actionButtonText }>{ stakeLoading ? `Unstaking` : `Unstake LP` }</Typography>
+                            { stakeLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
                           </Button>
                           <Button
                             variant='contained'
                             size='large'
-                            className={ (BigNumber(pair.gauge.balance).eq(0) || depositLoading || stakeLoading || depositStakeLoading) ? classes.multiApprovalButton : classes.buttonOverride }
+                            className={ (BigNumber(pair.balance).eq(0) || depositLoading || stakeLoading || depositStakeLoading) ? classes.multiApprovalButton : classes.buttonOverride }
                             color='primary'
-                            disabled={ BigNumber(pair.gauge.balance).eq(0) || depositLoading || stakeLoading || depositStakeLoading }
-                            onClick={ onUnstake }
+                            disabled={ BigNumber(pair.balance).eq(0) || depositLoading || stakeLoading || depositStakeLoading }
+                            onClick={ onWithdraw }
                             >
-                            <Typography className={ classes.actionButtonText }>{ BigNumber(pair.gauge.balance).gt(0) ? (stakeLoading ? `Unstaking` : `Unstake ${formatCurrency(pair.gauge.balance)} LP`) : `Nothing Staked` }</Typography>
-                            { stakeLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
+                            <Typography className={ classes.actionButtonText }>{ BigNumber(pair.balance).gt(0) ? (depositLoading ? `Withdrawing` : `Withdraw ${formatCurrency(pair.balance)} LP`) : `Nothing Unstaked` }</Typography>
+                            { depositLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
                           </Button>
                         </>
                     }
