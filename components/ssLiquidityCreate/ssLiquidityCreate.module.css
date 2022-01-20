@@ -433,8 +433,10 @@
 
 .depositInfoHeading {
   width: 100%;
-  padding-bottom: 12px !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.87);
+  font-weight: 700 !important;
+  color: #06D3D7 !important;
+  padding-bottom: 15px !important;
+  border-bottom: 1px solid rgba(126, 153, 176, 0.2);
   font-size: 14px !important;
 }
 
@@ -467,7 +469,8 @@
 }
 
 .priceInfo > .text {
-  font-size: 14px !important;
+  font-size: 13px !important;
+  color: #7e99b0;
 }
 
 .assetSelectBalance {
@@ -566,20 +569,13 @@
   width: 100%;
   display: grid;
   grid-template-columns: 1fr 1fr;
+  padding: 4px;
 }
 
 .toggleOption {
-  padding: 24px;
-}
-
-.toggleOption:nth-child(1) {
-  border-top-left-radius: 12px;
-  border-bottom-left-radius: 12px;
-}
-
-.toggleOption:nth-child(2) {
-  border-top-right-radius: 12px;
-  border-bottom-right-radius: 12px;
+  padding: 20px;
+  border-radius: 8px;
+  color: #7E99B0;
 }
 
 .toggleOption:hover {
@@ -588,9 +584,9 @@
 }
 
 .toggleOption.active {
+  border: 1px solid #06D3D7;
   background: rgb(23, 52, 72) !important;
   color: rgb(6, 211, 215) !important;
-  box-shadow: 0px 3px 1px -2px rgb(0 0 0 / 20%), 0px 2px 2px 0px rgb(0 0 0 / 14%), 0px 1px 5px 0px rgb(0 0 0 / 12%);
 }
 
 .toggleOptionText {

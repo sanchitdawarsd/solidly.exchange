@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import Skeleton from '@material-ui/lab/Skeleton';
-import { Paper, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, Typography, Tooltip, Toolbar } from '@material-ui/core';
+import { Paper, Button, Table, TableBody, TableCell, InputAdornment, TableContainer, TableHead, TableRow, TableSortLabel, Typography, Tooltip, Toolbar } from '@material-ui/core';
 import { useRouter } from "next/router";
 import BigNumber from 'bignumber.js';
+import EnhancedEncryptionOutlinedIcon from '@material-ui/icons/EnhancedEncryptionOutlined';
 import moment from 'moment';
 
 import { formatCurrency } from '../../utils';
@@ -248,6 +249,10 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-end'
+  },
+  actionButtonText: {
+    fontSize: '15px',
+    fontWeight: '700',
   }
 }));
 
@@ -274,6 +279,9 @@ const EnhancedTableToolbar = (props) => {
         color='primary'
         onClick={ onCreate }
         >
+        <InputAdornment position="start">
+          <EnhancedEncryptionOutlinedIcon />
+        </InputAdornment>
         <Typography className={ classes.actionButtonText }>Create Lock</Typography>
       </Button>
     </Toolbar>

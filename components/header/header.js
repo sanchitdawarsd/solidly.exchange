@@ -6,8 +6,8 @@ import { withStyles, withTheme } from '@material-ui/core/styles';
 import HelpIcon from '@material-ui/icons/Help';
 import ListIcon from '@material-ui/icons/List';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
-import AccountBalanceWalletIcon from '@material-ui/icons/AccountBalanceWallet';
-import DashboardIcon from '@material-ui/icons/Dashboard';
+import AccountBalanceWalletOutlinedIcon from '@material-ui/icons/AccountBalanceWalletOutlined';
+import DashboardOutlinedIcon from '@material-ui/icons/DashboardOutlined';
 
 import Navigation from '../navigation'
 import Unlock from '../unlock';
@@ -59,6 +59,7 @@ const StyledMenu = withStyles({
   paper: {
     border: '1px solid rgba(126,153,176,0.2)',
     marginTop: '10px',
+    minWidth: '230px',
   },
 })((props) => (
   <Menu
@@ -66,11 +67,11 @@ const StyledMenu = withStyles({
     getContentAnchorEl={null}
     anchorOrigin={{
       vertical: 'bottom',
-      horizontal: 'center',
+      horizontal: 'right',
     }}
     transformOrigin={{
       vertical: 'top',
-      horizontal: 'center',
+      horizontal: 'right',
     }}
     {...props}
   />
@@ -292,16 +293,16 @@ function Header(props) {
             onClose={handleClose}
           >
             <StyledMenuItem onClick={() => router.push('/dashboard')}>
-              <ListItemIcon>
-                <DashboardIcon fontSize="small" />
+              <ListItemIcon className={classes.userMenuIcon}>
+                <DashboardOutlinedIcon fontSize="small" />
               </ListItemIcon>
-              <ListItemText primary="Dashboard" />
+              <ListItemText className={classes.userMenuText} primary="Dashboard" />
             </StyledMenuItem>
             <StyledMenuItem onClick={onAddressClicked}>
-              <ListItemIcon>
-                <AccountBalanceWalletIcon fontSize="small" />
+              <ListItemIcon className={classes.userMenuIcon}>
+                <AccountBalanceWalletOutlinedIcon fontSize="small" />
               </ListItemIcon>
-              <ListItemText primary="Switch Wallet Provider" />
+              <ListItemText className={classes.userMenuText} primary="Switch Wallet Provider" />
             </StyledMenuItem>
           </StyledMenu>
           </div>
