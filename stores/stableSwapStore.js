@@ -916,8 +916,6 @@ class Store {
       let allowance1TXID = this.getTXUUID()
       let depositTXID = this.getTXUUID()
       let createGaugeTXID = this.getTXUUID()
-      let stakeAllowanceTXID = this.getTXUUID()
-      let stakeTXID = this.getTXUUID()
 
       //DOD A CHECK FOR IF THE POOL ALREADY EXISTS
 
@@ -940,16 +938,6 @@ class Store {
         {
           uuid: createGaugeTXID,
           description: `CREATE GAUGE`,
-          status: 'WAITING'
-        },
-        {
-          uuid: stakeAllowanceTXID,
-          description: `CHECKING YOUR LIQUIDITY POOL ALLOWANCES`,
-          status: 'WAITING'
-        },
-        {
-          uuid: stakeTXID,
-          description: `STAKE POOL TOKENS IN GAUGE`,
           status: 'WAITING'
         }
       ]})
@@ -1045,7 +1033,6 @@ class Store {
 
         // GET PAIR FOR NEWLY CREATED LIQUIDITY POOL
         const pairFor = await routerContract.methods.pairFor(token0.address, token1.address, isStable).call()
-        console.log(pairFor)
 
         // SUBMIT CREATE GAUGE TRANSACTION
         const gaugesContract = new web3.eth.Contract(CONTRACTS.GAUGES_ABI, CONTRACTS.GAUGES_ADDRESS)
@@ -1054,60 +1041,9 @@ class Store {
             return this.emitter.emit(ACTIONS.ERROR, err);
           }
 
-          const pair = this.getPairByAddress(pairFor)
+          this._getPairInfo(web3, account)
 
-          const pairContract = new web3.eth.Contract(CONTRACTS.PAIR_ABI, pair.address)
-
-
-          const balanceOf = await pairContract.methods.balanceOf(account.address).call()
-          const pairBalance = BigNumber(balanceOf).div(10**pair.decimals).toFixed(pair.decimals)
-
-          const stakeAllowance = await this._getStakeAllowance(web3, pair, account)
-
-          if(BigNumber(stakeAllowance).lt(pairBalance)) {
-            this.emitter.emit(ACTIONS.TX_STATUS, {
-              uuid: stakeAllowanceTXID,
-              description: `ALLOW ROUTER TO SPEND YOUR ${pair.symbol}`
-            })
-          } else {
-            this.emitter.emit(ACTIONS.TX_STATUS, {
-              uuid: stakeAllowanceTXID,
-              description: `ALLOWANCE ON ${pair.symbol} SET`,
-              status: 'DONE'
-            })
-          }
-
-          const allowanceCallPromises = []
-
-          if(BigNumber(stakeAllowance).lt(pairBalance)) {
-            const pairContract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, pair.address)
-
-            const stakePromise = new Promise((resolve, reject) => {
-              context._callContractWait(web3, stakePromise, 'approve', [CONTRACTS.ROUTER_ADDRESS, MAX_UINT256], account, gasPrice, null, null, stakeAllowanceTXID, (err) => {
-                if (err) {
-                  reject(err)
-                  return
-                }
-
-                resolve()
-              })
-            })
-
-            allowanceCallPromises.push(stakePromise)
-          }
-
-          const done = await Promise.all(allowanceCallPromises)
-
-          const gaugeContract = new web3.eth.Contract(CONTRACTS.GAUGE_ABI, pair.gauge.address)
-          this._callContractWait(web3, gaugeContract, 'deposit', [balanceOf, account.address], account, gasPrice, null, null, stakeTXID, (err) => {
-            if (err) {
-              return this.emitter.emit(ACTIONS.ERROR, err);
-            }
-
-            this._getPairInfo(web3, account)
-
-            this.emitter.emit(ACTIONS.PAIR_CREATED, pairFor)
-          })
+          this.emitter.emit(ACTIONS.PAIR_CREATED, pairFor)
         })
       })
     } catch(ex) {
@@ -1679,46 +1615,6 @@ class Store {
     }
   }
 
-  getCreatePairBalances = async (payload) => {
-    try {
-      const account = stores.accountStore.getStore("account")
-      if (!account) {
-        console.warn('account not found')
-        return null
-      }
-
-      const web3 = await stores.accountStore.getWeb3Provider()
-      if (!web3) {
-        console.warn('web3 not found')
-        return null
-      }
-
-      const { token0, token1 } = payload.content
-
-      const token0Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, token0.address)
-      const token1Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, token1.address)
-
-      const balanceCalls = [
-        token0Contract.methods.balanceOf(account.address).call(),
-        token1Contract.methods.balanceOf(account.address).call(),
-      ]
-
-      // get asset prices -> needs some oracle somewhere.
-
-      const [ token0Balance, token1Balance ] = await Promise.all(balanceCalls);
-
-      const returnVal = {
-        token0: BigNumber(token0Balance).div(10**token0.decimals).toFixed(token0.decimals),
-        token1: BigNumber(token1Balance).div(10**token1.decimals).toFixed(token1.decimals),
-      }
-
-      this.emitter.emit(ACTIONS.GET_CREATE_PAIR_BALANCES_RETURNED, returnVal)
-    } catch(ex) {
-      console.error(ex)
-      this.emitter.emit(ACTIONS.ERROR, ex)
-    }
-  }
-
   removeLiquidity = async (payload) => {
     try {
       const context = this
@@ -2204,7 +2100,7 @@ class Store {
       let allowanceTXID = this.getTXUUID()
       let vestTXID = this.getTXUUID()
 
-      const unlockString = moment.unix(unlockTime).format('YYYY-MM-DD')
+      const unlockString = moment().add(unlockTime, 'seconds').format('YYYY-MM-DD')
 
       this.emitter.emit(ACTIONS.TX_ADDED, { title: `VEST ${govToken.symbol} UNTIL ${unlockString}`, transactions: [
         {
@@ -2478,6 +2374,8 @@ class Store {
         if (err) {
           return this.emitter.emit(ACTIONS.ERROR, err);
         }
+
+        this._updateVestNFTByID(tokenID)
 
         this.emitter.emit(ACTIONS.WITHDRAW_VEST_RETURNED)
       })

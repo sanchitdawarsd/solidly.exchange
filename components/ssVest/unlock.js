@@ -44,33 +44,28 @@ export default function Unlock({ nft, govToken, veToken }) {
   return (
     <Paper elevation={0} className={ classes.container2 }>
       <div className={ classes.titleSection }>
-      <Tooltip title="Back to Vest" placement="top">
-        <IconButton onClick={ onBack }>
-          <ArrowBackIcon />
+        <IconButton className={ classes.backButton } onClick={ onBack }>
+          <ArrowBackIcon className={ classes.backIcon } />
         </IconButton>
-        </Tooltip>
         <Typography className={ classes.titleText }>Manage Existing Lock</Typography>
       </div>
-      <VestingInfo nft={nft} veToken={veToken} />
-      <div className={ classes.reAddPadding }>
-        <div className={ classes.inputsContainer2 }>
-          <div className={classes.contentBox}>
-            <Typography className={ classes.title }>Lock expired:</Typography>
-            <Typography className={ classes.paragraph }>Your lock has expired. Please withdraw your lock before you can re-lock.</Typography>
-          </div>
-        </div>
-        <div className={ classes.actionsContainer }>
-          <Button
-            variant='contained'
-            size='large'
-            color='primary'
-            disabled={ lockLoading }
-            onClick={ onWithdraw }
-            >
-            <Typography className={ classes.actionButtonText }>{ lockLoading ? `Withrawing` : `Withdraw` }</Typography>
-            { lockLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
-          </Button>
-        </div>
+      <VestingInfo currentNFT={nft} veToken={veToken} />
+      <div className={classes.contentBox}>
+        <Typography className={ classes.para }>Your lock has expired. Please withdraw your lock before you can re-lock.</Typography>
+      </div>
+      <div className={ classes.actionsContainer }>
+        <Button
+          fullWidth
+          variant='contained'
+          size='large'
+          color='primary'
+          disabled={ lockLoading }
+          onClick={ onWithdraw }
+          className={ classes.buttonOverride }
+          >
+          <Typography className={ classes.actionButtonText }>{ lockLoading ? `Withrawing` : `Withdraw` }</Typography>
+          { lockLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
+        </Button>
       </div>
     </Paper>
   );
