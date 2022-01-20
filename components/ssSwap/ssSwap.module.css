@@ -6,6 +6,7 @@
   height: 100%;
   min-height: calc(100vh - 423px);
   align-items: center;
+  margin-top: -100px;
 }
 
 .swapContainer {
@@ -15,6 +16,8 @@
   min-height: 515px;
   display: flex;
   flex-direction: column;
+  -webkit-box-shadow: 0 13px 30px 0 rgba(7,9,18,0.1) !important;
+box-shadow: 0 13px 30px 0 rgba(7,9,18,0.1) !important;
 }
 
 .swapInputs {
@@ -108,7 +111,7 @@
 }
 
 .displayAssetIcon {
-  border: 1px solid rgba(128, 128, 128, 0.5);
+  border: 1px solid rgba(126, 153, 176, 0.2);
   border-radius: 50px;
   background: rgb(33, 43, 72);
   width: 100px;
@@ -117,14 +120,14 @@
 }
 
 .displayAssetIconSmall {
-  border: 1px solid rgba(128, 128, 128, 0.5);
+  border: 1px solid rgba(126, 153, 176, 0.2);
   border-radius: 30px;
   background: rgb(33, 43, 72);
   padding: 6px;
 }
 
 .displayChainIcon {
-  border: 1px solid rgba(128, 128, 128, 0.5);
+  border: 1px solid rgba(126, 153, 176, 0.2);
   border-radius: 20px;
   position: absolute;
   top: 60px;
@@ -133,7 +136,7 @@
 }
 
 .displayChainIconSmall {
-  border: 1px solid rgba(128, 128, 128, 0.5);
+  border: 1px solid rgba(126, 153, 176, 0.2);
   border-radius: 20px;
   position: absolute;
   top: 30px;

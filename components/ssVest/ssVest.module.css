@@ -132,13 +132,14 @@
 
 .actionsContainer {
   width: 100%;
-  margin-top: 10px;
+  margin-top: 20px;
 
 }
 
 .actionButtonText {
-  font-size: 12px !important;
+  font-size: 15px !important;
   text-transform: capitalize !important;
+  font-weight: 700 !important;
 }
 
 .buttonStretch {
@@ -367,7 +368,7 @@
 }
 
 .displayAssetIcon {
-  border: 1px solid rgba(128, 128, 128, 0.5);
+  border: 1px solid rgba(126, 153, 176, 0.2);
   border-radius: 50px;
   background: rgb(33, 43, 72);
   width: 100px;
@@ -422,7 +423,7 @@
 }
 
 .largeInput {
-  font-size: 46px !important;
+  font-size: 42px !important;
   z-index: 99;
 }
 

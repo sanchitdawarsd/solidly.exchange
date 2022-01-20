@@ -7,6 +7,7 @@ import { useRouter } from "next/router";
 import BigNumber from 'bignumber.js';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import SearchIcon from '@material-ui/icons/Search';
+import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 
 import { formatCurrency } from '../../utils';
 
@@ -250,7 +251,7 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: '30px',
   },
   overrideTableHead: {
-    borderBottom: '1px solid rgba(104,108,122,0.2) !important',
+    borderBottom: '1px solid rgba(126,153,176,0.15) !important',
   },
   doubleImages: {
     display: 'flex',
@@ -262,7 +263,7 @@ const useStyles = makeStyles((theme) => ({
     flex: 1,
     minWidth: '300px',
     marginLeft: '30px',
-    marginRight: '40px'
+    marginRight: '30px',
   },
   buttonOverride: {
     color: 'rgb(6, 211, 215)',
@@ -277,11 +278,20 @@ const useStyles = makeStyles((theme) => ({
     padding: '0px',
   },
   tableContainer: {
-    border: '1px solid rgba(104, 108, 122, 0.25)',
+    border: '1px solid rgba(126,153,176,0.2)',
     width: '100%',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-end'
+  },
+  filterButton: {
+    background: '#111729',
+    border: '1px solid rgba(126,153,176,0.3)',
+    color: '#06D3D7',
+  },
+  actionButtonText: {
+    fontSize: '15px',
+    fontWeight: '700',
   }
 }));
 
@@ -308,6 +318,9 @@ const EnhancedTableToolbar = (props) => {
         color='primary'
         onClick={ onCreate }
         >
+        <InputAdornment position="start">
+          <AddCircleOutlineIcon />
+        </InputAdornment>
         <Typography className={ classes.actionButtonText }>Create Pair</Typography>
       </Button>
       <TextField
@@ -326,7 +339,7 @@ const EnhancedTableToolbar = (props) => {
         }}
       />
       <Tooltip title="Filter list">
-        <IconButton aria-label="filter list">
+        <IconButton className={ classes.filterButton } aria-label="filter list">
           <FilterListIcon />
         </IconButton>
       </Tooltip>

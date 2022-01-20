@@ -219,9 +219,11 @@ export default function SSLiquidityCreate() {
     <div className={classes.retain}>
       <Paper elevation={0} className={ classes.container }>
         <div className={ classes.titleSection }>
+          <Tooltip title="Back to Liquidity" placement="top">
           <IconButton className={ classes.backButton } onClick={ onBack }>
             <ArrowBackIcon className={ classes.backIcon } />
           </IconButton>
+          </Tooltip>
           <Typography className={ classes.titleText }>Create Liquidity Pair</Typography>
         </div>
         <div className={ classes.reAddPadding }>
