@@ -26,8 +26,9 @@
 }
 
 .actionButtonText {
-  font-size: 12px !important;
+  font-size: 15px !important;
   text-transform: capitalize !important;
+  font-weight: 700 !important;
 }
 
 .loadingCircle {

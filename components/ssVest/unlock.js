@@ -44,10 +44,12 @@ export default function Unlock({ nft, govToken, veToken }) {
   return (
     <Paper elevation={0} className={ classes.container2 }>
       <div className={ classes.titleSection }>
+      <Tooltip title="Back to Vest" placement="top">
         <IconButton onClick={ onBack }>
           <ArrowBackIcon />
         </IconButton>
-        <Typography className={ classes.titleText }>Manage Exissting Lock</Typography>
+        </Tooltip>
+        <Typography className={ classes.titleText }>Manage Existing Lock</Typography>
       </div>
       <VestingInfo nft={nft} veToken={veToken} />
       <div className={ classes.reAddPadding }>

@@ -214,9 +214,11 @@ export default function ssLock({ govToken, veToken }) {
     <>
       <Paper elevation={0} className={ classes.container3 }>
         <div className={ classes.titleSection }>
+        <Tooltip title="Back to Vest" placement="top">
           <IconButton className={ classes.backButton } onClick={ onBack }>
             <ArrowBackIcon className={ classes.backIcon } />
           </IconButton>
+          </Tooltip>
           <Typography className={ classes.titleText }>Create New Lock</Typography>
         </div>
         { renderMassiveInput('amount', amount, amountError, onAmountChanged, govToken?.balance, govToken?.logo) }

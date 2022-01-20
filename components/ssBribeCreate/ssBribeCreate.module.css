@@ -465,7 +465,14 @@
 .depositInfoHeading {
   width: 100%;
   padding-bottom: 12px !important;
-  font-size: 14px !important;
+  font-size: 15px !important;
+  line-height: 23px !important;
+  text-align: center;
+  color: #7E99B0 !important;
+}
+
+.highlight {
+  color: #FFF !important;
 }
 
 .priceInfos {
@@ -637,6 +644,7 @@
 
 .smallerText {
   font-size: 12px !important;
+  margin-top: 5px !important;
 }
 
 @media screen and (max-width: 1280px) {

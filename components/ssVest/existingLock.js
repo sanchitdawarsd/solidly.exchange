@@ -69,9 +69,11 @@ export default function existingLock({ nft, govToken, veToken }) {
   return (
     <Paper elevation={0} className={ classes.container2 }>
       <div className={ classes.titleSection }>
+        <Tooltip title="Back to Vest" placement="top">
         <IconButton onClick={ onBack }>
           <ArrowBackIcon />
         </IconButton>
+        </Tooltip>
         <Typography className={ classes.titleText }>Manage Existing Lock</Typography>
       </div>
       <LockAmount nft={nft} govToken={ govToken } veToken={ veToken } updateLockAmount={ updateLockAmount } />

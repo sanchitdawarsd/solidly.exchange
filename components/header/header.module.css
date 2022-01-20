@@ -15,11 +15,21 @@
   /* background: rgba(255,255,255,0.1); */
 }
 
+.userMenuText {
+  transform: scale(0.85);
+}
+
 .ddIcon {
   color: #7E99B0;
   margin-left: 5px;
   margin-top: -2px;
   margin-right: -8px;
+}
+
+.userMenuIcon {
+  padding: 0 !important;
+  margin-right: -30px;
+  color: #06D3D7 !important;
 }
 
 .appLogo {

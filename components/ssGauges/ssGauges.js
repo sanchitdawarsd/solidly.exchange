@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Paper, Typography, Button, CircularProgress, TextField, MenuItem, Select } from '@material-ui/core';
+import { Paper, Typography, Button, CircularProgress, InputAdornment, TextField, MenuItem, Select } from '@material-ui/core';
 import BigNumber from 'bignumber.js';
+import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import { useRouter } from "next/router";
 
 import classes from './ssGauges.module.css';
@@ -144,6 +145,9 @@ export default function ssGauges() {
           color='primary'
           onClick={ onBribe }
           >
+          <InputAdornment position="start">
+            <AddCircleOutlineIcon />
+          </InputAdornment>
           <Typography className={ classes.actionButtonText }>{ `Create Bribe` }</Typography>
         </Button>
         <div className={ classes.tokenIDContainer }>

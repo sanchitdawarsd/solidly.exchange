@@ -190,7 +190,7 @@ export default function ssBribeCreate() {
   const renderCreateInfo = () => {
     return (
       <div className={ classes.depositInfoContainer }>
-        <Typography className={ classes.depositInfoHeading } >You are creating a bribe of { formatCurrency(amount) } { asset?.symbol } to incentivize Vesters to vote for the { gauge?.token0?.symbol }/{ gauge?.token1?.symbol } Pool</Typography>
+        <Typography className={ classes.depositInfoHeading } >You are creating a bribe of <span className={classes.highlight}>{ formatCurrency(amount) } { asset?.symbol }</span> to incentivize Vesters to vote for the <span className={classes.highlight}>{ gauge?.token0?.symbol }/{ gauge?.token1?.symbol } Pool</span></Typography>
       </div>
     )
   }
@@ -199,9 +199,11 @@ export default function ssBribeCreate() {
     <div className={classes.retain}>
       <Paper elevation={0} className={ classes.container }>
         <div className={ classes.titleSection }>
+          <Tooltip placement="top" title="Back to Voting">
           <IconButton className={ classes.backButton } onClick={ onBack }>
             <ArrowBackIcon className={ classes.backIcon } />
           </IconButton>
+          </Tooltip>
           <Typography className={ classes.titleText }>Create Bribe</Typography>
         </div>
         <div className={ classes.reAddPadding }>
