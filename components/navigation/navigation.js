@@ -95,6 +95,9 @@ function Navigation(props) {
     if(activePath.includes('bribe')) {
       setActive('bribe')
     }
+    if(activePath.includes('gauges')) {
+      setActive('gauges')
+    }
   }, [])
 
   const renderNavs = () => {
@@ -113,6 +116,10 @@ function Navigation(props) {
           'Liquidity',
           'liquidity',
         )}
+        {/*renderSubNav(
+          'Gauges',
+          'gauges',
+        )*/}
         {renderSubNav(
           'Vest',
           'vest',
@@ -121,10 +128,6 @@ function Navigation(props) {
           'Vote',
           'vote',
         )}
-        {/*renderSubNav(
-          'Bribe',
-          'bribe',
-        )*/}
       </ToggleButtonGroup>
     );
   };

@@ -339,6 +339,7 @@
   width: 100%;
   align-items: center;
   background: rgb(33, 43, 72);
+  min-height: 50px;
 }
 
 .mediumInputAssetSelect {
@@ -467,6 +468,28 @@
   font-size: 18px !important;
   letter-spacing: normal !important;
   font-weight: bold !important;
+}
+
+.advancedToggleContainer {
+  padding: 0px 32px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.some > span {
+  font-size: 13px !important;
+}
+
+.menuOption {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: calc(100% - 24px);
+  padding: 6px 12px;
+}
+
+.smallerText {
+  font-size: 12px !important;
 }
 
 @media screen and (max-width: 1280px) {

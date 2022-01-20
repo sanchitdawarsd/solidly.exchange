@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
-import { Paper, Grid, Typography, Button, TextField, InputAdornment, CircularProgress, Tooltip, IconButton } from '@material-ui/core';
+import { Paper, Grid, Typography, Button, TextField, InputAdornment, CircularProgress, Tooltip, IconButton, FormControlLabel, Switch, Select, MenuItem  } from '@material-ui/core';
 import BigNumber from 'bignumber.js';
 import { formatCurrency } from '../../utils';
 import classes from './ssLiquidityManage.module.css';
@@ -18,9 +18,11 @@ export default function ssLiquidityManage() {
 
   const router = useRouter();
 
-  const [pair, setPair] = useState(null);
+  const [ pair, setPair ] = useState(null);
+  const [ veToken, setVeToken ] = useState(null)
 
   const [ depositLoading, setDepositLoading ] = useState(false)
+  const [ stakeLoading, setStakeLoading ] = useState(false)
   const [ depositStakeLoading, setDepositStakeLoading ] = useState(false)
 
   const [ amount0, setAmount0 ] = useState('');
@@ -40,6 +42,10 @@ export default function ssLiquidityManage() {
   const [ quote, setQuote ] = useState(null)
 
   const [ priorityAsset, setPriorityAsset ] = useState(0)
+  const [ advanced, setAdvanced ] = useState(false)
+
+  const [ token, setToken ] = useState(null)
+  const [ vestNFTs, setVestNFTs ] = useState([])
 
   //might not be correct to d this every time store updates.
   const ssUpdated = async () => {
@@ -47,47 +53,41 @@ export default function ssLiquidityManage() {
       const pp = await stores.stableSwapStore.getPairByAddress(router.query.address)
       setPair(pp)
       callGetPairBalances(pp)
+
+      setVeToken(stores.stableSwapStore.getStore('veToken'))
+      const nfts = stores.stableSwapStore.getStore('vestNFTs')
+      setVestNFTs(nfts)
+      if(nfts.length > 0) {
+        if(token == null) {
+          setToken(nfts[0]);
+        }
+      }
     }
   }
 
   useEffect(() => {
-    const quoteAddReturned = (res) => {
-      console.log('RETURNED')
-      console.log(res)
-      console.log(priorityAsset)
-      if(priorityAsset === res.inputs.priorityAsset) {
-        console.log(res)
-        setQuote(res)
-        if(priorityAsset === 0) {
-          console.log(res.output)
-          setAmount1(res.output)
-        } else {
-          console.log(res.output)
-          setAmount0(res.output)
-        }
-      }
-    }
-
-    stores.emitter.on(ACTIONS.QUOTE_ADD_LIQUIDITY_RETURNED, quoteAddReturned)
-
-    return () => {
-      stores.emitter.removeListener(ACTIONS.QUOTE_ADD_LIQUIDITY_RETURNED, quoteAddReturned)
-    };
-  }, [priorityAsset]);
-
-  useEffect(() => {
     const depositReturned = () => {
       setDepositLoading(false)
+      setStakeLoading(false)
       setDepositStakeLoading(false)
+
+      setAmount0('')
+      setAmount1('')
+      setQuote(null)
     }
 
     const errorReturned = () => {
       setDepositLoading(false)
+      setStakeLoading(false)
       setDepositStakeLoading(false)
     }
 
     const balancesReturned = (res) => {
       setBalances(res)
+    }
+
+    const quoteAddReturned = (res) => {
+      setQuote(res.output)
     }
 
     stores.emitter.on(ACTIONS.UPDATED, ssUpdated)
@@ -96,6 +96,8 @@ export default function ssLiquidityManage() {
     stores.emitter.on(ACTIONS.ADD_LIQUIDITY_AND_STAKED, depositReturned)
     stores.emitter.on(ACTIONS.LIQUIDITY_REMOVED, depositReturned)
     stores.emitter.on(ACTIONS.REMOVE_LIQUIDITY_AND_UNSTAKED, depositReturned)
+    stores.emitter.on(ACTIONS.LIQUIDITY_STAKED, depositReturned)
+    stores.emitter.on(ACTIONS.QUOTE_ADD_LIQUIDITY_RETURNED, quoteAddReturned)
     stores.emitter.on(ACTIONS.ERROR, errorReturned)
 
     ssUpdated()
@@ -107,6 +109,8 @@ export default function ssLiquidityManage() {
       stores.emitter.removeListener(ACTIONS.ADD_LIQUIDITY_AND_STAKED, depositReturned)
       stores.emitter.removeListener(ACTIONS.LIQUIDITY_REMOVED, depositReturned)
       stores.emitter.removeListener(ACTIONS.REMOVE_LIQUIDITY_AND_UNSTAKED, depositReturned)
+      stores.emitter.removeListener(ACTIONS.LIQUIDITY_STAKED, depositReturned)
+      stores.emitter.removeListener(ACTIONS.QUOTE_ADD_LIQUIDITY_RETURNED, quoteAddReturned)
       stores.emitter.removeListener(ACTIONS.ERROR, errorReturned)
     };
   }, []);
@@ -128,16 +132,39 @@ export default function ssLiquidityManage() {
   }
 
   const callQuoteAddLiquidity = (amountA, amountB, pa) => {
-    console.log('calling')
+    if(!pair) {
+      return null
+    }
+
+    if(pa == 0) {
+      if(amountA == '') {
+        setAmount1('')
+      } else {
+        amountB = BigNumber(amountA).times(pair.reserve1).div(pair.reserve0).toFixed(pair.token1.decimals)
+        setAmount1(amountB)
+      }
+    }
+    if(pa == 1) {
+      if(amountB == '') {
+        setAmount0('')
+      } else {
+        amountA = BigNumber(amountB).times(pair.reserve0).div(pair.reserve1).toFixed(pair.token0.decimals)
+        setAmount0(amountA)
+      }
+    }
+
     stores.dispatcher.dispatch({ type: ACTIONS.QUOTE_ADD_LIQUIDITY, content: {
         pair: pair,
         token0: pair.token0,
         token1: pair.token1,
         amount0: amountA,
-        amount1: amountB,
-        priorityAsset: pa
+        amount1: amountB
       }
     })
+  }
+
+  const handleChange = (event) => {
+    setToken(event.target.value);
   }
 
   const setAmountPercent = (input, percent) => {
@@ -185,6 +212,15 @@ export default function ssLiquidityManage() {
     } })
   }
 
+  const onStake = () => {
+    setStakeLoading(true)
+
+    stores.dispatcher.dispatch({ type: ACTIONS.STAKE_LIQUIDITY, content: {
+      pair: pair,
+      token:  token
+    } })
+  }
+
   const onDepositAndStake = () => {
     setDepositStakeLoading(true)
 
@@ -194,7 +230,8 @@ export default function ssLiquidityManage() {
       token1: pair.token1,
       amount0: amount0,
       amount1: amount1,
-      minLiquidity: quote ? quote : '0'
+      minLiquidity: quote ? quote : '0',
+      token: token
     } })
   }
 
@@ -213,6 +250,18 @@ export default function ssLiquidityManage() {
   const onUnstakeAndWithdraw = () => {
     setDepositLoading(true)
     stores.dispatcher.dispatch({ type: ACTIONS.UNSTAKE_AND_REMOVE_LIQUIDITY, content: {
+      pair: pair,
+      token0: pair.token0,
+      token1: pair.token1,
+      amount: withdrawAmount,
+      amount0: withdrawAmount0,
+      amount1: withdrawAmount1
+    } })
+  }
+
+  const onUnstake = () => {
+    setDepositLoading(true)
+    stores.dispatcher.dispatch({ type: ACTIONS.UNSTAKE_LIQUIDITY, content: {
       pair: pair,
       token0: pair.token0,
       token1: pair.token1,
@@ -362,7 +411,7 @@ export default function ssLiquidityManage() {
               value={ amountValue }
               onChange={ amountChanged }
               onFocus={ amountFocused ? amountFocused : null }
-              disabled={ depositLoading || depositStakeLoading }
+              disabled={ depositLoading || stakeLoading || depositStakeLoading }
               InputProps={{
                 className: classes.largeInput
               }}
@@ -387,8 +436,8 @@ export default function ssLiquidityManage() {
             <Typography className={ classes.text } >{ `${pair?.token1?.symbol} per ${pair?.token0?.symbol}` }</Typography>
           </div>
           <div className={ classes.priceInfo }>
-            <Typography className={ classes.title } >0.000</Typography>
-            <Typography className={ classes.text } >{ `$ per LP ` }</Typography>
+            <Typography className={ classes.title } >{ formatCurrency(quote) }</Typography>
+            <Typography className={ classes.text } >{ `LP Received ` }</Typography>
           </div>
         </div>
       </div>
@@ -415,6 +464,43 @@ export default function ssLiquidityManage() {
         </div>
       </div>
     )
+  }
+
+  const renderTokenSelect = () => {
+    return (
+      <div className={ classes.textField}>
+        <div className={ classes.mediumInputContainer}>
+          <div className={ classes.mediumInputAmount }>
+            <Select
+              fullWidth
+              value={ token }
+              onChange={ handleChange }
+              InputProps={{
+                className: classes.mediumInput,
+              }}
+            >
+              { vestNFTs && vestNFTs.map((option) => {
+                return (
+                  <MenuItem key={option.id} value={option}>
+                    <div className={ classes.menuOption }>
+                      <Typography>Token #{option.id}</Typography>
+                      <div>
+                        <Typography align='right' className={ classes.smallerText }>{ formatCurrency(option.lockValue) }</Typography>
+                        <Typography color='textSecondary' className={ classes.smallerText }>{veToken?.symbol}</Typography>
+                      </div>
+                    </div>
+                  </MenuItem>
+                )
+              })}
+            </Select>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const toggleAdvanced = () => {
+    setAdvanced(!advanced)
   }
 
   return (
@@ -454,6 +540,7 @@ export default function ssLiquidityManage() {
                   </div>
                 </div>
                 { renderMassiveInput('amount1', amount1, amount1Error, amount1Changed, pair?.token1?.balance, pair?.token1?.logo, amount1Focused) }
+                { renderTokenSelect() }
                 { renderDepositInformation() }
               </>
             }
@@ -474,51 +561,141 @@ export default function ssLiquidityManage() {
               </>
             }
           </div>
+          <div className={ classes.advancedToggleContainer }>
+            <FormControlLabel
+              control={
+                <Switch
+                  size="small"
+                  checked={ advanced }
+                  onChange={ toggleAdvanced }
+                  color={ 'primary' }
+                />
+              }
+              className={ classes.some }
+              label="Advanced"
+              labelPlacement="start"
+            />
+          </div>
           {
             activeTab === 'deposit' &&
             <div className={ classes.actionsContainer }>
-              { !(pair && pair.gauge && pair.gauge.address) &&
+              { // There is no Gauge on the pair yet. Can only deposit
+                !(pair && pair.gauge && pair.gauge.address) &&
                   <Button
-                  variant='contained'
-                  size='large'
-                  className={ ((amount0 === '' && amount1 === '') || depositLoading || depositStakeLoading) ? classes.multiApprovalButton : classes.buttonOverride }
-                  color='primary'
-                  disabled={ (amount0 === '' && amount1 === '') || depositLoading || depositStakeLoading }
-                  onClick={ onDeposit }
-                  >
-                  <Typography className={ classes.actionButtonText }>{ depositLoading ? `Depositing` : `Deposit` }</Typography>
-                  { depositLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
-                </Button>
+                    variant='contained'
+                    size='large'
+                    className={ ((amount0 === '' && amount1 === '') || depositLoading || depositStakeLoading) ? classes.multiApprovalButton : classes.buttonOverride }
+                    color='primary'
+                    disabled={ (amount0 === '' && amount1 === '') || depositLoading || depositStakeLoading }
+                    onClick={ onDeposit }
+                    >
+                    <Typography className={ classes.actionButtonText }>{ depositLoading ? `Depositing` : `Deposit` }</Typography>
+                    { depositLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
+                  </Button>
               }
-              { (pair && pair.gauge && pair.gauge.address) &&
-                <Button
-                  variant='contained'
-                  size='large'
-                  className={ ((amount0 === '' && amount1 === '') || depositLoading || depositStakeLoading) ? classes.multiApprovalButton : classes.buttonOverride }
-                  color='primary'
-                  disabled={ (amount0 === '' && amount1 === '') || depositLoading || depositStakeLoading }
-                  onClick={ onDepositAndStake }
-                  >
-                  <Typography className={ classes.actionButtonText }>{ depositStakeLoading ? `Depositing` : `Deposit & Stake` }</Typography>
-                  { depositStakeLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
-                </Button>
+              { // There is a Gauge on the pair. Can deposit and stake
+                (pair && pair.gauge && pair.gauge.address) &&
+                  <>
+                    <Button
+                      variant='contained'
+                      size='large'
+                      className={ ((amount0 === '' && amount1 === '') || depositLoading || stakeLoading || depositStakeLoading) ? classes.multiApprovalButton : classes.buttonOverride }
+                      color='primary'
+                      disabled={ (amount0 === '' && amount1 === '') || depositLoading || stakeLoading || depositStakeLoading }
+                      onClick={ onDepositAndStake }
+                      >
+                      <Typography className={ classes.actionButtonText }>{ depositStakeLoading ? `Depositing` : `Deposit & Stake` }</Typography>
+                      { depositStakeLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
+                    </Button>
+                    { advanced &&
+                        <>
+                          <Button
+                            variant='contained'
+                            size='large'
+                            className={ ((amount0 === '' && amount1 === '') || depositLoading || stakeLoading || depositStakeLoading) ? classes.multiApprovalButton : classes.buttonOverride }
+                            color='primary'
+                            disabled={ (amount0 === '' && amount1 === '') || depositLoading || stakeLoading || depositStakeLoading }
+                            onClick={ onDeposit }
+                            >
+                            <Typography className={ classes.actionButtonText }>{ depositLoading ? `Depositing` : `Deposit LP` }</Typography>
+                            { depositLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
+                          </Button>
+                          <Button
+                            variant='contained'
+                            size='large'
+                            className={ (BigNumber(pair.balance).eq(0) || depositLoading || stakeLoading || depositStakeLoading) ? classes.multiApprovalButton : classes.buttonOverride }
+                            color='primary'
+                            disabled={ BigNumber(pair.balance).eq(0) || depositLoading || stakeLoading || depositStakeLoading }
+                            onClick={ onStake }
+                            >
+                            <Typography className={ classes.actionButtonText }>{ BigNumber(pair.balance).gt(0) ? (stakeLoading ? `Staking` : `Stake ${formatCurrency(pair.balance)} LP`) : `Nothing Unstaked` }</Typography>
+                            { stakeLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
+                          </Button>
+                        </>
+                    }
+                  </>
               }
             </div>
           }
           {
             activeTab === 'withdraw' &&
             <div className={ classes.actionsContainer }>
-              <Button
-                variant='contained'
-                size='large'
-                color='primary'
-                className={ (depositLoading || withdrawAmount === '') ? classes.multiApprovalButton : classes.buttonOverride }
-                disabled={ depositLoading || withdrawAmount === '' }
-                onClick={ onWithdraw }
-                >
-                <Typography className={ classes.actionButtonText }>{ depositLoading ? `Withdrawing` : `Withdraw` }</Typography>
-                { depositLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
-              </Button>
+              {
+                !(pair && pair.gauge && pair.gauge.address) &&
+                  <Button
+                    variant='contained'
+                    size='large'
+                    color='primary'
+                    className={ (depositLoading || withdrawAmount === '') ? classes.multiApprovalButton : classes.buttonOverride }
+                    disabled={ depositLoading || withdrawAmount === '' }
+                    onClick={ onWithdraw }
+                    >
+                    <Typography className={ classes.actionButtonText }>{ depositLoading ? `Withdrawing` : `Withdraw` }</Typography>
+                    { depositLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
+                  </Button>
+              }
+              {
+                (pair && pair.gauge && pair.gauge.address) &&
+                  <>
+                    <Button
+                      variant='contained'
+                      size='large'
+                      color='primary'
+                      className={ (depositLoading || withdrawAmount === '') ? classes.multiApprovalButton : classes.buttonOverride }
+                      disabled={ depositLoading || withdrawAmount === '' }
+                      onClick={ onUnstakeAndWithdraw }
+                      >
+                      <Typography className={ classes.actionButtonText }>{ depositLoading ? `Withdrawing` : `Unstake and Withdraw` }</Typography>
+                      { depositLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
+                    </Button>
+                    { advanced &&
+                        <>
+                          <Button
+                            variant='contained'
+                            size='large'
+                            className={ ((withdrawAmount === '') || depositLoading || stakeLoading || depositStakeLoading) ? classes.multiApprovalButton : classes.buttonOverride }
+                            color='primary'
+                            disabled={ (withdrawAmount === '') || depositLoading || stakeLoading || depositStakeLoading }
+                            onClick={ onWithdraw }
+                            >
+                            <Typography className={ classes.actionButtonText }>{ depositLoading ? `Withdrawing` : `Withdraw LP` }</Typography>
+                            { depositLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
+                          </Button>
+                          <Button
+                            variant='contained'
+                            size='large'
+                            className={ (BigNumber(pair.gauge.balance).eq(0) || depositLoading || stakeLoading || depositStakeLoading) ? classes.multiApprovalButton : classes.buttonOverride }
+                            color='primary'
+                            disabled={ BigNumber(pair.gauge.balance).eq(0) || depositLoading || stakeLoading || depositStakeLoading }
+                            onClick={ onUnstake }
+                            >
+                            <Typography className={ classes.actionButtonText }>{ BigNumber(pair.gauge.balance).gt(0) ? (stakeLoading ? `Unstaking` : `Unstake ${formatCurrency(pair.gauge.balance)} LP`) : `Nothing Staked` }</Typography>
+                            { stakeLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
+                          </Button>
+                        </>
+                    }
+                  </>
+              }
             </div>
           }
         </div>

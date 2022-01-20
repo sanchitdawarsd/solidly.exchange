@@ -49,11 +49,11 @@ class Store {
           case ACTIONS.CREATE_PAIR:
             this.createPair(payload)
             break
-          case ACTIONS.GET_CREATE_PAIR_BALANCES:
-            this.getCreatePairBalances(payload)
-            break
           case ACTIONS.ADD_LIQUIDITY:
             this.addLiquidity(payload)
+            break
+          case ACTIONS.STAKE_LIQUIDITY:
+            this.stakeLiquidity(payload)
             break
           case ACTIONS.ADD_LIQUIDITY_AND_STAKE:
             this.addLiquidityAndStake(payload)
@@ -572,8 +572,6 @@ class Store {
 
 
 
-
-
   // DISPATCHER FUNCTIONS
   configure = async (payload) => {
     try {
@@ -664,6 +662,42 @@ class Store {
     }
   }
 
+  _getVestNFTs = async (web3, account) => {
+    try {
+      const veToken = this.getStore('veToken')
+      const govToken = this.getStore('govToken')
+
+      const vestingContract = new web3.eth.Contract(CONTRACTS.VE_TOKEN_ABI, CONTRACTS.VE_TOKEN_ADDRESS)
+
+      const nftsLength = await vestingContract.methods.balanceOf(account.address).call()
+      const arr = Array.from({length: parseInt(nftsLength)}, (v, i) => i)
+
+      const nfts = await Promise.all(
+        arr.map(async (idx) => {
+
+          const tokenIndex = await vestingContract.methods.tokenOfOwnerByIndex(account.address, idx).call()
+          const locked = await vestingContract.methods.locked(tokenIndex).call()
+          const lockValue = await vestingContract.methods.balanceOfNFT(tokenIndex).call()
+
+          // probably do some decimals math before returning info. Maybe get more info. I don't know what it returns.
+          return {
+            id: tokenIndex,
+            lockEnds: locked.end,
+            lockAmount: BigNumber(locked.amount).div(10**govToken.decimals).toFixed(govToken.decimals),
+            lockValue: BigNumber(lockValue).div(10**veToken.decimals).toFixed(veToken.decimals)
+          }
+        })
+      )
+
+      this.setStore({ vestNFTs: nfts })
+      this.emitter.emit(ACTIONS.UPDATED)
+
+    } catch(ex) {
+      console.error(ex)
+      this.emitter.emit(ACTIONS.ERROR, ex)
+    }
+  }
+
   _getGovTokenInfo = async (web3, account) => {
     try {
       const govToken = this.getStore('govToken')
@@ -683,6 +717,8 @@ class Store {
 
       this.setStore({ govToken })
       this.emitter.emit(ACTIONS.UPDATED)
+
+      this._getVestNFTs(web3, account)
     } catch (ex) {
       console.log(ex)
     }
@@ -1276,6 +1312,100 @@ class Store {
     }
   }
 
+  stakeLiquidity = async (payload) => {
+    try {
+      const context = this
+
+      const account = stores.accountStore.getStore("account")
+      if (!account) {
+        console.warn('account not found')
+        return null
+      }
+
+      const web3 = await stores.accountStore.getWeb3Provider()
+      if (!web3) {
+        console.warn('web3 not found')
+        return null
+      }
+
+      const { pair, token } = payload.content
+
+      let stakeAllowanceTXID = this.getTXUUID()
+      let stakeTXID = this.getTXUUID()
+
+
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `STAKE ${pair.symbol} IN GAUGE`, transactions: [
+        {
+          uuid: stakeAllowanceTXID,
+          description: `CHECKING YOUR ${pair.symbol} ALLOWANCES`,
+          status: 'WAITING'
+        },
+        {
+          uuid: stakeTXID,
+          description: `STAKE POOL TOKENS IN GAUGE`,
+          status: 'WAITING'
+        }
+      ]})
+
+      const stakeAllowance = await this._getStakeAllowance(web3, pair, account)
+
+      const pairContract = new web3.eth.Contract(CONTRACTS.PAIR_ABI, pair.address)
+      const balanceOf = await pairContract.methods.balanceOf(account.address).call()
+
+      if(BigNumber(stakeAllowance).lt( BigNumber(balanceOf).div(10**pair.decimals).toFixed(pair.decimals) )) {
+        this.emitter.emit(ACTIONS.TX_STATUS, {
+          uuid: stakeAllowanceTXID,
+          description: `ALLOW ROUTER TO SPEND YOUR ${pair.symbol}`
+        })
+      } else {
+        this.emitter.emit(ACTIONS.TX_STATUS, {
+          uuid: stakeAllowanceTXID,
+          description: `ALLOWANCE ON ${pair.symbol} SET`,
+          status: 'DONE'
+        })
+      }
+
+
+      const gasPrice = await stores.accountStore.getGasPrice()
+
+      const allowanceCallsPromises = []
+
+      if(BigNumber(stakeAllowance).lt( BigNumber(balanceOf).div(10**pair.decimals).toFixed(pair.decimals)  )) {
+        const stakePromise = new Promise((resolve, reject) => {
+          context._callContractWait(web3, pairContract, 'approve', [pair.gauge.address, MAX_UINT256], account, gasPrice, null, null, stakeAllowanceTXID, (err) => {
+            if (err) {
+              reject(err)
+              return
+            }
+
+            resolve()
+          })
+        })
+
+        allowanceCallsPromises.push(stakePromise)
+      }
+
+      const done = await Promise.all(allowanceCallsPromises)
+
+
+      const gaugeContract = new web3.eth.Contract(CONTRACTS.GAUGE_ABI, pair.gauge.address)
+
+      this._callContractWait(web3, gaugeContract, 'deposit', [balanceOf, token.id], account, gasPrice, null, null, stakeTXID, (err) => {
+        if (err) {
+          return this.emitter.emit(ACTIONS.ERROR, err);
+        }
+
+        this._getPairInfo(web3, account)
+
+        this.emitter.emit(ACTIONS.LIQUIDITY_STAKED)
+      })
+
+    } catch(ex) {
+      console.error(ex)
+      this.emitter.emit(ACTIONS.ERROR, ex)
+    }
+  }
+
   addLiquidityAndStake = async (payload) => {
     try {
       const context = this
@@ -1292,7 +1422,7 @@ class Store {
         return null
       }
 
-      const { token0, token1, amount0, amount1, minLiquidity, pair } = payload.content
+      const { token0, token1, amount0, amount1, minLiquidity, pair, token } = payload.content
 
       // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
       let allowance0TXID = this.getTXUUID()
@@ -1421,7 +1551,7 @@ class Store {
         const pairContract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, pair.address)
 
         const stakePromise = new Promise((resolve, reject) => {
-          context._callContractWait(web3, stakePromise, 'approve', [CONTRACTS.ROUTER_ADDRESS, MAX_UINT256], account, gasPrice, null, null, stakeAllowanceTXID, (err) => {
+          context._callContractWait(web3, pairContract, 'approve', [pair.gauge.address, MAX_UINT256], account, gasPrice, null, null, stakeAllowanceTXID, (err) => {
             if (err) {
               reject(err)
               return
@@ -1455,7 +1585,7 @@ class Store {
 
         const balanceOf = await pairContract.methods.balanceOf(account.address).call()
 
-        this._callContractWait(web3, gaugeContract, 'deposit', [balanceOf, account.address], account, gasPrice, null, null, stakeTXID, (err) => {
+        this._callContractWait(web3, gaugeContract, 'deposit', [balanceOf, token.id], account, gasPrice, null, null, stakeTXID, (err) => {
           if (err) {
             return this.emitter.emit(ACTIONS.ERROR, err);
           }
@@ -1519,9 +1649,9 @@ class Store {
         return null
       }
 
-      const { pair, token0, token1, amount0, amount1, priorityAsset } = payload.content
+      const { pair, token0, token1, amount0, amount1 } = payload.content
 
-      if(!pair || (priorityAsset === 0 && amount0 === '') || (priorityAsset === 1 && amount1 === '') || !token0 || !token1) {
+      if(!pair || !token0 || !token1 || amount0 == '' || amount1 == '') {
         return null
       }
 
@@ -1531,15 +1661,7 @@ class Store {
       const sendAmount0 = BigNumber(amount0).times(10**token0.decimals).toFixed(0)
       const sendAmount1 = BigNumber(amount1).times(10**token1.decimals).toFixed(0)
 
-      let call = null
-
-      if(priorityAsset === 0) {
-        call = routerContract.methods.quoteAddLiquidity(sendAmount0, token0.address, token1.address)
-      } else {
-        call = routerContract.methods.quoteAddLiquidity(sendAmount1, token1.address, token0.address)
-      }
-
-      const res = await call.call()
+      const res = await routerContract.methods.quoteAddLiquidity(token0.address, token1.address, pair.isStable, sendAmount0, sendAmount1).call()
 
       const returnVal = {
         inputs: {
@@ -1547,9 +1669,8 @@ class Store {
           token1,
           amount0,
           amount1,
-          priorityAsset
         },
-        output: BigNumber(res).div(10**(priorityAsset === 0 ? token1.decimals : token0.decimals)).toFixed(0)
+        output: BigNumber(res.liquidity).div(10**(pair.decimals)).toFixed(pair.decimals)
       }
       this.emitter.emit(ACTIONS.QUOTE_ADD_LIQUIDITY_RETURNED, returnVal)
 

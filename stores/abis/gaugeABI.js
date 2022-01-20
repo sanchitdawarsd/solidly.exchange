@@ -5,10 +5,59 @@ export const gaugeABI = [
 				"internalType": "address",
 				"name": "_stake",
 				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_bribe",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "__ve",
+				"type": "address"
 			}
 		],
 		"stateMutability": "nonpayable",
 		"type": "constructor"
+	},
+	{
+		"inputs": [],
+		"name": "DURATION",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "PRECISION",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "_ve",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
 	},
 	{
 		"inputs": [
@@ -30,6 +79,66 @@ export const gaugeABI = [
 		"type": "function"
 	},
 	{
+		"inputs": [],
+		"name": "bribe",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "checkpoints",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "timestamp",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "balanceOf",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "claimFees",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "claimed0",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "claimed1",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
 		"inputs": [
 			{
 				"internalType": "uint256",
@@ -37,9 +146,9 @@ export const gaugeABI = [
 				"type": "uint256"
 			},
 			{
-				"internalType": "address",
-				"name": "account",
-				"type": "address"
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
 			}
 		],
 		"name": "deposit",
@@ -123,10 +232,27 @@ export const gaugeABI = [
 		"type": "function"
 	},
 	{
-		"inputs": [],
-		"name": "exit",
-		"outputs": [],
-		"stateMutability": "nonpayable",
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "timestamp",
+				"type": "uint256"
+			}
+		],
+		"name": "getPriorBalanceIndex",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -135,6 +261,59 @@ export const gaugeABI = [
 				"internalType": "address",
 				"name": "token",
 				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "timestamp",
+				"type": "uint256"
+			}
+		],
+		"name": "getPriorRewardPerToken",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "timestamp",
+				"type": "uint256"
+			}
+		],
+		"name": "getPriorSupplyIndex",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			},
+			{
+				"internalType": "address[]",
+				"name": "tokens",
+				"type": "address[]"
 			}
 		],
 		"name": "getReward",
@@ -146,62 +325,11 @@ export const gaugeABI = [
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "token",
-				"type": "address"
-			}
-		],
-		"name": "getRewardForDuration",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"name": "incentives",
-		"outputs": [
-			{
-				"internalType": "address",
 				"name": "",
 				"type": "address"
 			}
 		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "incentivesLength",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"name": "isIncentive",
+		"name": "isReward",
 		"outputs": [
 			{
 				"internalType": "bool",
@@ -216,13 +344,24 @@ export const gaugeABI = [
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "account",
+				"name": "",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "",
 				"type": "address"
 			}
 		],
-		"name": "kick",
-		"outputs": [],
-		"stateMutability": "nonpayable",
+		"name": "lastEarn",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -289,6 +428,25 @@ export const gaugeABI = [
 				"type": "address"
 			}
 		],
+		"name": "numCheckpoints",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
 		"name": "periodFinish",
 		"outputs": [
 			{
@@ -309,6 +467,54 @@ export const gaugeABI = [
 			}
 		],
 		"name": "rewardPerToken",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "rewardPerTokenCheckpoints",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "timestamp",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "rewardPerToken",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "rewardPerTokenNumCheckpoints",
 		"outputs": [
 			{
 				"internalType": "uint256",
@@ -360,17 +566,25 @@ export const gaugeABI = [
 	{
 		"inputs": [
 			{
-				"internalType": "address",
+				"internalType": "uint256",
 				"name": "",
-				"type": "address"
-			},
+				"type": "uint256"
+			}
+		],
+		"name": "rewards",
+		"outputs": [
 			{
 				"internalType": "address",
 				"name": "",
 				"type": "address"
 			}
 		],
-		"name": "rewards",
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "rewardsListLength",
 		"outputs": [
 			{
 				"internalType": "uint256",
@@ -389,6 +603,62 @@ export const gaugeABI = [
 				"internalType": "address",
 				"name": "",
 				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "supplyCheckpoints",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "timestamp",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "supply",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "supplyNumCheckpoints",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "tokenIds",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",
@@ -420,7 +690,7 @@ export const gaugeABI = [
 				"type": "address"
 			}
 		],
-		"name": "userRewardPerTokenPaid",
+		"name": "userRewardPerTokenStored",
 		"outputs": [
 			{
 				"internalType": "uint256",
@@ -439,13 +709,6 @@ export const gaugeABI = [
 				"type": "uint256"
 			}
 		],
-		"name": "withdraw",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
 		"name": "withdraw",
 		"outputs": [],
 		"stateMutability": "nonpayable",
