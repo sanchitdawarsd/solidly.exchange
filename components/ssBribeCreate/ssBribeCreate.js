@@ -177,6 +177,7 @@ export default function ssBribeCreate() {
                 className: classes.largeInput
               }}
             />
+            <Typography color='textSecondary' className={ classes.smallerText }>{ asset?.symbol }</Typography>
           </div>
         </div>
       </div>

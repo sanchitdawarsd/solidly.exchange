@@ -16,6 +16,14 @@ a.linkz { cursor: pointer !important; }
   margin: 5px 24px 5px 20px;
 }
 
+.appLogo {
+  transform: scale(6);
+  position: fixed;
+  left: 100px;
+  top: 30px;
+  cursor: pointer;
+}
+
 .navigationHeading {
   display: flex;
   flex-direction: column;

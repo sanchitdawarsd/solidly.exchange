@@ -2,12 +2,33 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import Skeleton from '@material-ui/lab/Skeleton';
-import { Paper, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, Typography, Tooltip, Toolbar, IconButton, TextField, InputAdornment } from '@material-ui/core';
+import {
+  Paper,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TableSortLabel,
+  Typography,
+  Tooltip,
+  Toolbar,
+  IconButton,
+  TextField,
+  InputAdornment,
+  Popper,
+  Fade,
+  Grid,
+  Switch
+} from '@material-ui/core';
 import { useRouter } from "next/router";
 import BigNumber from 'bignumber.js';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import SearchIcon from '@material-ui/icons/Search';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
+import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 
 import { formatCurrency } from '../../utils';
 
@@ -292,7 +313,36 @@ const useStyles = makeStyles((theme) => ({
   actionButtonText: {
     fontSize: '15px',
     fontWeight: '700',
-  }
+  },
+  filterContainer: {
+    background: '#212b48',
+    minWidth: '300px',
+    marginTop: '15px',
+    borderRadius: '10px',
+    padding: '20px',
+    boxShadow: '0 10px 20px 0 rgba(0,0,0,0.2)',
+    border: '1px solid rgba(126,153,176,0.2)',
+  },
+  alignContentRight: {
+    textAlign: 'right',
+  },
+  labelColumn: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+  filterLabel: {
+    fontSize: '14px',
+  },
+  filterListTitle: {
+    marginBottom: '10px',
+    paddingBottom: '20px',
+    borderBottom: '1px solid rgba(126,153,176,0.2)',
+  },
+  infoIcon: {
+    color: '#06D3D7',
+    fontSize: '16px',
+    marginLeft: '10px',
+  },
 }));
 
 const EnhancedTableToolbar = (props) => {
@@ -309,19 +359,29 @@ const EnhancedTableToolbar = (props) => {
     router.push('/liquidity/create')
   }
 
+  const [anchorEl, setAnchorEl] = React.useState(null);
+
+  const handleClick = (event) => {
+    setAnchorEl(anchorEl ? null : event.currentTarget);
+  };
+
+  const open = Boolean(anchorEl);
+  const id = open ? 'transitions-popper' : undefined;
+
   return (
     <Toolbar className={ classes.toolbar }>
-      <Button
-        variant='contained'
-        size='large'
-        className={ classes.buttonOverride }
-        color='primary'
-        onClick={ onCreate }
-        >
-        <InputAdornment position="start">
-          <AddCircleOutlineIcon />
-        </InputAdornment>
-        <Typography className={ classes.actionButtonText }>Create Pair</Typography>
+
+    <Button
+      variant="contained"
+      color="secondary"
+      className={classes.button}
+      startIcon={<AddCircleOutlineIcon />}
+      size='large'
+      className={ classes.buttonOverride }
+      color='primary'
+      onClick={ onCreate }
+    >
+    <Typography className={ classes.actionButtonText }>Create Pair</Typography>
       </Button>
       <TextField
         className={classes.searchContainer}
@@ -338,11 +398,76 @@ const EnhancedTableToolbar = (props) => {
           ),
         }}
       />
-      <Tooltip title="Filter list">
-        <IconButton className={ classes.filterButton } aria-label="filter list">
+      <Tooltip placement="top" title="Filter list">
+        <IconButton onClick={handleClick} className={ classes.filterButton } aria-label="filter list">
           <FilterListIcon />
         </IconButton>
       </Tooltip>
+
+      <Popper id={id} open={open} anchorEl={anchorEl} transition placement="bottom-end">
+        {({ TransitionProps }) => (
+          <Fade {...TransitionProps} timeout={350}>
+            <div className={classes.filterContainer}>
+              <Typography className={classes.filterListTitle} variant="h5">List Filters</Typography>
+
+
+              <Grid container spacing={0}>
+                <Grid item lg={9} className={classes.labelColumn}>
+                  <Typography className={classes.filterLabel} variant="body1">Show Active</Typography>
+                </Grid>
+                <Grid item lg={3} className={classes.alignContentRight}>
+                  <Switch
+                    default
+                    color="primary"
+                    inputProps={{ 'aria-label': 'checkbox with default color' }}
+                  />
+                </Grid>
+              </Grid>
+
+              <Grid container spacing={0}>
+                <Grid item lg={9} className={classes.labelColumn}>
+                  <Typography className={classes.filterLabel} variant="body1">Show Active Gauges</Typography>
+                </Grid>
+                <Grid item lg={3} className={classes.alignContentRight}>
+                  <Switch
+                    defaultChecked
+                    color="primary"
+                    inputProps={{ 'aria-label': 'checkbox with default color' }}
+                  />
+                </Grid>
+              </Grid>
+
+              <Grid container spacing={0}>
+                <Grid item lg={9} className={classes.labelColumn}>
+                  <Typography className={classes.filterLabel} variant="body1">Show Stable Pools</Typography>
+                </Grid>
+                <Grid item lg={3} className={classes.alignContentRight}>
+                  <Switch
+                    defaultChecked
+                    color="primary"
+                    inputProps={{ 'aria-label': 'checkbox with default color' }}
+                  />
+                </Grid>
+              </Grid>
+
+              <Grid container spacing={0}>
+                <Grid item lg={9} className={classes.labelColumn}>
+                  <Typography className={classes.filterLabel} variant="body1">Show Variable Pools</Typography>
+                </Grid>
+                <Grid item lg={3} className={classes.alignContentRight}>
+                  <Switch
+                    defaultChecked
+                    color="primary"
+                    inputProps={{ 'aria-label': 'checkbox with default color' }}
+                  />
+                </Grid>
+              </Grid>
+
+
+            </div>
+          </Fade>
+        )}
+      </Popper>
     </Toolbar>
   );
 };
@@ -522,11 +647,18 @@ export default function EnhancedTable({ pairs }) {
                         </TableCell>
                     }
                     <TableCell className={classes.cell} align='right'>
-                      <Tooltip title={ renderTooltip(row)}>
-                        <Typography variant='h2' className={classes.textSpaced}>
-                          0.00%
-                        </Typography>
-                      </Tooltip>
+                      <Grid container spacing={0}>
+                        <Grid item lg={10}>
+                          <Typography variant='h2' className={classes.textSpaced}>
+                            0.00%
+                          </Typography>
+                        </Grid>
+                        <Grid item lg={2}>
+                        <Tooltip title={ renderTooltip(row)}>
+                          <InfoOutlinedIcon className={classes.infoIcon} />
+                        </Tooltip>
+                        </Grid>
+                      </Grid>
                     </TableCell>
                     <TableCell className={classes.cell} align='right'>
                       <Button

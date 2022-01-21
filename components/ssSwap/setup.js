@@ -235,6 +235,9 @@ function Setup() {
                 className: classes.largeInput
               }}
             />
+
+            <Typography color='textSecondary' className={ classes.smallerText }>Token Name</Typography>
+
           </div>
         </div>
       </div>

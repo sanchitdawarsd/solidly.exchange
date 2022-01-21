@@ -190,6 +190,7 @@ export default function ssLock({ govToken, veToken }) {
                 className: classes.largeInput
               }}
             />
+            <Typography color='textSecondary' className={ classes.smallerText }>Token Name</Typography>
           </div>
         </div>
       </div>

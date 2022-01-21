@@ -386,6 +386,7 @@ export default function ssLiquidityManage() {
                 className: classes.mediumInput,
               }}
             />
+            <Typography color='textSecondary' className={ classes.smallestText }>Token Name</Typography>
           </div>
         </div>
       </div>
@@ -447,6 +448,7 @@ export default function ssLiquidityManage() {
                 className: classes.largeInput
               }}
             />
+            <Typography color='textSecondary' className={ classes.smallerText }>Token Name</Typography>
           </div>
         </div>
       </div>

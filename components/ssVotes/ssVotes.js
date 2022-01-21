@@ -145,15 +145,15 @@ export default function ssVotes() {
     <div className={ classes.container }>
       <div className={ classes.topBarContainer }>
         <Button
-          className={ classes.buttonOverride }
-          variant='contained'
+          variant="contained"
+          color="secondary"
+          className={classes.button}
+          startIcon={<AddCircleOutlineIcon />}
           size='large'
+          className={ classes.buttonOverride }
           color='primary'
           onClick={ onBribe }
-          >
-          <InputAdornment position="start">
-            <AddCircleOutlineIcon />
-          </InputAdornment>
+        >
           <Typography className={ classes.actionButtonText }>{ `Create Bribe` }</Typography>
         </Button>
         <div className={ classes.tokenIDContainer }>

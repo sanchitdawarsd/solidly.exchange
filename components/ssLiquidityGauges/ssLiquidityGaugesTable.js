@@ -7,6 +7,7 @@ import { useRouter } from "next/router";
 import BigNumber from 'bignumber.js';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import SearchIcon from '@material-ui/icons/Search';
+import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 
 import { formatCurrency } from '../../utils';
 
@@ -301,13 +302,16 @@ const EnhancedTableToolbar = (props) => {
 
   return (
     <Toolbar className={ classes.toolbar }>
-      <Button
-        variant='contained'
-        size='large'
-        className={ classes.buttonOverride }
-        color='primary'
-        onClick={ onCreate }
-        >
+    <Button
+      variant="contained"
+      color="secondary"
+      className={classes.button}
+      startIcon={<AddCircleOutlineIcon />}
+      size='large'
+      className={ classes.buttonOverride }
+      color='primary'
+      onClick={ onCreate }
+    >
         <Typography className={ classes.actionButtonText }>Create Pair</Typography>
       </Button>
       <TextField

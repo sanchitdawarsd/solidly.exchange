@@ -147,15 +147,27 @@
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    border: 1px solid rgba(104, 108, 122, 0.25);
     margin: auto;
     margin-bottom: 60px;
+    margin-top: 80px;
     padding: 0 0 10px 0px;
   }
 }
 
 @media screen and (max-width: 960px) {
   .container {
-    top: 340px;
+    padding: 0 0 60px 0px;
+  }
+
+  .actionButtons {
+    padding: 10px 0;
+    min-width: 100% !important;
+    background: #11172a !important;
+    position: fixed;
+    bottom: 0px;
+    left: 0;
+    transform: translatex(0);
+    border-radius: 0 !important;
+    border-top: 1px solid rgba(126, 153, 176, 0.2);
   }
 }

@@ -26,9 +26,8 @@
 @media screen and (max-width: 1200px) {
   .container {
     width: calc(100% - 40px);
-    border: 1px solid rgba(104, 108, 122, 0.25);
     margin: auto;
-    padding: 0 0 10px 0px;
+    padding: 80px 0 10px 0px;
     margin-bottom: 20px;
   }
 }
