@@ -311,15 +311,17 @@ export default function EnhancedTable({ gauges, setParentSliderValues, defaultVo
   const renderTooltip = (pair) => {
     return (
       <div className={ classes.tooltipContainer }>
-        <div className={ classes.inlineBetween }>
-          <Typography>Fees:</Typography>
-          <Typography>0.00</Typography>
-        </div>
         {
-          pair?.gauge?.bribes.map((bribe) => {
+          pair?.gauge?.bribes.map((bribe, idx) => {
+
+            let earned = 0
+            if(pair.gauge.bribesEarned && pair.gauge.bribesEarned.length > idx) {
+              earned = pair.gauge.bribesEarned[idx].earned
+            }
+
             return (<div className={ classes.inlineBetween }>
               <Typography>Bribe:</Typography>
-              <Typography>{ formatCurrency(bribe.rewardForDuration) } { bribe.token.symbol }</Typography>
+              <Typography>{ formatCurrency(bribe.rewardAmount) } { bribe.token.symbol }</Typography>
             </div>)
           })
         }

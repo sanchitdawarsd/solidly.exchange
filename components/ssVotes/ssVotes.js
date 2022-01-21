@@ -44,6 +44,7 @@ export default function ssVotes() {
 
     if(nfts && nfts.length > 0 && filteredAssets && filteredAssets.length > 0) {
       stores.dispatcher.dispatch({ type: ACTIONS.GET_VEST_VOTES, content: { tokenID: nfts[0].id } })
+      stores.dispatcher.dispatch({ type: ACTIONS.GET_VEST_BALANCES, content: { tokenID: nfts[0].id } })
     }
 
     forceUpdate()
@@ -68,6 +69,11 @@ export default function ssVotes() {
       forceUpdate()
     }
 
+    const vestBalancesReturned = (vals) => {
+      setGauges(vals)
+      forceUpdate()
+    }
+
     const stableSwapUpdated = () => {
       ssUpdated()
     }
@@ -85,6 +91,7 @@ export default function ssVotes() {
     stores.emitter.on(ACTIONS.ERROR, voteReturned);
     stores.emitter.on(ACTIONS.VEST_VOTES_RETURNED, vestVotesReturned)
     // stores.emitter.on(ACTIONS.VEST_NFTS_RETURNED, vestNFTsReturned)
+    stores.emitter.on(ACTIONS.VEST_BALANCES_RETURNED, vestBalancesReturned)
 
     return () => {
       stores.emitter.removeListener(ACTIONS.UPDATED, stableSwapUpdated);
@@ -92,6 +99,7 @@ export default function ssVotes() {
       stores.emitter.removeListener(ACTIONS.ERROR, voteReturned);
       stores.emitter.removeListener(ACTIONS.VEST_VOTES_RETURNED, vestVotesReturned)
       // stores.emitter.removeListener(ACTIONS.VEST_NFTS_RETURNED, vestNFTsReturned)
+      stores.emitter.removeListener(ACTIONS.VEST_BALANCES_RETURNED, vestBalancesReturned)
     };
   }, []);
 
