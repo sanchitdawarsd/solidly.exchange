@@ -146,8 +146,8 @@ const StyledSwitch = withStyles((theme) => ({
 
 const StyledBadge = withStyles((theme) => ({
   badge: {
-    background: '#2b47cd',
-    color: '#ff0000'
+    background: '#06D3D7',
+    color: '#000'
   },
 }))(Badge);
 

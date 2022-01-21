@@ -39,7 +39,7 @@ const styles = theme => ({
     alignItems: "center"
   },
   unlockCard: {
-    padding: "24px"
+    padding: "24px",
   },
   buttonText: {
     marginLeft: "12px",
@@ -314,8 +314,8 @@ function MyComponent(props) {
                   src={url}
                   alt=""
                 />
-                <Typography variant={"h2"}>{display}</Typography>
-                <Typography variant={"body2"}>{descriptor}</Typography>
+                <Typography style={{ color: "#FFFFFF", marginBottom: "-15px"}} variant={"h2"}>{display}</Typography>
+                <Typography style={{ color: "#7E99B0",}} variant={"body2"}>{descriptor}</Typography>
                 {activating && (
                   <CircularProgress size={15} style={{ marginRight: "10px" }} />
                 )}

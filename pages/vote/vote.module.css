@@ -9,18 +9,25 @@
 }
 
 .notConnectedContent {
-  width: calc(100% - 180px) !important;
-  margin: 80px auto 0 auto;
+  width: calc(100%) !important;
+  background: rgba(17,23,41,0.2) !important;
   text-align: center;
   padding: 50px;
-  height: calc(100vh - 230px);
+  height: calc(100vh);
   box-shadow: none !important;
-  border: 1px solid rgba(104,108,122, 0.2) !important;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
   flex-direction: column;
+  border-radius: 0 !important;
+  position: fixed;
+  top: 0;
+}
+
+.contentFloat {
+  position: relative;
+  z-index: 9;
 }
 
 .overviewIcon {
@@ -53,28 +60,61 @@
 .mainHeadingNC {
   text-align: center !important;
   font-size: 30px !important;
+  font-family: 'Monument' !important;
+  font-weight: 100 !important;
+  color: #FFF;
 }
 
 .mainDescNC {
   margin: 30px auto !important;
   text-align: center !important;
-  color: rgb(104,108,122);
+  color: #7E99B0;
   font-size: 18px !important;
   max-width: 800px;
   line-height: 1.8rem !important;
-  display: none;
+}
+
+.sphere {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 420px;
+  height: 420px;
+  background-image: url('/images/sphere_001.png');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.42;
 }
 
 .buttonConnect {
-  background: linear-gradient(-45deg, DarkViolet, DarkSlateBlue);
-	background-size: 200% 200%;
-	animation: gradient 35s ease infinite;
-  color: #FFF !important;
-  border-radius: 40px !important;
-  padding: 12px 24px !important;
+  background: rgba(6,211,215,0.3) !important;
+  color: rgba(6,211,215,1) !important;
+  border-radius: 60px !important;
+  padding: 12px 24px 14px 24px !important;
   font-weight: 700 !important;
   text-transform: none !important;
-  margin: 30px auto 0 auto !important;
+  border: 1px solid rgba(6,211,215,1) !important;
+  transform: scale(0.85);
+  -webkit-transition: all 300ms ease-out;
+  -moz-transition: all 300ms ease-out;
+  -ms-transition: all 300ms ease-out;
+  -o-transition: all 300ms ease-out;
+  transition: all 300ms ease-out;
+}
+
+.buttonConnect:hover {
+  background: rgba(6,211,215,1) !important;
+  color: #111729 !important;
+  text-transform: none !important;
+  border: 1px solid rgba(6,211,215,1) !important;
+  transform: scale(0.9);
+  -webkit-transition: all 300ms ease-out;
+  -moz-transition: all 300ms ease-out;
+  -ms-transition: all 300ms ease-out;
+  -o-transition: all 300ms ease-out;
+  transition: all 300ms ease-out;
 }
 
 @media screen and (max-width: 1600px) {
@@ -84,12 +124,6 @@
 @media screen and (max-width: 1200px) {
   .ffContainer {
     padding-top: 0px;
-  }
-
-  .notConnectedContent {
-    width: calc(100% - 80px) !important;
-    margin: 100px auto 0 auto;
-    height: calc(100vh - 150px);
   }
 }
 
