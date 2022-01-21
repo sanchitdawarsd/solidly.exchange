@@ -75,8 +75,11 @@ export default function ffLockDuration({ nft, updateLockDuration }) {
   const onLock = () => {
     setLockLoading(true)
 
-    const selectedDateUnix = moment(selectedDate).unix()
-    stores.dispatcher.dispatch({ type: ACTIONS.INCREASE_VEST_DURATION, content: { unlockTime: selectedDateUnix, tokenID: nft.id } })
+    const now = moment()
+    const expiry = moment(selectedDate).add(1, 'days')
+    const secondsToExpire = expiry.diff(now, 'seconds')
+
+    stores.dispatcher.dispatch({ type: ACTIONS.INCREASE_VEST_DURATION, content: { unlockTime: secondsToExpire, tokenID: nft.id } })
   }
 
   const focus = () => {
