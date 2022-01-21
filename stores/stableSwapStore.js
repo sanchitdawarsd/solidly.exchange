@@ -1151,7 +1151,13 @@ class Store {
 
           const done = await Promise.all(allowanceCallsPromise)
 
-          this._callContractWait(web3, gaugeContract, 'deposit', [balanceOf, token.id], account, gasPrice, null, null, stakeTXID, (err) => {
+
+          let sendTok = token.id
+          if(!token) {
+            sendTok = '0'
+          }
+
+          this._callContractWait(web3, gaugeContract, 'deposit', [balanceOf, sendTok], account, gasPrice, null, null, stakeTXID, (err) => {
             if (err) {
               return this.emitter.emit(ACTIONS.ERROR, err);
             }
@@ -1555,7 +1561,12 @@ class Store {
 
       const gaugeContract = new web3.eth.Contract(CONTRACTS.GAUGE_ABI, pair.gauge.address)
 
-      this._callContractWait(web3, gaugeContract, 'deposit', [balanceOf, token.id], account, gasPrice, null, null, stakeTXID, (err) => {
+      let sendTok = token.id
+      if(!token) {
+        sendTok = '0'
+      }
+
+      this._callContractWait(web3, gaugeContract, 'deposit', [balanceOf, sendTok], account, gasPrice, null, null, stakeTXID, (err) => {
         if (err) {
           return this.emitter.emit(ACTIONS.ERROR, err);
         }
@@ -1750,7 +1761,12 @@ class Store {
 
         const balanceOf = await pairContract.methods.balanceOf(account.address).call()
 
-        this._callContractWait(web3, gaugeContract, 'deposit', [balanceOf, token.id], account, gasPrice, null, null, stakeTXID, (err) => {
+        let sendTok = token.id
+        if(!token) {
+          sendTok = '0'
+        }
+
+        this._callContractWait(web3, gaugeContract, 'deposit', [balanceOf, sendTok], account, gasPrice, null, null, stakeTXID, (err) => {
           if (err) {
             return this.emitter.emit(ACTIONS.ERROR, err);
           }
