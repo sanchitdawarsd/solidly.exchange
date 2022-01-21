@@ -29,6 +29,7 @@ export default function ssLock({ govToken, veToken }) {
   useEffect(() => {
     const lockReturned = () => {
       setLockLoading(false)
+      router.push('/vest')
     }
     const errorReturned = () => {
       setLockLoading(false)
@@ -82,7 +83,6 @@ export default function ssLock({ govToken, veToken }) {
     const expiry = moment(selectedDate).add(1, 'days')
     const secondsToExpire = expiry.diff(now, 'seconds')
 
-    const selectedDateUnix = moment(selectedDate).unix()
     stores.dispatcher.dispatch({ type: ACTIONS.CREATE_VEST, content: { amount, unlockTime: secondsToExpire } })
   }
 

@@ -25,14 +25,38 @@ export default function ssVotes() {
   const [ token, setToken ] = useState(null)
   const [ vestNFTs, setVestNFTs ] = useState([])
 
-  useEffect(() => {
-    const vestNFTsReturned = (nfts) => {
-      setVestNFTs(nfts)
-      if(nfts.length > 0) {
-        setToken(nfts[0]);
-        stores.dispatcher.dispatch({ type: ACTIONS.GET_VEST_VOTES, content: { tokenID: nfts[0].id } })
-      }
+  const ssUpdated = () => {
+    setVeToken(stores.stableSwapStore.getStore('veToken'))
+    const as = stores.stableSwapStore.getStore('pairs');
+
+    const filteredAssets = as.filter((asset) => {
+      return asset.gauge && asset.gauge.address
+    })
+    setGauges(filteredAssets)
+
+
+    const nfts = stores.stableSwapStore.getStore('vestNFTs');
+    setVestNFTs(nfts)
+
+    if(nfts && nfts.length > 0) {
+      setToken(nfts[0]);
     }
+
+    if(nfts && nfts.length > 0 && filteredAssets && filteredAssets.length > 0) {
+      stores.dispatcher.dispatch({ type: ACTIONS.GET_VEST_VOTES, content: { tokenID: nfts[0].id } })
+    }
+
+    forceUpdate()
+  }
+
+  useEffect(() => {
+    // const vestNFTsReturned = (nfts) => {
+    //   setVestNFTs(nfts)
+    //   if(nfts.length > 0) {
+    //     setToken(nfts[0]);
+    //     stores.dispatcher.dispatch({ type: ACTIONS.GET_VEST_VOTES, content: { tokenID: nfts[0].id } })
+    //   }
+    // }
 
     const vestVotesReturned = (vals) => {
       setVotes(vals.map((asset) => {
@@ -44,51 +68,30 @@ export default function ssVotes() {
       forceUpdate()
     }
 
-    window.setTimeout(() => {
-      stores.dispatcher.dispatch({ type: ACTIONS.GET_VEST_NFTS, content: {} })
-    }, 1)
-
-    stores.emitter.on(ACTIONS.VEST_VOTES_RETURNED, vestVotesReturned)
-    stores.emitter.on(ACTIONS.VEST_NFTS_RETURNED, vestNFTsReturned)
-    return () => {
-      stores.emitter.removeListener(ACTIONS.VEST_VOTES_RETURNED, vestVotesReturned)
-      stores.emitter.removeListener(ACTIONS.VEST_NFTS_RETURNED, vestNFTsReturned)
-    };
-  }, []);
-
-  const ssUpdated = () => {
-    setVeToken(stores.stableSwapStore.getStore('veToken'))
-    const as = stores.stableSwapStore.getStore('pairs');
-    const filteredAssets = as.filter((asset) => {
-      return asset.gauge && asset.gauge.address
-    })
-    setGauges(filteredAssets)
-
-    if(vestNFTs && vestNFTs.length > 0 && filteredAssets && filteredAssets.length > 0 && token && token.id) {
-      stores.dispatcher.dispatch({ type: ACTIONS.GET_VEST_VOTES, content: { tokenID: token.id } })
-    }
-
-    forceUpdate()
-  }
-
-  useEffect(() => {
     const stableSwapUpdated = () => {
       ssUpdated()
     }
-
-    ssUpdated()
 
     const voteReturned = () => {
       setVoteLoading(false)
     }
 
+    ssUpdated()
+
+    // stores.dispatcher.dispatch({ type: ACTIONS.GET_VEST_NFTS, content: {} })
+
     stores.emitter.on(ACTIONS.UPDATED, stableSwapUpdated);
     stores.emitter.on(ACTIONS.VOTE_RETURNED, voteReturned);
     stores.emitter.on(ACTIONS.ERROR, voteReturned);
+    stores.emitter.on(ACTIONS.VEST_VOTES_RETURNED, vestVotesReturned)
+    // stores.emitter.on(ACTIONS.VEST_NFTS_RETURNED, vestNFTsReturned)
+
     return () => {
       stores.emitter.removeListener(ACTIONS.UPDATED, stableSwapUpdated);
       stores.emitter.removeListener(ACTIONS.VOTE_RETURNED, voteReturned);
       stores.emitter.removeListener(ACTIONS.ERROR, voteReturned);
+      stores.emitter.removeListener(ACTIONS.VEST_VOTES_RETURNED, vestVotesReturned)
+      // stores.emitter.removeListener(ACTIONS.VEST_NFTS_RETURNED, vestNFTsReturned)
     };
   }, []);
 

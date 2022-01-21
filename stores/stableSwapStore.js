@@ -1805,11 +1805,11 @@ class Store {
     }
   }
 
-  _getWithdrawAllowance = async (web3, token, account) => {
+  _getWithdrawAllowance = async (web3, pair, account) => {
     try {
-      const tokenContract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, token.address)
+      const tokenContract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, pair.address)
       const allowance = await tokenContract.methods.allowance(account.address, CONTRACTS.ROUTER_ADDRESS).call()
-      return BigNumber(allowance).div(10**token.decimals).toFixed(token.decimals)
+      return BigNumber(allowance).div(10**pair.decimals).toFixed(pair.decimals)
     } catch (ex) {
       console.error(ex)
       return null
@@ -1953,7 +1953,7 @@ class Store {
       ]})
 
       // CHECK ALLOWANCES AND SET TX DISPLAY
-      const allowance = await this._getWithdrawAllowance(web3, token0, account)
+      const allowance = await this._getWithdrawAllowance(web3, pair, account)
 
       if(BigNumber(allowance).lt(pair.balance)) {
         this.emitter.emit(ACTIONS.TX_STATUS, {
@@ -1975,7 +1975,7 @@ class Store {
 
       // SUBMIT REQUIRED ALLOWANCE TRANSACTIONS
       if(BigNumber(allowance).lt(pair.balance)) {
-        const tokenContract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, token0.address)
+        const tokenContract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, pair.address)
 
         const tokenPromise = new Promise((resolve, reject) => {
           context._callContractWait(web3, tokenContract, 'approve', [CONTRACTS.ROUTER_ADDRESS, MAX_UINT256], account, gasPrice, null, null, allowanceTXID, (err) => {
@@ -2003,8 +2003,8 @@ class Store {
       const quoteRemove = await routerContract.methods.quoteRemoveLiquidity(token0.address, token1.address, pair.isStable, sendAmount).call()
 
       const deadline = ''+moment().add(600, 'seconds').unix()
-      const sendAmount0Min = BigNumber(quoteRemove.amountA).times(0.97).times(10**token0.decimals).toFixed(0)  //0.97 -> add slipage modifier
-      const sendAmount1Min = BigNumber(quoteRemove.amountB).times(0.97).times(10**token1.decimals).toFixed(0)  //0.97 -> add slipage modifier
+      const sendAmount0Min = BigNumber(quoteRemove.amountA).times(0.97).toFixed(0)  //0.97 -> add slipage modifier
+      const sendAmount1Min = BigNumber(quoteRemove.amountB).times(0.97).toFixed(0)  //0.97 -> add slipage modifier
 
 
       this._callContractWait(web3, routerContract, 'removeLiquidity', [token0.address, token1.address, pair.isStable, sendAmount, sendAmount0Min, sendAmount1Min, account.address, deadline], account, gasPrice, null, null, withdrawTXID, (err) => {
@@ -2067,7 +2067,7 @@ class Store {
 
 
       // CHECK ALLOWANCES AND SET TX DISPLAY
-      const allowance = await this._getDepositAllowance(web3, token0, account)
+      const allowance = await this._getWithdrawAllowance(web3, pair, account)
 
       if(BigNumber(allowance).lt(amount)) {
         this.emitter.emit(ACTIONS.TX_STATUS, {
