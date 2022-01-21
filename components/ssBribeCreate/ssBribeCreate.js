@@ -44,6 +44,7 @@ export default function ssBribeCreate() {
   useEffect(() => {
     const createReturned = (res) => {
       setCreateLoading(false)
+      setAmount('')
     }
 
     const errorReturned = () => {
@@ -71,9 +72,6 @@ export default function ssBribeCreate() {
   }
 
   const onCreate = () => {
-    console.log(asset)
-    console.log(amount)
-    console.log(gauge)
     setCreateLoading(true)
     stores.dispatcher.dispatch({ type: ACTIONS.CREATE_BRIBE, content: {
       asset: asset,
