@@ -9,7 +9,24 @@
   font-family: 'Monument' !important;
   font-size: 60px !important;
   margin-bottom: 30px !important;
-}
+  animation: mainTitleAnim 1s ease 1;
+  animation-delay: 200ms;
+  animation-fill-mode: forwards;
+  position: relative;
+  bottom: 0;
+  opacity: 0;
+  }
+
+  @keyframes mainTitleAnim {
+  0% {
+    bottom: -100px;
+    opacity: 0;
+  }
+  100% {
+    bottom: 0;
+    opacity: 1;
+  }
+  }
 
 .appLogo {
   transform: scale(6);
@@ -26,6 +43,23 @@
   margin-bottom: 20px !important;
   font-weight: 100 !important;
   letter-spacing: 3px;
+  animation: preTitleAnim 1s ease 1;
+  animation-delay: 0s;
+  animation-fill-mode: forwards;
+  position: relative;
+  bottom: 0;
+  opacity: 0;
+}
+
+@keyframes preTitleAnim {
+0% {
+  bottom: -100px;
+  opacity: 0;
+}
+100% {
+  bottom: 0;
+  opacity: 1;
+}
 }
 
 .secTitle {
@@ -63,7 +97,33 @@
   width: 100% !important;
   text-transform: capitalize !important;
   color: #7E99B0 !important;
-}
+  animation: buttonInfoAnim 1s ease 1;
+  animation-delay: 400ms;
+  animation-fill-mode: forwards;
+  position: relative;
+  bottom: 0;
+  opacity: 0;
+  }
+
+  @keyframes buttonInfoAnim {
+  0% {
+  bottom: -100px;
+  opacity: 0;
+  }
+  100% {
+  bottom: 0;
+  opacity: 1;
+  }
+  }
+
+  .buttonEnter {
+    animation: buttonInfoAnim 1s ease 1;
+    animation-delay: 600ms;
+    animation-fill-mode: forwards;
+    position: relative;
+    bottom: 0;
+    opacity: 0;
+  }
 
 .buttonEnter,
 .buttonEnterSingle {

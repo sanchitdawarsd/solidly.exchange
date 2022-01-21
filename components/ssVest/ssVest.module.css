@@ -11,6 +11,12 @@
   position: absolute !important;
 }
 
+.smallerText {
+  font-size: 12px !important;
+  margin-top: 0px !important;
+  margin-bottom: 0px !important;
+}
+
 .container {
   width: calc(100% - 180px);
   display: flex;

@@ -272,16 +272,16 @@ const EnhancedTableToolbar = (props) => {
 
   return (
     <Toolbar className={ classes.toolbar }>
-      <Button
-        variant='contained'
-        size='large'
-        className={ classes.buttonOverride }
-        color='primary'
-        onClick={ onCreate }
-        >
-        <InputAdornment position="start">
-          <EnhancedEncryptionOutlinedIcon />
-        </InputAdornment>
+    <Button
+      variant="contained"
+      color="secondary"
+      className={classes.button}
+      startIcon={<EnhancedEncryptionOutlinedIcon />}
+      size='large'
+      className={ classes.buttonOverride }
+      color='primary'
+      onClick={ onCreate }
+    >
         <Typography className={ classes.actionButtonText }>Create Lock</Typography>
       </Button>
     </Toolbar>

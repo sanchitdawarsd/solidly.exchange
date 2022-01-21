@@ -12,7 +12,6 @@
   width: calc(100%);
   border: 0;
   border-radius: 0 !important;
-  /* background: rgba(255,255,255,0.1); */
 }
 
 .userMenuText {
@@ -118,16 +117,33 @@
 }
 
 .switchNetworkBtn {
-  margin-top: 30px !important;
-  text-transform: capitalize !important;
-  border-radius: 40px !important;
-  background: linear-gradient(-45deg, #23a6d5, #234ce7);
-	background-size: 200% 200%;
-	animation: gradient 35s ease infinite;
-  color: #FFF !important;
-  padding: 10px 25px !important;
+  background: rgba(6,211,215,0.3) !important;
+  color: rgba(6,211,215,1) !important;
+  border-radius: 60px !important;
+  padding: 12px 24px 14px 24px !important;
   font-weight: 700 !important;
-  font-size: 16px !important;
+  text-transform: none !important;
+  border: 1px solid rgba(6,211,215,1) !important;
+  margin-top: 30px !important;
+  transform: scale(0.9);
+  -webkit-transition: all 300ms ease-out;
+  -moz-transition: all 300ms ease-out;
+  -ms-transition: all 300ms ease-out;
+  -o-transition: all 300ms ease-out;
+  transition: all 300ms ease-out;
+}
+
+.switchNetworkBtn:hover {
+  background: rgba(6,211,215,1) !important;
+  color: #111729 !important;
+  text-transform: none !important;
+  border: 1px solid rgba(6,211,215,1) !important;
+  transform: scale(0.9);
+  -webkit-transition: all 300ms ease-out;
+  -moz-transition: all 300ms ease-out;
+  -ms-transition: all 300ms ease-out;
+  -o-transition: all 300ms ease-out;
+  transition: all 300ms ease-out;
 }
 
 .prettyButton {
@@ -226,7 +242,7 @@
   min-width: 100%;
   height: 100vh;
   flex-wrap: wrap;
-  background: rgba(26,27,30,0.9);
+  background: rgba(17,23,42,0.9);
   z-index: 11 !important;
 }
 
@@ -283,9 +299,9 @@
 }
 
 @media screen and (max-width: 1200px) {
-  .headerContainer {
+  /* .headerContainer {
     display: none;
-  }
+  } */
 }
 
 @media screen and (min-width: 992px) {
