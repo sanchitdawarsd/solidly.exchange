@@ -6,11 +6,11 @@
   align-items: flex-end;
   margin: auto;
   margin-bottom: 60px;
-  padding: 0 0 10px 0px;
+  padding: 0 0 70px 0px;
 }
 
 .tableContainer {
-  border: 1px solid rgba(104, 108, 122, 0.25);
+  border: 1px solid rgba(126, 153, 176, 0.2);
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -18,7 +18,15 @@
 }
 
 .actionButtons {
-  padding: 24px 0px;
+  padding: 10px 0;
+  min-width: 560px !important;
+  background: #11172a !important;
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translatex(-50%);
+  border-radius: 12 !important;
+  border: 1px solid rgba(126, 153, 176, 0.2);
 }
 
 .actionButton {
@@ -37,9 +45,9 @@
 
 .infoSection {
   display: flex;
-  padding: 0px 24px;
-  padding-bottom: 24px;
+  padding: 10px 24px;
   align-items: center;
+  justify-content: flex-end;
 }
 
 .helpText {
@@ -62,6 +70,19 @@
 }
 
 .buttonOverride:hover {
+  background: rgb(19, 44, 60) !important;
+}
+
+
+.buttonOverrideFixed {
+  background: rgb(23, 52, 72) !important;
+  color: rgb(6, 211, 215) !important;
+  font-weight: 700 !important;
+  min-width: 200px !important;
+  max-height: 48px;
+}
+
+.buttonOverrideFixed:hover {
   background: rgb(19, 44, 60) !important;
 }
 
