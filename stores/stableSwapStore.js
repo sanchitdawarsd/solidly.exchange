@@ -115,6 +115,9 @@ class Store {
           case ACTIONS.CREATE_BRIBE:
             this.createBribe(payload)
             break;
+          case ACTIONS.GET_VEST_BALANCES:
+            this.getVestBalances(payload)
+            break;
           default: {
           }
         }
@@ -833,13 +836,14 @@ class Store {
                 const tokenAddress = await bribeContract.methods.rewards(idx).call()
                 const token = await this.getBaseAsset(tokenAddress)
 
-                const [ earned, rewardForDuration ] = await Promise.all([
-                  bribeContract.methods.getRewardForDuration(tokenAddress).call()
+                const [ rewardRate ] = await Promise.all([
+                  bribeContract.methods.rewardRate(tokenAddress).call(),
                 ])
 
                 return {
                   token: token,
-                  rewardForDuration: BigNumber(rewardForDuration).div(10**token.decimals).toFixed(token.decimals),
+                  rewardRate: BigNumber(rewardRate).div(10**token.decimals).toFixed(token.decimals),
+                  rewardAmount: BigNumber(rewardRate).times(604800).div(10**token.decimals).toFixed(token.decimals)
                 }
               })
             )
@@ -3003,6 +3007,66 @@ class Store {
     } catch (ex) {
       console.error(ex)
       return null
+    }
+  }
+
+  getVestBalances = async (payload) => {
+    try {
+      const account = stores.accountStore.getStore("account")
+      if (!account) {
+        console.warn('account not found')
+        return null
+      }
+
+      const web3 = await stores.accountStore.getWeb3Provider()
+      if (!web3) {
+        console.warn('web3 not found')
+        return null
+      }
+
+      const { tokenID } = payload.content
+      const pairs = this.getStore('pairs')
+
+      if(!pairs) {
+        return null
+      }
+
+      if(!tokenID) {
+        return
+      }
+
+      const filteredPairs = pairs.filter((pair) => {
+        return pair && pair.gauge && pair.gauge.bribes && pair.gauge.bribes.length > 0
+      })
+
+      const bribesEarned = await Promise.all(
+        filteredPairs.map(async (pair) => {
+
+          const bribesEarned = await Promise.all(
+            pair.gauge.bribes.map(async (bribe) => {
+              const bribeContract = new web3.eth.Contract(CONTRACTS.BRIBE_ABI, pair.gauge.bribeAddress);
+
+              const [ earned ] = await Promise.all([
+                bribeContract.methods.earned(bribe.token.address, tokenID).call(),
+              ]);
+
+              console.log(earned)
+              return {
+                earned: BigNumber(earned).div(10**bribe.token.decimals).toFixed(bribe.token.decimals),
+              };
+            })
+          )
+
+          pair.gauge.bribesEarned = bribesEarned
+
+          return pair
+        })
+      )
+
+      this.emitter.emit(ACTIONS.VEST_BALANCES_RETURNED, bribesEarned)
+    } catch(ex) {
+      console.error(ex)
+      this.emitter.emit(ACTIONS.ERROR, ex)
     }
   }
 
