@@ -4,6 +4,7 @@ import { lighten, makeStyles, withStyles } from '@material-ui/core/styles';
 import Skeleton from '@material-ui/lab/Skeleton';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, Typography, Slider, Tooltip } from '@material-ui/core';
 import BigNumber from 'bignumber.js';
+import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 
 import { formatCurrency } from '../../utils';
 
@@ -163,6 +164,12 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: '200',
     fontSize: '12px'
   },
+  textSpacedFloat: {
+    lineHeight: '1.5',
+    fontWeight: '200',
+    fontSize: '12px',
+    float: 'right',
+  },
   cell: {},
   cellSuccess: {
     color: '#4eaf0a',
@@ -248,8 +255,14 @@ const useStyles = makeStyles((theme) => ({
   },
   tooltipContainer: {
     minWidth: '240px',
-    padding: '24px'
-  }
+    padding: '0px 15px'
+  },
+  infoIcon: {
+    color: '#06D3D7',
+    fontSize: '16px',
+    float: 'right',
+    marginLeft: '10px',
+  },
 }));
 
 export default function EnhancedTable({ gauges, setParentSliderValues, defaultVotes, veToken, token }) {
@@ -365,11 +378,14 @@ export default function EnhancedTable({ gauges, setParentSliderValues, defaultVo
                     </Typography>
                   </TableCell>
                   <TableCell className={classes.cell} align='right'>
-                    <Tooltip title={ renderTooltip(row)}>
-                      <Typography variant='h2' className={classes.textSpaced}>
+                  <Tooltip title={ renderTooltip(row)}>
+                  <InfoOutlinedIcon className={classes.infoIcon} />
+                  </Tooltip>
+                      <Typography variant='h2' className={classes.textSpacedFloat}>
                         0.00%
                       </Typography>
-                    </Tooltip>
+
+
                   </TableCell>
                   <TableCell className={classes.cell} align="right">
                     <Typography variant="h2" className={classes.textSpaced}>

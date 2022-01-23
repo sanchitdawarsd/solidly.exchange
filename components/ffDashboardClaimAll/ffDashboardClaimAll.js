@@ -154,10 +154,6 @@ export default function ffClaimAll() {
         </div>
       }
 
-
-
-
-
     </Paper>
   );
 }

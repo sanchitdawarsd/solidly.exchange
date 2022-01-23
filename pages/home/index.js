@@ -2,6 +2,8 @@ import Head from 'next/head';
 import { Typography, Button, Paper, SvgIcon, Grid, Avatar } from "@material-ui/core";
 import Layout from '../../components/layoutHome/layoutHome.js';
 
+import { useScrollTo } from 'react-use-window-scroll';
+
 import classes from './home.module.css';
 
 import React, { useState, useEffect } from 'react';
@@ -42,6 +44,8 @@ function Home({ changeTheme }) {
 
   const router = useRouter();
 
+  const scrollTo = useScrollTo();
+
   return (
     <Layout changeTheme={changeTheme}>
       <Head>
@@ -63,7 +67,7 @@ function Home({ changeTheme }) {
             <Grid item lg={12}>
               <Grid container spacing={2} className={classes.buttonSplit}>
                 <Grid item lg={6}>
-                  <Button className={classes.buttonInfo} href="#info">Learn More</Button>
+                  <Button className={classes.buttonInfo} onClick={() => scrollTo({ top: 1000, left: 0, behavior: 'smooth' })}>Learn More</Button>
                 </Grid>
                 <Grid item lg={6}>
                   <Button className={classes.buttonEnter} onClick={() => router.push('/swap')}>Enter App</Button>

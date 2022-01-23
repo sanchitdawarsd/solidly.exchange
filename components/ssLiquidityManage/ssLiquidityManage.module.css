@@ -12,6 +12,18 @@
   position: relative;
 }
 
+.smallerText {
+  font-size: 12px !important;
+  margin-top: 0px !important;
+  margin-bottom: 0px !important;
+}
+
+.smallestText {
+  font-size: 10px !important;
+  margin-top: -5px !important;
+  margin-bottom: 5px !important;
+}
+
 .helpIcon {
   border: 1px solid rgba(104,108,122,0.2);
   border-radius: 50px;
