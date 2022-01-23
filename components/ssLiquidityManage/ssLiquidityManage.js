@@ -386,14 +386,14 @@ export default function ssLiquidityManage() {
                 className: classes.mediumInput,
               }}
             />
-            <Typography color='textSecondary' className={ classes.smallestText }>Token Name</Typography>
+            <Typography color='textSecondary' className={ classes.smallestText }>{ symbol }</Typography>
           </div>
         </div>
       </div>
     )
   }
 
-  const renderMassiveInput = (type, amountValue, amountError, amountChanged, balance, logo, amountFocused) => {
+  const renderMassiveInput = (type, amountValue, amountError, amountChanged, balance, logo, amountFocused, symbol) => {
     return (
       <div className={ classes.textField}>
         <div className={ classes.inputTitleContainer }>
@@ -448,7 +448,7 @@ export default function ssLiquidityManage() {
                 className: classes.largeInput
               }}
             />
-            <Typography color='textSecondary' className={ classes.smallerText }>Token Name</Typography>
+            <Typography color='textSecondary' className={ classes.smallerText }>{ symbol }</Typography>
           </div>
         </div>
       </div>
@@ -568,13 +568,13 @@ export default function ssLiquidityManage() {
             {
               activeTab === 'deposit' &&
               <>
-                { renderMassiveInput('amount0', amount0, amount0Error, amount0Changed, pair?.token0?.balance, pair?.token0?.logo, amount0Focused) }
+                { renderMassiveInput('amount0', amount0, amount0Error, amount0Changed, pair?.token0?.balance, pair?.token0?.logo, amount0Focused, pair?.token0?.symbol) }
                 <div className={ classes.swapIconContainer }>
                   <div className={ classes.swapIconSubContainer }>
                     <AddIcon className={ classes.swapIcon } />
                   </div>
                 </div>
-                { renderMassiveInput('amount1', amount1, amount1Error, amount1Changed, pair?.token1?.balance, pair?.token1?.logo, amount1Focused) }
+                { renderMassiveInput('amount1', amount1, amount1Error, amount1Changed, pair?.token1?.balance, pair?.token1?.logo, amount1Focused, pair?.token1?.symbol) }
                 { renderTokenSelect() }
                 { renderDepositInformation() }
               </>
@@ -582,7 +582,7 @@ export default function ssLiquidityManage() {
             {
               activeTab === 'withdraw' &&
               <>
-                { renderMassiveInput('withdraw', withdrawAmount, null, withdrawAmountChanged, ((pair && pair.gauge) ? (pair?.gauge?.balance) : (pair?.balance)), pair?.logo) }
+                { renderMassiveInput('withdraw', withdrawAmount, null, withdrawAmountChanged, ((pair && pair.gauge) ? (pair?.gauge?.balance) : (pair?.balance)), pair?.logo, null, , pair?.gauge?.symbol) }
                 <div className={ classes.swapIconContainer }>
                   <div className={ classes.swapIconSubContainer }>
                     <ArrowDownwardIcon className={ classes.swapIcon } />
