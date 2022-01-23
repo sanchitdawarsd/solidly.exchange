@@ -11,7 +11,7 @@ import stableSwapAssets from './configurations/stableSwapAssets'
 import stableSwapRouteAssets from './configurations/stableSwapRouteAssets'
 
 import * as moment from "moment"
-
+import { formatCurrency } from '../utils'
 import stores from "./"
 
 import BigNumber from "bignumber.js"
@@ -1118,9 +1118,7 @@ class Store {
 
           const balanceOf = await pairContract.methods.balanceOf(account.address).call()
 
-          console.log(pairFor)
           const pair = await this.getPairByAddress(pairFor)
-          console.log(pair)
           const stakeAllowance = await this._getStakeAllowance(web3, pair, account)
 
           if(BigNumber(stakeAllowance).lt( BigNumber(balanceOf).div(10**pair.decimals).toFixed(pair.decimals) )) {
@@ -2263,32 +2261,38 @@ class Store {
         return null
       }
 
+      // const includesRouteAddress = routeAssets.filter((asset) => {
+      //   return (asset.address.toLowerCase() == fromAsset.address.toLowerCase() || asset.address.toLowerCase() == toAsset.address.toLowerCase())
+      // })
 
-      let amountOuts = await Promise.all(routeAssets.map(async (routeAsset) => {
-        try {
-          const routes = [{
-            from: fromAsset.address,
-            to: routeAsset.address,
-            stable: true
-          },{
-            from: routeAsset.address,
-            to: toAsset.address,
-            stable: true
-          }]
-          const receiveAmounts = await routerContract.methods.getAmountsOut(sendFromAmount, routes).call()
-          const returnVal = {
-            routes: routes,
-            routeAsset: routeAsset,
-            receiveAmounts: receiveAmounts
-          }
-          return returnVal
-        } catch(ex) {
-          //asuming there will be exceptions thrown when no route exists
-          console.error(ex)
-          return null
-        }
-      }))
+      let amountOuts = []
 
+      // if(includesRouteAddress.length === 0) {
+      //   amountOuts = await Promise.all(routeAssets.map(async (routeAsset) => {
+      //     try {
+      //       const routes = [{
+      //         from: fromAsset.address,
+      //         to: routeAsset.address,
+      //         stable: true
+      //       },{
+      //         from: routeAsset.address,
+      //         to: toAsset.address,
+      //         stable: true
+      //       }]
+      //       const receiveAmounts = await routerContract.methods.getAmountsOut(sendFromAmount, routes).call()
+      //       const returnVal = {
+      //         routes: routes,
+      //         routeAsset: routeAsset,
+      //         receiveAmounts: receiveAmounts,
+      //         finalValue: BigNumber(receiveAmounts[receiveAmounts.length-1]).div(10**toAsset.decimals).toFixed(toAsset.decimals)
+      //       }
+      //       return returnVal
+      //     } catch(ex) {
+      //       console.error(ex)
+      //       return null
+      //     }
+      //   }))
+      // }
 
       try {
         // also do a direct swap check.
@@ -2300,8 +2304,9 @@ class Store {
         const receiveAmounts = await routerContract.methods.getAmountsOut(sendFromAmount, routes).call()
         const returnVal = {
           routes: routes,
-          routeAsset: {},
-          receiveAmounts: receiveAmounts
+          routeAsset: null,
+          receiveAmounts: receiveAmounts,
+          finalValue: BigNumber(receiveAmounts[receiveAmounts.length-1]).div(10**toAsset.decimals).toFixed(toAsset.decimals)
         }
 
         amountOuts.push(returnVal)
@@ -2317,7 +2322,7 @@ class Store {
         if(!best) {
           return current
         }
-        return (BigNumber(best.receiveAmounts[best.receiveAmounts.length-1]).gt(current.receiveAmounts[best.receiveAmounts.length-1])) ? best : current
+        return (BigNumber(best.finalValue).gt(current.finalValue)) ? best : current
       }, null)
 
       if(!bestAmountOut) {
@@ -2325,7 +2330,16 @@ class Store {
         return
       }
 
-      this.emitter.emit(ACTIONS.QUOTE_SWAP_RETURNED, bestAmountOut)
+      const returnValue = {
+        inputs: {
+          fromAmount: fromAmount,
+          fromAsset: fromAsset,
+          toAsset: toAsset
+        },
+        output: bestAmountOut
+      }
+
+      this.emitter.emit(ACTIONS.QUOTE_SWAP_RETURNED, returnValue)
 
     } catch(ex) {
       console.error(ex)
@@ -2335,6 +2349,8 @@ class Store {
 
   swap = async (payload) => {
     try {
+      const context = this
+
       const account = stores.accountStore.getStore("account")
       if (!account) {
         console.warn('account not found')
@@ -2347,7 +2363,7 @@ class Store {
         return null
       }
 
-      const { fromAsset, toAsset, fromAmount, quote } = payload.content
+      const { fromAsset, toAsset, fromAmount, toAmount, quote } = payload.content
 
       // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
       let allowanceTXID = this.getTXUUID()
@@ -2362,7 +2378,7 @@ class Store {
         },
         {
           uuid: swapTXID,
-          description: `SWAP ${fromAsset.symbol} FOR ${toAsset.symbol}`,
+          description: `SWAP ${formatCurrency(fromAmount)} ${fromAsset.symbol} FOR ${toAsset.symbol}`,
           status: 'WAITING'
         }
       ]})
@@ -2390,7 +2406,7 @@ class Store {
 
       // SUBMIT REQUIRED ALLOWANCE TRANSACTIONS
       if(BigNumber(allowance).lt(fromAmount)) {
-        const tokenContract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, token0.address)
+        const tokenContract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, fromAsset.address)
 
         const tokenPromise = new Promise((resolve, reject) => {
           context._callContractWait(web3, tokenContract, 'approve', [CONTRACTS.ROUTER_ADDRESS, MAX_UINT256], account, gasPrice, null, null, allowanceTXID, (err) => {
@@ -2410,12 +2426,12 @@ class Store {
 
       // SUBMIT SWAP TRANSACTION
       const sendFromAmount = BigNumber(fromAmount).times(10**fromAsset.decimals).toFixed(0)
-      const sendMinAmountOut = BigNumber(quote.receiveAmounts[quote.receiveAmounts.length-1]).times(0.97).toFixed(0)
+      const sendMinAmountOut = BigNumber(quote.output.finalValue).times(0.97).toFixed(0)
       const deadline = ''+moment().add(600, 'seconds').unix()
 
       const routerContract = new web3.eth.Contract(CONTRACTS.ROUTER_ABI, CONTRACTS.ROUTER_ADDRESS)
 
-      this._callContractWait(web3, routerContract, 'swapExactTokensForTokens', [sendFromAmount, sendMinAmountOut, quote.routes, account.address, deadline], account, gasPrice, null, null, swapTXID, (err) => {
+      this._callContractWait(web3, routerContract, 'swapExactTokensForTokens', [sendFromAmount, sendMinAmountOut, quote.output.routes, account.address, deadline], account, gasPrice, null, null, swapTXID, (err) => {
         if (err) {
           return this.emitter.emit(ACTIONS.ERROR, err);
         }
@@ -3050,7 +3066,6 @@ class Store {
                 bribeContract.methods.earned(bribe.token.address, tokenID).call(),
               ]);
 
-              console.log(earned)
               return {
                 earned: BigNumber(earned).div(10**bribe.token.decimals).toFixed(bribe.token.decimals),
               };
@@ -3101,11 +3116,9 @@ class Store {
             // maxPriorityFeePerGas: web3.utils.toWei("2", "gwei"),
           })
           .on("transactionHash", function (txHash) {
-            console.log(`txHash ${uuid} ${txHash}`)
             context.emitter.emit(ACTIONS.TX_SUBMITTED, { uuid, txHash })
           })
           .on("receipt", function (receipt) {
-            console.log(`txHash ${uuid} ${receipt.transactionHash}`)
             context.emitter.emit(ACTIONS.TX_CONFIRMED, { uuid, txHash: receipt.transactionHash })
             callback(null, receipt.transactionHash)
             if (dispatchEvent) {
