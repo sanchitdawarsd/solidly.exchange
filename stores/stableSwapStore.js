@@ -29,7 +29,8 @@ class Store {
       veToken: null,
       rewards: {},
       pairs: [],
-      vestNFTs: []
+      vestNFTs: [],
+      rewards: []
     }
 
     dispatcher.register(
