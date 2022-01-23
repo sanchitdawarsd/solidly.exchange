@@ -251,7 +251,7 @@ function Setup() {
               }}
             />
 
-            <Typography color='textSecondary' className={ classes.smallerText }>{ assetValue.symbol }</Typography>
+            <Typography color='textSecondary' className={ classes.smallerText }>{ assetValue?.symbol }</Typography>
 
           </div>
         </div>
