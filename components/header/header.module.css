@@ -8,10 +8,14 @@
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 10;
+  z-index: 10020 !important;
   width: calc(100%);
   border: 0;
   border-radius: 0 !important;
+}
+
+.userMenu {
+  z-index: 10030 !important;
 }
 
 .userMenuText {
@@ -110,6 +114,8 @@
   color: rgba(255, 255, 255, 0.87) !important;
   padding-left: 26px !important;
   padding-right: 26px !important;
+  position: fixed;
+  z-index: 10030 !important;
 }
 
 .iconColor {
@@ -299,11 +305,22 @@
 }
 
 @media screen and (max-width: 1200px) {
-  /* .headerContainer {
-    display: none;
-  } */
-}
 
-@media screen and (min-width: 992px) {
+  .accountButton {
+    display: flex;
+    align-items: center;
+    margin-left: 0 !important;
+    position: fixed !important;
+    z-index: 10030 !important;
+    top: 17px !important;
+    right: 10px !important;
+  }
 
+  .userMenu {
+    z-index: 10030 !important;
+  }
+
+  .userMenuText {
+    transform: scale(1);
+  }
 }

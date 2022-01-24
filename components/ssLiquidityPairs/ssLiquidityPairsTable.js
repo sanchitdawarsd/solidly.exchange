@@ -282,11 +282,11 @@ const useStyles = makeStyles((theme) => ({
   },
   searchContainer: {
     flex: 1,
-    minWidth: '300px',
-    marginLeft: '30px',
-    marginRight: '30px',
+    display: 'flex',
+    width: '100%',
   },
   buttonOverride: {
+    width: '100%',
     color: 'rgb(6, 211, 215)',
     background: 'rgb(23, 52, 72)',
     fontWeight: '700',
@@ -309,6 +309,9 @@ const useStyles = makeStyles((theme) => ({
     background: '#111729',
     border: '1px solid rgba(126,153,176,0.3)',
     color: '#06D3D7',
+    width: '100%',
+    height: '94.5%',
+    borderRadius: '10px',
   },
   actionButtonText: {
     fontSize: '15px',
@@ -371,38 +374,48 @@ const EnhancedTableToolbar = (props) => {
   return (
     <Toolbar className={ classes.toolbar }>
 
-    <Button
-      variant="contained"
-      color="secondary"
-      className={classes.button}
-      startIcon={<AddCircleOutlineIcon />}
-      size='large'
-      className={ classes.buttonOverride }
-      color='primary'
-      onClick={ onCreate }
-    >
-    <Typography className={ classes.actionButtonText }>Create Pair</Typography>
-      </Button>
-      <TextField
-        className={classes.searchContainer}
-        variant="outlined"
-        fullWidth
-        placeholder="ETH, CRV, ..."
-        value={search}
-        onChange={onSearchChanged}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <SearchIcon />
-            </InputAdornment>
-          ),
-        }}
-      />
-      <Tooltip placement="top" title="Filter list">
-        <IconButton onClick={handleClick} className={ classes.filterButton } aria-label="filter list">
-          <FilterListIcon />
-        </IconButton>
-      </Tooltip>
+    <Grid container spacing={2}>
+      <Grid item lg={2} md={2} sm={12} xs={12}>
+        <Button
+          variant="contained"
+          color="secondary"
+          startIcon={<AddCircleOutlineIcon />}
+          size='large'
+          className={ classes.buttonOverride }
+          color='primary'
+          onClick={ onCreate }
+        >
+          <Typography className={ classes.actionButtonText }>Create Pair</Typography>
+        </Button>
+      </Grid>
+      <Grid item lg={9} md={9} sm={10} xs={10}>
+        <TextField
+          className={classes.searchContainer}
+          variant="outlined"
+          fullWidth
+          placeholder="ETH, CRV, ..."
+          value={search}
+          onChange={onSearchChanged}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Grid>
+      <Grid item lg={1} md={true} sm={true} xs={true}>
+        <Tooltip placement="top" title="Filter list">
+          <IconButton onClick={handleClick} className={ classes.filterButton } aria-label="filter list">
+            <FilterListIcon />
+          </IconButton>
+        </Tooltip>
+      </Grid>
+    </Grid>
+
+
+
 
       <Popper id={id} open={open} anchorEl={anchorEl} transition placement="bottom-end">
         {({ TransitionProps }) => (
