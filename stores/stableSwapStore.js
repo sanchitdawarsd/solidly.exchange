@@ -677,6 +677,7 @@ class Store {
       name: CONTRACTS.GOV_TOKEN_NAME,
       symbol: CONTRACTS.GOV_TOKEN_SYMBOL,
       decimals: CONTRACTS.GOV_TOKEN_DECIMALS,
+      logoURI: CONTRACTS.GOV_TOKEN_LOGO
     }
   }
 
@@ -686,6 +687,7 @@ class Store {
       name: CONTRACTS.VE_TOKEN_NAME,
       symbol: CONTRACTS.VE_TOKEN_SYMBOL,
       decimals: CONTRACTS.VE_TOKEN_DECIMALS,
+      logoURI: CONTRACTS.VE_TOKEN_LOGO,
     }
   }
 
@@ -3027,7 +3029,7 @@ class Store {
       }
 
       const filteredPairs = pairs.filter((pair) => {
-        return pair && pair.gauge && pair.gauge.bribes && pair.gauge.bribes.length > 0
+        return pair && pair.gauge
       })
 
       const bribesEarned = await Promise.all(

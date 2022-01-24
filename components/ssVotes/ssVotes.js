@@ -60,6 +60,7 @@ export default function ssVotes() {
     // }
 
     const vestVotesReturned = (vals) => {
+      console.log(vals)
       setVotes(vals.map((asset) => {
         return {
           address: asset?.address,
@@ -70,6 +71,7 @@ export default function ssVotes() {
     }
 
     const vestBalancesReturned = (vals) => {
+      console.log(vals)
       setGauges(vals)
       forceUpdate()
     }

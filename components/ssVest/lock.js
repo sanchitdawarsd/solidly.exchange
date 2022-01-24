@@ -154,17 +154,17 @@ export default function ssLock({ govToken, veToken }) {
               <div className={ classes.assetSelectMenuItem }>
                 <div className={ classes.displayDualIconContainer }>
                   {
-                    token && token.logo &&
+                    token && token.logoURI &&
                     <img
                       className={ classes.displayAssetIcon }
                       alt=""
-                      src={ logo }
+                      src={ token.logoURI }
                       height='100px'
                       onError={(e)=>{e.target.onerror = null; e.target.src="/tokens/unknown-logo.png"}}
                     />
                   }
                   {
-                    !(token && token.logo) &&
+                    !(token && token.logoURI) &&
                     <img
                       className={ classes.displayAssetIcon }
                       alt=""
@@ -228,7 +228,7 @@ export default function ssLock({ govToken, veToken }) {
         </div>
         { renderMassiveInput('amount', amount, amountError, onAmountChanged, govToken) }
         <div>
-          { renderMassiveDateInput('date', selectedDate, selectedDateError, handleDateChange, govToken?.balance, govToken?.logo) }
+          { renderMassiveDateInput('date', selectedDate, selectedDateError, handleDateChange, govToken?.balance, govToken?.logoURI) }
           <div className={ classes.inline }>
             <Typography className={ classes.expiresIn }>Expires: </Typography>
             <RadioGroup className={classes.vestPeriodToggle} row onChange={handleChange} value={selectedValue}>

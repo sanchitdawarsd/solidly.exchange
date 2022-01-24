@@ -568,13 +568,13 @@ export default function ssLiquidityManage() {
             {
               activeTab === 'deposit' &&
               <>
-                { renderMassiveInput('amount0', amount0, amount0Error, amount0Changed, pair?.token0?.balance, pair?.token0?.logo, amount0Focused, pair?.token0?.symbol) }
+                { renderMassiveInput('amount0', amount0, amount0Error, amount0Changed, pair?.token0?.balance, pair?.token0?.logoURI, amount0Focused, pair?.token0?.symbol) }
                 <div className={ classes.swapIconContainer }>
                   <div className={ classes.swapIconSubContainer }>
                     <AddIcon className={ classes.swapIcon } />
                   </div>
                 </div>
-                { renderMassiveInput('amount1', amount1, amount1Error, amount1Changed, pair?.token1?.balance, pair?.token1?.logo, amount1Focused, pair?.token1?.symbol) }
+                { renderMassiveInput('amount1', amount1, amount1Error, amount1Changed, pair?.token1?.balance, pair?.token1?.logoURI, amount1Focused, pair?.token1?.symbol) }
                 { renderTokenSelect() }
                 { renderDepositInformation() }
               </>
@@ -582,15 +582,15 @@ export default function ssLiquidityManage() {
             {
               activeTab === 'withdraw' &&
               <>
-                { renderMassiveInput('withdraw', withdrawAmount, null, withdrawAmountChanged, ((pair && pair.gauge) ? (pair?.gauge?.balance) : (pair?.balance)), pair?.logo, null, pair?.gauge?.symbol) }
+                { renderMassiveInput('withdraw', withdrawAmount, null, withdrawAmountChanged, ((pair && pair.gauge) ? (pair?.gauge?.balance) : (pair?.balance)), pair?.logoURI, null, pair?.gauge?.symbol) }
                 <div className={ classes.swapIconContainer }>
                   <div className={ classes.swapIconSubContainer }>
                     <ArrowDownwardIcon className={ classes.swapIcon } />
                   </div>
                 </div>
                 <div className={ classes.receiveAssets }>
-                  { renderMediumInput('withdrawAmount0', withdrawAmount0, pair?.token0?.logo, pair?.token0?.symbol) }
-                  { renderMediumInput('withdrawAmount1', withdrawAmount1, pair?.token1?.logo, pair?.token1?.symbol) }
+                  { renderMediumInput('withdrawAmount0', withdrawAmount0, pair?.token0?.logoURI, pair?.token0?.symbol) }
+                  { renderMediumInput('withdrawAmount1', withdrawAmount1, pair?.token1?.logoURI, pair?.token1?.symbol) }
                 </div>
                 { renderWithdrawInformation() }
               </>

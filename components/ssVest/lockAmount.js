@@ -115,7 +115,7 @@ export default function ffLockAmount({ nft, govToken, updateLockAmount }) {
   return (
     <div className={ classes.someContainer }>
       <div className={ classes.inputsContainer3 }>
-        { renderMassiveInput('lockAmount', amount, amountError, amountChanged, govToken?.balance, null) }
+        { renderMassiveInput('lockAmount', amount, amountError, amountChanged, govToken?.balance, govToken?.logoURI) }
       </div>
       <div className={ classes.actionsContainer3 }>
         <Button

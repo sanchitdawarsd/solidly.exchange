@@ -113,14 +113,14 @@ export default function ssBribeCreate() {
                         <img
                           className={ `${classes.someIcon} ${classes.img1Logo}` }
                           alt=""
-                          src={ option ? `${option.logo}` : '' }
+                          src={ (option && option.token0) ? `${option.token0.logoURI}` : '' }
                           height='70px'
                           onError={(e)=>{e.target.onerror = null; e.target.src="/tokens/unknown-logo.png"}}
                         />
                         <img
                           className={ `${classes.someIcon} ${classes.img2Logo}` }
                           alt=""
-                          src={ option ? `${option.logo}` : '' }
+                          src={ (option && option.token1) ? `${option.token1.logoURI}` : '' }
                           height='70px'
                           onError={(e)=>{e.target.onerror = null; e.target.src="/tokens/unknown-logo.png"}}
                         />
@@ -262,7 +262,7 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
             <img
               className={ classes.displayAssetIconSmall }
               alt=""
-              src={ asset ? `${asset.logo}` : '' }
+              src={ asset ? `${asset.logoURI}` : '' }
               height='60px'
               onError={(e)=>{e.target.onerror = null; e.target.src="/tokens/unknown-logo.png"}}
             />
@@ -288,7 +288,7 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
             <img
               className={ classes.displayAssetIcon }
               alt=""
-              src={ value ? `${value.logo}` : '' }
+              src={ value ? `${value.logoURI}` : '' }
               height='100px'
               onError={(e)=>{e.target.onerror = null; e.target.src="/tokens/unknown-logo.png"}}
             />

@@ -342,7 +342,7 @@ export default function EnhancedTable({ vestNFTs, govToken, veToken }) {
                         <div className={ classes.doubleImages}>
                           <img
                             className={classes.img1Logo}
-                            src={``}
+                            src={ govToken.logoURI }
                             width='35'
                             height='35'
                             alt=''

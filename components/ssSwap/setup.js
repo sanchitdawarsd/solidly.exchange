@@ -47,6 +47,7 @@ function Setup() {
   const [ toAssetOptions, setToAssetOptions ] = useState([])
 
   const [ quote, setQuote ] = useState(null)
+  const [ pair, setPair ] = useState(null)
 
   useEffect(function() {
     const errorReturned = () => {
@@ -55,8 +56,6 @@ function Setup() {
     }
 
     const quoteReturned = (val) => {
-
-      console.log(val)
       if(val && val.inputs && val.inputs.fromAmount === fromAmountValue && val.inputs.fromAsset.address === fromAssetValue.address && val.inputs.toAsset.address === toAssetValue.address) {
         setToAmountValue(val.output.finalValue)
         setQuote(val)
@@ -198,7 +197,7 @@ function Setup() {
         <Typography className={ classes.depositInfoHeading } >Price Info</Typography>
         <div className={ classes.priceInfos}>
           <div className={ classes.priceInfo }>
-            <Typography className={ classes.title } >0.000</Typography>
+            <Typography className={ classes.title } >{  }</Typography>
             <Typography className={ classes.text } >{ `${fromAssetValue?.symbol} per ${toAssetValue?.symbol}` }</Typography>
           </div>
           <div className={ classes.priceInfo }>
@@ -318,7 +317,7 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
             <img
               className={ classes.displayAssetIconSmall }
               alt=""
-              src={ asset ? `${asset.logo}` : '' }
+              src={ asset ? `${asset.logoURI}` : '' }
               height='60px'
               onError={(e)=>{e.target.onerror = null; e.target.src="/tokens/unknown-logo.png"}}
             />
@@ -344,7 +343,7 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
             <img
               className={ classes.displayAssetIcon }
               alt=""
-              src={ value ? `${value.logo}` : '' }
+              src={ value ? `${value.logoURI}` : '' }
               height='100px'
               onError={(e)=>{e.target.onerror = null; e.target.src="/tokens/unknown-logo.png"}}
             />

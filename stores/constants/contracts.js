@@ -4,12 +4,14 @@ export const GOV_TOKEN_ADDRESS = '0x0673e1CF8EE91095232CFC98Ee1EbCeF42A1977E'
 export const GOV_TOKEN_NAME = 'BaseV1'
 export const GOV_TOKEN_SYMBOL = 'BaseV1'
 export const GOV_TOKEN_DECIMALS = 18
+export const GOV_TOKEN_LOGO = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGUogFgNz2W978aSwJIxUbMDbujfii-H40Q5K6MiGulaW8z1fqZwrfBY3IiLgFedGIF54&usqp=CAU'
 export const GOV_TOKEN_ABI = abis.tokenABI
 
 export const VE_TOKEN_ADDRESS = '0x81068A3eD5535c78884c7Ca566985c99069E5f81'
 export const VE_TOKEN_NAME = 'veBaseV1'
 export const VE_TOKEN_SYMBOL = 'veBaseV1'
 export const VE_TOKEN_DECIMALS = 18
+export const VE_TOKEN_LOGO = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGUogFgNz2W978aSwJIxUbMDbujfii-H40Q5K6MiGulaW8z1fqZwrfBY3IiLgFedGIF54&usqp=CAU'
 export const VE_TOKEN_ABI = abis.veTokenABI
 
 export const WFTM_ADDRESS = '0x27Ce41c3cb9AdB5Edb2d8bE253A1c6A64Db8c96d'

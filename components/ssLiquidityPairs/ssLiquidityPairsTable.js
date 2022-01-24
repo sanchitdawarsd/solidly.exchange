@@ -549,7 +549,7 @@ export default function EnhancedTable({ pairs }) {
                         <div className={ classes.doubleImages}>
                           <img
                             className={classes.img1Logo}
-                            src={``}
+                            src={ (row && row.token0 && row.token0.logoURI) ? row.token0.logoURI : `` }
                             width='37'
                             height='37'
                             alt=''
@@ -560,7 +560,7 @@ export default function EnhancedTable({ pairs }) {
                           />
                           <img
                             className={classes.img2Logo}
-                            src={``}
+                            src={ (row && row.token1 && row.token1.logoURI) ? row.token1.logoURI : `` }
                             width='37'
                             height='37'
                             alt=''

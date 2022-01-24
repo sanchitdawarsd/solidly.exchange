@@ -219,7 +219,7 @@ export default function SSLiquidityCreate() {
                 className: classes.largeInput
               }}
             />
-            <Typography color='textSecondary' className={ classes.smallerText }>{ assetValue.symbol }</Typography>
+            <Typography color='textSecondary' className={ classes.smallerText }>{ assetValue?.symbol }</Typography>
           </div>
         </div>
       </div>
@@ -390,7 +390,7 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
             <img
               className={ classes.displayAssetIconSmall }
               alt=""
-              src={ asset ? `${asset.logo}` : '' }
+              src={ asset ? `${asset.logoURI}` : '' }
               height='60px'
               onError={(e)=>{e.target.onerror = null; e.target.src="/tokens/unknown-logo.png"}}
             />
@@ -416,7 +416,7 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
             <img
               className={ classes.displayAssetIcon }
               alt=""
-              src={ value ? `${value.logo}` : '' }
+              src={ value ? `${value.logoURI}` : '' }
               height='100px'
               onError={(e)=>{e.target.onerror = null; e.target.src="/tokens/unknown-logo.png"}}
             />
