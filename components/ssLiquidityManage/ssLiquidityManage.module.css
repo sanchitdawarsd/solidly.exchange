@@ -527,6 +527,7 @@
 @media screen and (max-width: 960px) {
   .container {
     margin-top: 0px;
+    width: calc(100% - 60px);
   }
 
   .helpIcon { display: none; }

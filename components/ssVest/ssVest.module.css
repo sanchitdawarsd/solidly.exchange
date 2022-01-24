@@ -519,4 +519,8 @@
   .container {
     top: 360px;
   }
+
+  .vestContainer {
+    width: calc(100% - 60px);
+  }
 }

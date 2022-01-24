@@ -21,14 +21,18 @@ const styles = theme => ({
     flex: 1,
     height: "auto",
     display: "flex",
-    position: "relative"
+    position: "relative",
   },
   contentContainer: {
     margin: "auto",
     textAlign: "center",
     padding: "12px",
     display: "flex",
-    flexWrap: "wrap"
+    flexWrap: "wrap",
+
+    '@media (max-width: 960px)': {
+        paddingTop: '160px',
+      },
   },
   cardContainer: {
     marginTop: "60px",
@@ -36,7 +40,7 @@ const styles = theme => ({
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-around",
-    alignItems: "center"
+    alignItems: "center",
   },
   unlockCard: {
     padding: "24px",
@@ -272,7 +276,7 @@ function MyComponent(props) {
             style={{
               padding: "0px",
               display: "flex",
-              margin: width > 576 ? "12px 0px" : "0px"
+              margin: width > 576 ? "12px 0px" : "0px",
             }}
           >
             <Button

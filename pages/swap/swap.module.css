@@ -121,7 +121,8 @@
 
 @media screen and (max-width: 1200px) {
   .ffContainer {
-    padding-top: 0px;
+    padding-top: 240px;
+    justify-content: flex-start;
   }
 }
 

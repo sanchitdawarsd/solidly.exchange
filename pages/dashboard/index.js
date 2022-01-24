@@ -16,15 +16,6 @@ import { formatAddress } from '../../utils';
 
 const { CONNECT_WALLET, ACCOUNT_CONFIGURED } = ACTIONS
 
-function BalanceIcon(props) {
-  const { color, className } = props;
-  return (
-    <SvgIcon viewBox="0 0 64 64" strokeWidth="1" className={className}>
-      <g strokeWidth="1" transform="translate(0.5, 0.5)"><line data-color="color-2" x1="9" y1="39" x2="13" y2="39" fill="none" stroke="#4585d6" strokeLinecap="square" strokeMiterlimit="10" strokeWidth="1" strokeLinejoin="miter"></line><line data-color="color-2" x1="32" y1="16" x2="32" y2="20" fill="none" stroke="#4585d6" strokeLinecap="square" strokeMiterlimit="10" strokeWidth="1" strokeLinejoin="miter"></line><line data-color="color-2" x1="48.263" y1="22.737" x2="45.435" y2="25.565" fill="none" stroke="#4585d6" strokeLinecap="square" strokeMiterlimit="10" strokeWidth="1" strokeLinejoin="miter"></line><line data-color="color-2" x1="55" y1="39" x2="51" y2="39" fill="none" stroke="#4585d6" strokeLinecap="square" strokeMiterlimit="10" strokeWidth="1" strokeLinejoin="miter"></line><line data-color="color-2" x1="28.464" y1="35.464" x2="16" y2="23" fill="none" stroke="#4585d6" strokeLinecap="square" strokeMiterlimit="10" strokeWidth="1" strokeLinejoin="miter"></line><circle data-color="color-2" cx="31.999" cy="39" r="5" fill="none" stroke="#4585d6" strokeLinecap="square" strokeMiterlimit="10" strokeWidth="1" strokeLinejoin="miter"></circle><path d="M57.372,55A30,30,0,1,0,6.628,55Z" fill="none" stroke="#4585d6" strokeLinecap="square" strokeMiterlimit="10" strokeWidth="1" strokeLinejoin="miter"></path></g>
-      </SvgIcon>
-  );
-}
-
 function Dashboard({ changeTheme }) {
 
   function handleNavigate(route) {
@@ -106,7 +97,8 @@ function Dashboard({ changeTheme }) {
           </>
            :
            <Paper className={classes.notConnectedContent}>
-             <BalanceIcon className={ classes.overviewIcon } />
+           <div className={classes.sphere}></div>
+            <div className={classes.contentFloat}>
              <Typography className={classes.mainHeadingNC} variant='h1'>Dashboard</Typography>
              <Typography className={classes.mainDescNC} variant='body2'>An overview Assets.</Typography>
              <Button
@@ -117,6 +109,7 @@ function Dashboard({ changeTheme }) {
                {account && account.address && <div className={`${classes.accountIcon} ${classes.metamask}`}></div>}
                <Typography>Connect Wallet to Continue</Typography>
              </Button>
+             </div>
            </Paper>
          }
          {unlockOpen && <Unlock modalOpen={unlockOpen} closeModal={closeUnlock} />}
