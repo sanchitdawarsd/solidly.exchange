@@ -6,6 +6,12 @@
   margin-top: 0px;
   padding-top: 60px;
   position: relative;
-  position: relative;
   margin-bottom: 60px;
+}
+
+@media screen and (max-width: 1200px) {
+  .container {
+    padding-top: 180px;
+    margin-bottom: 60px;
+  }
 }

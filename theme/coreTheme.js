@@ -152,7 +152,7 @@ const coreTheme = {
     },
     MuiDialog: {
       paperWidthSm: {
-        maxWidth: "800px"
+        maxWidth: "800px",
       }
     },
     MuiToggleButton: {

@@ -5,6 +5,24 @@
   position: relative;
 }
 
+.contentContainerFull,
+.contentContainerFullTwo {
+  height: 100vh;
+  width: 100%;
+  position: relative;
+}
+
+.homeContentMain {
+  text-align: center !important;
+  max-width: 50vw;
+  height: auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+
 .mainTitle {
   font-family: 'Monument' !important;
   font-size: 60px !important;
@@ -15,6 +33,7 @@
   position: relative;
   bottom: 0;
   opacity: 0;
+  text-align: center !important;
   }
 
   @keyframes mainTitleAnim {
@@ -66,6 +85,7 @@
   font-family: 'Monument' !important;
   font-size: 30px !important;
   margin-bottom: 20px !important;
+  text-align: center !important;
 }
 
 .mainDescription {
@@ -82,19 +102,11 @@
   color: #7E99B0 !important;
 }
 
-.buttonSplit {
-  max-width: 30vw;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  position: relative;
-  margin-top: 30px !important;
-}
-
 .buttonInfo {
   background: #212B48 !important;
   font-family: 'Monument' !important;
   padding: 12px 20px 10px 20px !important;
-  width: 100% !important;
+  min-width: 100% !important;
   text-transform: capitalize !important;
   color: #7E99B0 !important;
   animation: buttonInfoAnim 1s ease 1;
@@ -106,55 +118,33 @@
   }
 
   @keyframes buttonInfoAnim {
-  0% {
-  bottom: -100px;
-  opacity: 0;
-  }
-  100% {
-  bottom: 0;
-  opacity: 1;
-  }
+    0% {
+    bottom: -100px;
+    opacity: 0;
+    }
+    100% {
+    bottom: 0;
+    opacity: 1;
+    }
   }
 
-  .buttonEnter {
-    animation: buttonInfoAnim 1s ease 1;
-    animation-delay: 600ms;
-    animation-fill-mode: forwards;
-    position: relative;
-    bottom: 0;
-    opacity: 0;
-  }
+.buttonEnter {
+  animation: buttonInfoAnim 1s ease 1;
+  animation-delay: 600ms;
+  animation-fill-mode: forwards;
+  position: relative;
+  bottom: 0;
+  opacity: 0;
+}
 
 .buttonEnter,
 .buttonEnterSingle {
   background: rgba(6,211,215,0.1) !important;
   font-family: 'Monument' !important;
   padding: 12px 20px 10px 20px !important;
-  width: 100% !important;
+  min-width: 100% !important;
   text-transform: capitalize !important;
   color: #06D3D7 !important;
-}
-
-.buttonEnterSingle {
-  width: 200px !important;
-}
-
-.contentContainerFull,
-.contentContainerFullTwo {
-  height: 100vh;
-  width: 100%;
-  position: relative;
-}
-
-.homeContentMain {
-  text-align: center;
-  max-width: 50vw;
-  height: auto;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 2;
 }
 
 .floatingSphere {
@@ -172,101 +162,52 @@
     opacity: 0.5;
 }
 
-.mainHeading,
-.mainHeadingTop,
-.mainHeadingRewards {
-  margin: 40px 0 20px 0 !important;
-  text-align: left !important;
-  font-size: 20px !important;
-  float: left;
-  /* width: calc(100% - 180px) !important; */
-}
-
-.mainHeadingRewards {
-  margin: 40px 0 38px 0 !important;
-}
-
-.mainDesc {
-  margin: 20px auto 0px auto !important;
-  text-align: left !important;
-  color: rgb(104,108,122);
-  font-size: 18px !important;
-  font-family: 'Roboto', sans-serif !important;
-  font-weight: 300 !important;
-  width: calc(100% - 180px) !important;
-  display: none;
-}
-
-.mainHeadingNC {
-  text-align: center !important;
-  font-size: 30px !important;
-}
-
-.mainDescNC {
-  margin: 30px auto !important;
-  text-align: center !important;
-  color: rgb(104,108,122);
-  font-size: 18px !important;
-  max-width: 800px;
-  line-height: 1.8rem !important;
-  display: none;
-}
-
-.buttonConnect {
-  background: linear-gradient(-45deg, #23a6d5, #234ce7);
-	background-size: 200% 200%;
-	animation: gradient 35s ease infinite;
-  color: #FFF !important;
-  border-radius: 40px !important;
-  padding: 12px 24px !important;
-  font-weight: 700 !important;
-  text-transform: none !important;
-  margin: 30px auto 0 auto !important;
-}
-
-@media screen and (max-width: 1600px) {
-
-}
-
-@media screen and (max-width: 1200px) {
-
-  .notConnectedContent {
-    width: calc(100% - 80px) !important;
-    margin: 100px auto 0 auto;
-    height: calc(100vh - 150px);
-  }
-
-  .ffContainer {
-    padding-top: 20px;
-  }
-
-  .mainHeading,
-  .mainHeadingRewards {
-    margin: 30px auto 40px auto !important;
-    width: calc(100% - 80px) !important;
-  }
-  .viewCollateral,
-  .viewVesting,
-  .viewVoting,
-  .viewRewards {
-    float: right;
-  }
-}
-
 @media screen and (max-width: 960px) {
-  .mainHeading {
-    margin: 30px auto 40px auto !important;
-    width: calc(100% - 80px) !important;
+  .floatingSphere { display: none; }
+
+  .homeContentMain {
+    text-align: center;
+    max-width: 80vw;
+    height: auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+  }
+
+  .mainDescription {
+    font-size: 16px !important;
+    margin-bottom: 20px !important;
+    line-height: 1.7rem !important;
+    color: rgba(255,255,255,0.7) !important;
+  }
+
+  .secDescription {
+    font-size: 14px !important;
+    margin-bottom: 20px !important;
+    line-height: 1.2rem !important;
+    color: #7E99B0 !important;
+  }
+
+  .buttonInfo,
+  .buttonEnter {
+    width: 100% !important;
+    margin: 0 !important;
+    float: none !important;
+  }
+
+  .buttonEnterSingle {
+    width: 100% !important;
+  }
+
+  .mainTitle {
+    font-size: 38px !important;
+    margin-bottom: 25px !important;
   }
 }
 
 @media screen and (max-width: 600px) {
-  .mainHeadingTop {
-    margin: 80px 0 0px 0 !important;
-    text-align: left !important;
-    font-size: 20px !important;
-  }
-
   .viewCollateral {
     margin: 80px 0 0px 15px !important;
     float: right;
@@ -278,79 +219,7 @@
     font-size: 20px !important;
   }
 
-  .viewVesting,
-  .viewVoting,
-  .viewRewards {
-    margin: 0px 0 0px 15px !important;
-    float: right;
-  }
-
-  .mainHeadingNC {
-    text-align: center !important;
-    font-size: 24px !important;
-  }
-
-  .mainDescNC {
-    font-size: 15px !important;
-    line-height: 1.4rem !important;
-  }
-
-  .overviewIcon {
-    font-size: 80px !important;
-  }
-
-  .connected {
-    width: calc(100% - 60px);
-    margin: 0 auto;
-    padding-top: 0px;
-    margin-bottom: 130px;
-  }
-
   .accountInfo {
     display: none;
   }
-}
-
-/* Framer-Motion Animation Styles */
-
-#root {
-  margin: 100px auto;
-  max-width: 500px;
-  padding-bottom: 100px;
-}
-
-.card {
-  font-size: 164px;
-  width: 300px;
-  height: 430px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 0 1px hsl(0deg 0% 0% / 0.075), 0 0 2px hsl(0deg 0% 0% / 0.075),
-    0 0 4px hsl(0deg 0% 0% / 0.075), 0 0 8px hsl(0deg 0% 0% / 0.075),
-    0 0 16px hsl(0deg 0% 0% / 0.075);
-  transform-origin: 10% 60%;
-}
-
-.card-container {
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  padding-top: 20px;
-  margin-bottom: -120px;
-}
-
-.splash {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  top: 0;
-  clip-path: path(
-    "M 0 303.5 C 0 292.454 8.995 285.101 20 283.5 L 460 219.5 C 470.085 218.033 480 228.454 480 239.5 L 500 430 C 500 441.046 491.046 450 480 450 L 20 450 C 8.954 450 0 441.046 0 430 Z"
-  );
 }

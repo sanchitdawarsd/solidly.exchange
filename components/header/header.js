@@ -291,6 +291,7 @@ function Header(props) {
             keepMounted
             open={Boolean(anchorEl)}
             onClose={handleClose}
+            className={classes.userMenu}
           >
             <StyledMenuItem onClick={() => router.push('/dashboard')}>
               <ListItemIcon className={classes.userMenuIcon}>
