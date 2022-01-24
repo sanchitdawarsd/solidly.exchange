@@ -5,10 +5,7 @@ import {
   ACTIONS,
   CONTRACTS
 } from "./constants"
-import { v4 as uuidv4 } from 'uuid';
-
-import stableSwapAssets from './configurations/stableSwapAssets'
-import stableSwapRouteAssets from './configurations/stableSwapRouteAssets'
+import { v4 as uuidv4 } from 'uuid'
 
 import * as moment from "moment"
 import { formatCurrency } from '../utils'
@@ -30,7 +27,7 @@ class Store {
       rewards: {},
       pairs: [],
       vestNFTs: [],
-      rewards: []
+      rewards: [],
     }
 
     dispatcher.register(
@@ -76,10 +73,10 @@ class Store {
             break
           case ACTIONS.QHOTE_REMOVE_LIQUIDITY:
             this.quoteRemoveLiquidity(payload)
-            break;
+            break
           case ACTIONS.UNSTAKE_LIQUIDITY:
             this.unstakeLiquidity(payload)
-            break;
+            break
 
           // SWAP
           case ACTIONS.QUOTE_SWAP:
@@ -92,33 +89,33 @@ class Store {
           // VESTING
           case ACTIONS.GET_VEST_NFTS:
             this.getVestNFTs(payload)
-            break;
+            break
           case ACTIONS.CREATE_VEST:
             this.createVest(payload)
-            break;
+            break
           case ACTIONS.INCREASE_VEST_AMOUNT:
             this.increaseVestAmount(payload)
-            break;
+            break
           case ACTIONS.INCREASE_VEST_DURATION:
             this.increaseVestDuration(payload)
-            break;
+            break
           case ACTIONS.WITHDRAW_VEST:
             this.withdrawVest(payload)
-            break;
+            break
 
           //VOTE
           case ACTIONS.VOTE:
             this.vote(payload)
-            break;
+            break
           case ACTIONS.GET_VEST_VOTES:
             this.getVestVotes(payload)
-            break;
+            break
           case ACTIONS.CREATE_BRIBE:
             this.createBribe(payload)
-            break;
+            break
           case ACTIONS.GET_VEST_BALANCES:
             this.getVestBalances(payload)
-            break;
+            break
           default: {
           }
         }
@@ -540,7 +537,7 @@ class Store {
 
   getBaseAsset = async (address) => {
     try {
-      let localBaseAssets = [];
+      let localBaseAssets = []
       const localBaseAssetsString = localStorage.getItem('stableSwap-assets')
 
       if(localBaseAssetsString && localBaseAssetsString !== '') {
@@ -567,7 +564,7 @@ class Store {
         baseAssetContract.methods.symbol().call(),
         baseAssetContract.methods.decimals().call(),
         baseAssetContract.methods.name().call(),
-      ]);
+      ])
 
       const newBaseAsset = {
         address: address,
@@ -597,10 +594,11 @@ class Store {
   // DISPATCHER FUNCTIONS
   configure = async (payload) => {
     try {
-      this.setStore({ baseAssets: this._getBaseAssets() })
-      this.setStore({ routeAssets: this._getRouteAssets() })
       this.setStore({ govToken: this._getGovTokenBase() })
       this.setStore({ veToken: this._getVeTokenBase() })
+      this.setStore({ baseAssets: await this._getBaseAssets() })
+      this.setStore({ routeAssets: await this._getRouteAssets() })
+      this.setStore({ pairs: await this._getPairs() })
 
       this.emitter.emit(ACTIONS.UPDATED)
       this.emitter.emit(ACTIONS.CONFIGURED_SS)
@@ -614,9 +612,17 @@ class Store {
     }
   }
 
-  _getBaseAssets = () => {
+  _getBaseAssets = async () => {
     try {
-      const baseAssets = stableSwapAssets;
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API}/api/v1/baseAssets`, {
+      	method: 'get',
+      	headers: {
+          'Authorization': `Basic ${process.env.NEXT_PUBLIC_API_TOKEN}`,
+        }
+      })
+      const baseAssetsCall = await response.json()
+
+      const baseAssets = baseAssetsCall.data
       const localBaseAssetsString = localStorage.getItem('stableSwap-assets')
 
       if(!localBaseAssetsString || localBaseAssetsString === '') {
@@ -629,17 +635,39 @@ class Store {
 
     } catch(ex) {
       console.log(ex)
-      return stableSwapAssets
+      return []
     }
   }
 
-  _getRouteAssets = () => {
+  _getRouteAssets = async () => {
     try {
-      const routeAssets = stableSwapRouteAssets;
-      return routeAssets
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API}/api/v1/routeAssets`, {
+      	method: 'get',
+      	headers: {
+          'Authorization': `Basic ${process.env.NEXT_PUBLIC_API_TOKEN}`,
+        }
+      })
+      const routeAssetsCall = await response.json()
+      return routeAssetsCall.data
     } catch(ex) {
       console.log(ex)
-      return stableSwapRouteAssets
+      return []
+    }
+  }
+
+  _getPairs = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API}/api/v1/pairs`, {
+      	method: 'get',
+      	headers: {
+          'Authorization': `Basic ${process.env.NEXT_PUBLIC_API_TOKEN}`,
+        }
+      })
+      const pairsCall = await response.json()
+      return pairsCall.data
+    } catch(ex) {
+      console.log(ex)
+      return []
     }
   }
 
@@ -758,110 +786,56 @@ class Store {
         gaugesContract.methods.totalWeight().call()
       ])
 
-      const arr = Array.from({length: parseInt(allPairsLength)}, (v, i) => i)
-
       const ps = await Promise.all(
-        arr.map(async (idx) => {
-          const [ pairAddress ] = await Promise.all([
-            factoryContract.methods.allPairs(idx).call()
-          ])
+        pairs.map(async (pair, idx) => {
 
-          const pairContract = new web3.eth.Contract(CONTRACTS.PAIR_ABI, pairAddress)
+          const pairContract = new web3.eth.Contract(CONTRACTS.PAIR_ABI, pair.address)
 
-          const [ token0, token1, totalSupply, symbol, reserve0, reserve1, decimals, balanceOf, stable, gaugeAddress, gaugeWeight ] = await Promise.all([
-            pairContract.methods.token0().call(),
-            pairContract.methods.token1().call(),
+          const [ totalSupply, reserve0, reserve1, balanceOf, gaugeWeight ] = await Promise.all([
             pairContract.methods.totalSupply().call(),
-            pairContract.methods.symbol().call(),
             pairContract.methods.reserve0().call(),
             pairContract.methods.reserve1().call(),
-            pairContract.methods.decimals().call(),
             pairContract.methods.balanceOf(account.address).call(),
-            pairContract.methods.stable().call(),
-            gaugesContract.methods.gauges(pairAddress).call(),
-            gaugesContract.methods.weights(pairAddress).call()
+            gaugesContract.methods.weights(pair.address).call()
           ])
 
-          const token0Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, token0)
-          const token1Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, token1)
+          pair.balance = BigNumber(balanceOf).div(10**pair.decimals).toFixed(parseInt(pair.decimals))
+          pair.totalSupply = BigNumber(totalSupply).div(10**pair.decimals).toFixed(parseInt(pair.decimals))
+          pair.reserve0 = BigNumber(reserve0).div(10**pair.token0.decimals).toFixed(parseInt(pair.token0.decimals))
+          pair.reserve1 = BigNumber(reserve1).div(10**pair.token1.decimals).toFixed(parseInt(pair.token1.decimals))
 
-          const [ token0Symbol, token0Decimals, token0Balance, token1Symbol, token1Decimals, token1Balance ] = await Promise.all([
-            token0Contract.methods.symbol().call(),
-            token0Contract.methods.decimals().call(),
-            token0Contract.methods.balanceOf(account.address).call(),
-            token1Contract.methods.symbol().call(),
-            token1Contract.methods.decimals().call(),
-            token1Contract.methods.balanceOf(account.address).call(),
-          ])
+          if(pair.gauge && pair.gauge.address !== ZERO_ADDRESS) {
+            const gaugeContract = new web3.eth.Contract(CONTRACTS.GAUGE_ABI, pair.gauge.address)
 
-          const thePair = {
-            address: pairAddress,
-            symbol: symbol,
-            decimals: parseInt(decimals),
-            isStable: stable,
-            token0: {
-              address: token0,
-              symbol: token0Symbol,
-              balance: BigNumber(token0Balance).div(10**token0Decimals).toFixed(parseInt(token0Decimals)),
-              decimals: parseInt(token0Decimals)
-            },
-            token1: {
-              address: token1,
-              symbol: token1Symbol,
-              balance: BigNumber(token1Balance).div(10**token1Decimals).toFixed(parseInt(token1Decimals)),
-              decimals: parseInt(token1Decimals)
-            },
-            balance: BigNumber(balanceOf).div(10**decimals).toFixed(parseInt(decimals)),
-            totalSupply: BigNumber(totalSupply).div(10**decimals).toFixed(parseInt(decimals)),
-            reserve0: BigNumber(reserve0).div(10**token0Decimals).toFixed(parseInt(token0Decimals)),
-            reserve1: BigNumber(reserve1).div(10**token1Decimals).toFixed(parseInt(token1Decimals)),
-          }
-
-          if(gaugeAddress !== ZERO_ADDRESS) {
-            const gaugeContract = new web3.eth.Contract(CONTRACTS.GAUGE_ABI, gaugeAddress)
-
-            const [ totalSupply, gaugeBalance, bribeAddress ] = await Promise.all([
+            const [ totalSupply, gaugeBalance ] = await Promise.all([
               gaugeContract.methods.totalSupply().call(),
-              gaugeContract.methods.balanceOf(account.address).call(),
-              gaugesContract.methods.bribes(gaugeAddress).call()
+              gaugeContract.methods.balanceOf(account.address).call()
             ])
 
-            const bribeContract = new web3.eth.Contract(CONTRACTS.BRIBE_ABI, bribeAddress)
-
-            const tokensLength = await bribeContract.methods.rewardsListLength().call()
-            const arry = Array.from({length: parseInt(tokensLength)}, (v, i) => i)
+            const bribeContract = new web3.eth.Contract(CONTRACTS.BRIBE_ABI, pair.gauge.bribeAddress)
 
             const bribes = await Promise.all(
-              arry.map(async (idx) => {
-
-                const tokenAddress = await bribeContract.methods.rewards(idx).call()
-                const token = await this.getBaseAsset(tokenAddress)
+              pair.gauge.bribes.map(async (bribe, idx) => {
 
                 const [ rewardRate ] = await Promise.all([
-                  bribeContract.methods.rewardRate(tokenAddress).call(),
+                  bribeContract.methods.rewardRate(bribe.token.address).call(),
                 ])
 
-                return {
-                  token: token,
-                  rewardRate: BigNumber(rewardRate).div(10**token.decimals).toFixed(token.decimals),
-                  rewardAmount: BigNumber(rewardRate).times(604800).div(10**token.decimals).toFixed(token.decimals)
-                }
+                bribe.rewardRate = BigNumber(rewardRate).div(10**bribe.token.decimals).toFixed(bribe.token.decimals)
+                bribe.rewardAmount = BigNumber(rewardRate).times(604800).div(10**bribe.token.decimals).toFixed(bribe.token.decimals)
+
+                return bribe
               })
             )
 
-            thePair.gauge = {
-              address: gaugeAddress,
-              bribeAddress: bribeAddress,
-              decimals: 18,
-              balance: BigNumber(gaugeBalance).div(10**18).toFixed(18),
-              totalSupply: BigNumber(totalSupply).div(10**18).toFixed(18),
-              weight: BigNumber(gaugeWeight).div(10**18).toFixed(18),
-              weightPercent: BigNumber(gaugeWeight).times(100).div(totalWeight).toFixed(2),
-              bribes: bribes,
-            }
+            pair.gauge.balance = BigNumber(gaugeBalance).div(10**18).toFixed(18)
+            pair.gauge.totalSupply = BigNumber(totalSupply).div(10**18).toFixed(18)
+            pair.gauge.weight = BigNumber(gaugeWeight).div(10**18).toFixed(18)
+            pair.gauge.weightPercent = BigNumber(gaugeWeight).times(100).div(totalWeight).toFixed(2)
+            pair.gaugebribes = bribes
           }
 
-          return thePair;
+          return pair
         })
       )
 
@@ -882,20 +856,20 @@ class Store {
 
       const baseAssetsBalances = await Promise.all(
         baseAssets.map(async (asset) => {
-          const assetContract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, asset.address);
+          const assetContract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, asset.address)
 
           const [ balanceOf ] = await Promise.all([
             assetContract.methods.balanceOf(account.address).call(),
-          ]);
+          ])
 
           return {
             balanceOf,
-          };
+          }
         })
       )
 
       for (let i = 0; i < baseAssets.length; i++) {
-        baseAssets[i].balance = BigNumber(baseAssetsBalances[i].balanceOf).div(10 ** baseAssets[i].decimals).toFixed(baseAssets[i].decimals);
+        baseAssets[i].balance = BigNumber(baseAssetsBalances[i].balanceOf).div(10 ** baseAssets[i].decimals).toFixed(baseAssets[i].decimals)
       }
 
       this.setStore({ baseAssets })
@@ -907,7 +881,7 @@ class Store {
 
   searchBaseAsset = async (payload) => {
     try {
-      let localBaseAssets = [];
+      let localBaseAssets = []
       const localBaseAssetsString = localStorage.getItem('stableSwap-assets')
 
       if(localBaseAssetsString && localBaseAssetsString !== '') {
@@ -928,7 +902,7 @@ class Store {
         baseAssetContract.methods.symbol().call(),
         baseAssetContract.methods.decimals().call(),
         baseAssetContract.methods.name().call(),
-      ]);
+      ])
 
       const newBaseAsset = {
         address: payload.content.address,
@@ -1099,7 +1073,7 @@ class Store {
       const routerContract = new web3.eth.Contract(CONTRACTS.ROUTER_ABI, CONTRACTS.ROUTER_ADDRESS)
       this._callContractWait(web3, routerContract, 'addLiquidity', [token0.address, token1.address, isStable, sendAmount0, sendAmount1, sendAmount0Min, sendAmount1Min, account.address, deadline], account, gasPrice, null, null, depositTXID, async (err) => {
         if (err) {
-          return this.emitter.emit(ACTIONS.ERROR, err);
+          return this.emitter.emit(ACTIONS.ERROR, err)
         }
 
         // GET PAIR FOR NEWLY CREATED LIQUIDITY POOL
@@ -1109,7 +1083,7 @@ class Store {
         const gaugesContract = new web3.eth.Contract(CONTRACTS.GAUGES_ABI, CONTRACTS.GAUGES_ADDRESS)
         this._callContractWait(web3, gaugesContract, 'createGauge', [pairFor], account, gasPrice, null, null, createGaugeTXID, async (err) => {
           if (err) {
-            return this.emitter.emit(ACTIONS.ERROR, err);
+            return this.emitter.emit(ACTIONS.ERROR, err)
           }
 
           const gaugeAddress = await gaugesContract.methods.gauges(pairFor).call()
@@ -1162,7 +1136,7 @@ class Store {
 
           this._callContractWait(web3, gaugeContract, 'deposit', [balanceOf, sendTok], account, gasPrice, null, null, stakeTXID, (err) => {
             if (err) {
-              return this.emitter.emit(ACTIONS.ERROR, err);
+              return this.emitter.emit(ACTIONS.ERROR, err)
             }
 
             this._getPairInfo(web3, account)
@@ -1313,7 +1287,7 @@ class Store {
       const routerContract = new web3.eth.Contract(CONTRACTS.ROUTER_ABI, CONTRACTS.ROUTER_ADDRESS)
       this._callContractWait(web3, routerContract, 'addLiquidity', [token0.address, token1.address, isStable, sendAmount0, sendAmount1, sendAmount0Min, sendAmount1Min, account.address, deadline], account, gasPrice, null, null, depositTXID, async (err) => {
         if (err) {
-          return this.emitter.emit(ACTIONS.ERROR, err);
+          return this.emitter.emit(ACTIONS.ERROR, err)
         }
 
         // GET PAIR FOR NEWLY CREATED LIQUIDITY POOL
@@ -1323,7 +1297,7 @@ class Store {
         const gaugesContract = new web3.eth.Contract(CONTRACTS.GAUGES_ABI, CONTRACTS.GAUGES_ADDRESS)
         this._callContractWait(web3, gaugesContract, 'createGauge', [pairFor], account, gasPrice, null, null, createGaugeTXID, async (err) => {
           if (err) {
-            return this.emitter.emit(ACTIONS.ERROR, err);
+            return this.emitter.emit(ACTIONS.ERROR, err)
           }
 
           this._getPairInfo(web3, account)
@@ -1338,7 +1312,7 @@ class Store {
   }
 
   sleep = (ms) => {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise(resolve => setTimeout(resolve, ms))
   }
 
   getTXUUID = () => {
@@ -1472,7 +1446,7 @@ class Store {
 
       this._callContractWait(web3, routerContract, 'addLiquidity', [token0.address, token1.address, pair.isStable, sendAmount0, sendAmount1, sendAmount0Min, sendAmount1Min, account.address, deadline], account, gasPrice, null, null, depositTXID, (err) => {
         if (err) {
-          return this.emitter.emit(ACTIONS.ERROR, err);
+          return this.emitter.emit(ACTIONS.ERROR, err)
         }
 
         this._getPairInfo(web3, account)
@@ -1571,7 +1545,7 @@ class Store {
 
       this._callContractWait(web3, gaugeContract, 'deposit', [balanceOf, sendTok], account, gasPrice, null, null, stakeTXID, (err) => {
         if (err) {
-          return this.emitter.emit(ACTIONS.ERROR, err);
+          return this.emitter.emit(ACTIONS.ERROR, err)
         }
 
         this._getPairInfo(web3, account)
@@ -1759,7 +1733,7 @@ class Store {
 
       this._callContractWait(web3, routerContract, 'addLiquidity', [token0.address, token1.address, pair.isStable, sendAmount0, sendAmount1, sendAmount0Min, sendAmount1Min, account.address, deadline], account, gasPrice, null, null, depositTXID, async (err) => {
         if (err) {
-          return this.emitter.emit(ACTIONS.ERROR, err);
+          return this.emitter.emit(ACTIONS.ERROR, err)
         }
 
         const balanceOf = await pairContract.methods.balanceOf(account.address).call()
@@ -1771,7 +1745,7 @@ class Store {
 
         this._callContractWait(web3, gaugeContract, 'deposit', [balanceOf, sendTok], account, gasPrice, null, null, stakeTXID, (err) => {
           if (err) {
-            return this.emitter.emit(ACTIONS.ERROR, err);
+            return this.emitter.emit(ACTIONS.ERROR, err)
           }
 
           this._getPairInfo(web3, account)
@@ -1900,7 +1874,7 @@ class Store {
         // balanceCalls.push(gaugeContract.methods.earned(incentiveAddress, account.address).call())
       }
 
-      const [ token0Balance, token1Balance, poolBalance, gaugeBalance/*, earned*/ ] = await Promise.all(balanceCalls);
+      const [ token0Balance, token1Balance, poolBalance, gaugeBalance/*, earned*/ ] = await Promise.all(balanceCalls)
 
       const returnVal = {
         token0: BigNumber(token0Balance).div(10**pair.token0.decimals).toFixed(pair.token0.decimals),
@@ -2012,7 +1986,7 @@ class Store {
 
       this._callContractWait(web3, routerContract, 'removeLiquidity', [token0.address, token1.address, pair.isStable, sendAmount, sendAmount0Min, sendAmount1Min, account.address, deadline], account, gasPrice, null, null, withdrawTXID, (err) => {
         if (err) {
-          return this.emitter.emit(ACTIONS.ERROR, err);
+          return this.emitter.emit(ACTIONS.ERROR, err)
         }
 
         this._getPairInfo(web3, account)
@@ -2123,14 +2097,14 @@ class Store {
 
       this._callContractWait(web3, gaugeContract, 'withdraw', [sendAmount], account, gasPrice, null, null, unstakeTXID, async (err) => {
         if (err) {
-          return this.emitter.emit(ACTIONS.ERROR, err);
+          return this.emitter.emit(ACTIONS.ERROR, err)
         }
 
         const balanceOf = await pairContract.methods.balanceOf(account.address).call()
 
         this._callContractWait(web3, routerContract, 'removeLiquidity', [token0.address, token1.address, pair.isStable, balanceOf, sendAmount0Min, sendAmount1Min, account.address, deadline], account, gasPrice, null, null, withdrawTXID, (err) => {
           if (err) {
-            return this.emitter.emit(ACTIONS.ERROR, err);
+            return this.emitter.emit(ACTIONS.ERROR, err)
           }
 
           this._getPairInfo(web3, account)
@@ -2184,7 +2158,7 @@ class Store {
 
       this._callContractWait(web3, gaugeContract, 'withdraw', [sendAmount], account, gasPrice, null, null, unstakeTXID, async (err) => {
         if (err) {
-          return this.emitter.emit(ACTIONS.ERROR, err);
+          return this.emitter.emit(ACTIONS.ERROR, err)
         }
 
         this._getPairInfo(web3, account)
@@ -2434,7 +2408,7 @@ class Store {
 
       this._callContractWait(web3, routerContract, 'swapExactTokensForTokens', [sendFromAmount, sendMinAmountOut, quote.output.routes, account.address, deadline], account, gasPrice, null, null, swapTXID, (err) => {
         if (err) {
-          return this.emitter.emit(ACTIONS.ERROR, err);
+          return this.emitter.emit(ACTIONS.ERROR, err)
         }
 
         this.emitter.emit(ACTIONS.SWAP_RETURNED)
@@ -2589,7 +2563,7 @@ class Store {
 
       this._callContractWait(web3, veTokenContract, 'create_lock', [sendAmount, unlockTime+''], account, gasPrice, null, null, vestTXID, (err) => {
         if (err) {
-          return this.emitter.emit(ACTIONS.ERROR, err);
+          return this.emitter.emit(ACTIONS.ERROR, err)
         }
 
         this._getGovTokenInfo(web3, account)
@@ -2697,7 +2671,7 @@ class Store {
 
       this._callContractWait(web3, veTokenContract, 'increase_amount', [tokenID, sendAmount], account, gasPrice, null, null, vestTXID, (err) => {
         if (err) {
-          return this.emitter.emit(ACTIONS.ERROR, err);
+          return this.emitter.emit(ACTIONS.ERROR, err)
         }
 
         this._getGovTokenInfo(web3, account)
@@ -2748,7 +2722,7 @@ class Store {
 
       this._callContractWait(web3, veTokenContract, 'increase_unlock_time', [tokenID, unlockTime+''], account, gasPrice, null, null, vestTXID, (err) => {
         if (err) {
-          return this.emitter.emit(ACTIONS.ERROR, err);
+          return this.emitter.emit(ACTIONS.ERROR, err)
         }
 
         this._updateVestNFTByID(tokenID)
@@ -2798,7 +2772,7 @@ class Store {
 
       this._callContractWait(web3, veTokenContract, 'withdraw', [tokenID], account, gasPrice, null, null, vestTXID, (err) => {
         if (err) {
-          return this.emitter.emit(ACTIONS.ERROR, err);
+          return this.emitter.emit(ACTIONS.ERROR, err)
         }
 
         this._updateVestNFTByID(tokenID)
@@ -2846,16 +2820,16 @@ class Store {
       const gaugesContract = new web3.eth.Contract(CONTRACTS.GAUGES_ABI, CONTRACTS.GAUGES_ADDRESS)
 
       let tokens = votes.map((v) => {
-        return v.address;
-      });
+        return v.address
+      })
 
       let voteCounts = votes.map((v) => {
-        return BigNumber(v.value).times(100).toFixed(0);
-      });
+        return BigNumber(v.value).times(100).toFixed(0)
+      })
 
       this._callContractWait(web3, gaugesContract, 'vote', [tokenID, tokens, voteCounts], account, gasPrice, null, null, voteTXID, (err) => {
         if (err) {
-          return this.emitter.emit(ACTIONS.ERROR, err);
+          return this.emitter.emit(ACTIONS.ERROR, err)
         }
 
         this.emitter.emit(ACTIONS.VOTE_RETURNED)
@@ -2902,13 +2876,13 @@ class Store {
         return gaugesContract.methods.votes(tokenID, pair.address).call()
       })
 
-      const voteCounts = await Promise.all(votesCalls);
+      const voteCounts = await Promise.all(votesCalls)
 
       let votes = []
 
       const totalVotes = voteCounts.reduce((curr, acc) => {
-        return BigNumber(curr).plus(acc);
-      }, 0);
+        return BigNumber(curr).plus(acc)
+      }, 0)
 
       for(let i = 0; i < voteCounts.length; i++) {
         votes.push({
@@ -3005,7 +2979,7 @@ class Store {
 
       this._callContractWait(web3, bribeContract, 'notifyRewardAmount', [asset.address, sendAmount], account, gasPrice, null, null, bribeTXID, (err) => {
         if (err) {
-          return this.emitter.emit(ACTIONS.ERROR, err);
+          return this.emitter.emit(ACTIONS.ERROR, err)
         }
 
         this.emitter.emit(ACTIONS.BRIBE_CREATED)
@@ -3061,15 +3035,15 @@ class Store {
 
           const bribesEarned = await Promise.all(
             pair.gauge.bribes.map(async (bribe) => {
-              const bribeContract = new web3.eth.Contract(CONTRACTS.BRIBE_ABI, pair.gauge.bribeAddress);
+              const bribeContract = new web3.eth.Contract(CONTRACTS.BRIBE_ABI, pair.gauge.bribeAddress)
 
               const [ earned ] = await Promise.all([
                 bribeContract.methods.earned(bribe.token.address, tokenID).call(),
-              ]);
+              ])
 
               return {
                 earned: BigNumber(earned).div(10**bribe.token.decimals).toFixed(bribe.token.decimals),
-              };
+              }
             })
           )
 
