@@ -144,7 +144,7 @@ export default function ssLock({ govToken, veToken }) {
             <Typography className={ classes.inputBalanceText } noWrap onClick={ () => {
               setAmountPercent(type, 100)
             }}>
-              Balance: { (token && token.balance) ? ' ' + formatCurrency(token?balance) : '' }
+              Balance: { (token && token.balance) ? ' ' + formatCurrency(token.balance) : '' }
             </Typography>
           </div>
         </div>
