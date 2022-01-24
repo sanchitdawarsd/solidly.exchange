@@ -136,7 +136,7 @@ export default function ssLock({ govToken, veToken }) {
     )
   }
 
-  const renderMassiveInput = (type, amountValue, amountError, amountChanged, balance, logo) => {
+  const renderMassiveInput = (type, amountValue, amountError, amountChanged, token) => {
     return (
       <div className={ classes.textField}>
         <div className={ classes.inputTitleContainer }>
@@ -144,7 +144,7 @@ export default function ssLock({ govToken, veToken }) {
             <Typography className={ classes.inputBalanceText } noWrap onClick={ () => {
               setAmountPercent(type, 100)
             }}>
-              Balance: { balance ? ' ' + formatCurrency(balance) : '' }
+              Balance: { (token && token.balance) ? ' ' + formatCurrency(token?balance) : '' }
             </Typography>
           </div>
         </div>
@@ -154,7 +154,7 @@ export default function ssLock({ govToken, veToken }) {
               <div className={ classes.assetSelectMenuItem }>
                 <div className={ classes.displayDualIconContainer }>
                   {
-                    logo &&
+                    token && token.logo &&
                     <img
                       className={ classes.displayAssetIcon }
                       alt=""
@@ -164,7 +164,7 @@ export default function ssLock({ govToken, veToken }) {
                     />
                   }
                   {
-                    !logo &&
+                    !(token && token.logo) &&
                     <img
                       className={ classes.displayAssetIcon }
                       alt=""
@@ -190,7 +190,7 @@ export default function ssLock({ govToken, veToken }) {
                 className: classes.largeInput
               }}
             />
-            <Typography color='textSecondary' className={ classes.smallerText }>Token Name</Typography>
+            <Typography color='textSecondary' className={ classes.smallerText }>{ token?.symbol }</Typography>
           </div>
         </div>
       </div>
@@ -226,7 +226,7 @@ export default function ssLock({ govToken, veToken }) {
           </Tooltip>
           <Typography className={ classes.titleText }>Create New Lock</Typography>
         </div>
-        { renderMassiveInput('amount', amount, amountError, onAmountChanged, govToken?.balance, govToken?.logo) }
+        { renderMassiveInput('amount', amount, amountError, onAmountChanged, govToken) }
         <div>
           { renderMassiveDateInput('date', selectedDate, selectedDateError, handleDateChange, govToken?.balance, govToken?.logo) }
           <div className={ classes.inline }>

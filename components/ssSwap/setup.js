@@ -46,6 +46,8 @@ function Setup() {
   const [ toAssetError, setToAssetError ] = useState(false)
   const [ toAssetOptions, setToAssetOptions ] = useState([])
 
+  const [ quote, setQuote ] = useState(null)
+
   useEffect(function() {
     const errorReturned = () => {
       setLoading(false)
@@ -53,8 +55,11 @@ function Setup() {
     }
 
     const quoteReturned = (val) => {
-      if(val && val.fromAmount === fromAmountValue && val.toAsset.address === toAssetValue.address) {
-        setToAmountValue(val.toAmount)
+
+      console.log(val)
+      if(val && val.inputs && val.inputs.fromAmount === fromAmountValue && val.inputs.fromAsset.address === fromAssetValue.address && val.inputs.toAsset.address === toAssetValue.address) {
+        setToAmountValue(val.output.finalValue)
+        setQuote(val)
       }
     }
 
@@ -80,6 +85,7 @@ function Setup() {
       setLoading(false)
       setFromAmountValue('')
       calculateReceiveAmount(0, fromAssetValue, toAssetValue)
+      setQuote(null)
     }
 
     stores.emitter.on(ACTIONS.ERROR, errorReturned)
@@ -168,6 +174,7 @@ function Setup() {
         toAsset: toAssetValue,
         fromAmount: fromAmountValue,
         toAmount: toAmountValue,
+        quote: quote
       } })
     }
   }
@@ -175,6 +182,14 @@ function Setup() {
   const setBalance100 = () => {
     setFromAmountValue(fromAssetValue.balance)
     calculateReceiveAmount(fromAssetValue.balance, fromAssetValue, toAssetValue)
+  }
+
+  const swapAssets = () => {
+    const fa = fromAssetValue
+    const ta = toAssetValue
+    setFromAssetValue(ta)
+    setToAssetValue(fa)
+    calculateReceiveAmount(fromAmountValue, ta, fa)
   }
 
   const renderSwapInformation = () => {
@@ -236,7 +251,7 @@ function Setup() {
               }}
             />
 
-            <Typography color='textSecondary' className={ classes.smallerText }>Token Name</Typography>
+            <Typography color='textSecondary' className={ classes.smallerText }>{ assetValue?.symbol }</Typography>
 
           </div>
         </div>
@@ -249,7 +264,7 @@ function Setup() {
       { renderMassiveInput('From', fromAmountValue, fromAmountError, fromAmountChanged, fromAssetValue, fromAssetError, fromAssetOptions, onAssetSelect) }
       <div className={ classes.swapIconContainer }>
         <div className={ classes.swapIconSubContainer }>
-          <ArrowDownwardIcon className={ classes.swapIcon } />
+          <ArrowDownwardIcon className={ classes.swapIcon } onClick={ swapAssets }/>
         </div>
       </div>
       { renderMassiveInput('To', toAmountValue, toAmountError, toAmountChanged, toAssetValue, toAssetError, toAssetOptions, onAssetSelect) }
