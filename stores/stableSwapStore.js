@@ -2278,38 +2278,120 @@ class Store {
         return null
       }
 
-      // const includesRouteAddress = routeAssets.filter((asset) => {
-      //   return (asset.address.toLowerCase() == fromAsset.address.toLowerCase() || asset.address.toLowerCase() == toAsset.address.toLowerCase())
-      // })
+      const includesRouteAddress = routeAssets.filter((asset) => {
+        return (asset.address.toLowerCase() == fromAsset.address.toLowerCase() || asset.address.toLowerCase() == toAsset.address.toLowerCase())
+      })
 
       let amountOuts = []
 
-      // if(includesRouteAddress.length === 0) {
-      //   amountOuts = await Promise.all(routeAssets.map(async (routeAsset) => {
-      //     try {
-      //       const routes = [{
-      //         from: fromAsset.address,
-      //         to: routeAsset.address,
-      //         stable: true
-      //       },{
-      //         from: routeAsset.address,
-      //         to: toAsset.address,
-      //         stable: true
-      //       }]
-      //       const receiveAmounts = await routerContract.methods.getAmountsOut(sendFromAmount, routes).call()
-      //       const returnVal = {
-      //         routes: routes,
-      //         routeAsset: routeAsset,
-      //         receiveAmounts: receiveAmounts,
-      //         finalValue: BigNumber(receiveAmounts[receiveAmounts.length-1]).div(10**toAsset.decimals).toFixed(toAsset.decimals)
-      //       }
-      //       return returnVal
-      //     } catch(ex) {
-      //       console.error(ex)
-      //       return null
-      //     }
-      //   }))
-      // }
+      console.log(routeAssets)
+
+      if(includesRouteAddress.length === 0) {
+        const amountsOutStable = await Promise.all(routeAssets.map(async (routeAsset) => {
+          try {
+            const routes = [{
+              from: fromAsset.address,
+              to: routeAsset.address,
+              stable: true
+            },{
+              from: routeAsset.address,
+              to: toAsset.address,
+              stable: true
+            }]
+            const receiveAmounts = await routerContract.methods.getAmountsOut(sendFromAmount, routes).call()
+            const returnVal = {
+              routes: routes,
+              routeAsset: routeAsset,
+              receiveAmounts: receiveAmounts,
+              finalValue: BigNumber(receiveAmounts[receiveAmounts.length-1]).div(10**toAsset.decimals).toFixed(toAsset.decimals)
+            }
+            return returnVal
+          } catch(ex) {
+            console.error(ex)
+            return null
+          }
+        }))
+
+        const amountsOutVariable = await Promise.all(routeAssets.map(async (routeAsset) => {
+          try {
+            const routes = [{
+              from: fromAsset.address,
+              to: routeAsset.address,
+              stable: false
+            },{
+              from: routeAsset.address,
+              to: toAsset.address,
+              stable: false
+            }]
+            console.log(routes)
+            console.log(`GOING FOR ${routeAsset.symbol}`)
+            const receiveAmounts = await routerContract.methods.getAmountsOut(sendFromAmount, routes).call()
+            console.log(receiveAmounts)
+            const returnVal = {
+              routes: routes,
+              routeAsset: routeAsset,
+              receiveAmounts: receiveAmounts,
+              finalValue: BigNumber(receiveAmounts[receiveAmounts.length-1]).div(10**toAsset.decimals).toFixed(toAsset.decimals)
+            }
+            return returnVal
+          } catch(ex) {
+            console.error(ex)
+            return null
+          }
+        }))
+
+        const amountsOutStableVariable = await Promise.all(routeAssets.map(async (routeAsset) => {
+          try {
+            const routes = [{
+              from: fromAsset.address,
+              to: routeAsset.address,
+              stable: true
+            },{
+              from: routeAsset.address,
+              to: toAsset.address,
+              stable: false
+            }]
+            const receiveAmounts = await routerContract.methods.getAmountsOut(sendFromAmount, routes).call()
+            const returnVal = {
+              routes: routes,
+              routeAsset: routeAsset,
+              receiveAmounts: receiveAmounts,
+              finalValue: BigNumber(receiveAmounts[receiveAmounts.length-1]).div(10**toAsset.decimals).toFixed(toAsset.decimals)
+            }
+            return returnVal
+          } catch(ex) {
+            console.error(ex)
+            return null
+          }
+        }))
+
+        const amountsOutVariableStable = await Promise.all(routeAssets.map(async (routeAsset) => {
+          try {
+            const routes = [{
+              from: fromAsset.address,
+              to: routeAsset.address,
+              stable: false
+            },{
+              from: routeAsset.address,
+              to: toAsset.address,
+              stable: true
+            }]
+            const receiveAmounts = await routerContract.methods.getAmountsOut(sendFromAmount, routes).call()
+            const returnVal = {
+              routes: routes,
+              routeAsset: routeAsset,
+              receiveAmounts: receiveAmounts,
+              finalValue: BigNumber(receiveAmounts[receiveAmounts.length-1]).div(10**toAsset.decimals).toFixed(toAsset.decimals)
+            }
+            return returnVal
+          } catch(ex) {
+            console.error(ex)
+            return null
+          }
+        }))
+
+        amountOuts = [...amountsOutStable, ...amountsOutVariable, ...amountsOutStableVariable, ...amountsOutVariableStable]
+      }
 
       try {
         // also do a direct swap check.
@@ -2353,14 +2435,16 @@ class Store {
         console.error(ex)
       }
 
+      console.log(amountOuts)
+
       const bestAmountOut = amountOuts.filter((ret) => {
         return ret != null
       }).reduce((best, current) => {
         if(!best) {
           return current
         }
-        return (BigNumber(best.finalValue).gt(current.finalValue)) ? best : current
-      }, null)
+        return (BigNumber(best.finalValue).gt(current.finalValue) ? best : current)
+      }, 0)
 
       if(!bestAmountOut) {
         this.emitter.emit(ACTIONS.ERROR, 'No valid route found to complete swap')

@@ -200,6 +200,8 @@ function Setup() {
       return null
     }
 
+    console.log(quote)
+
     return (
       <div className={ classes.depositInfoContainer }>
         <Typography className={ classes.depositInfoHeading } >Price Info</Typography>
@@ -212,6 +214,36 @@ function Setup() {
             <Typography className={ classes.title } > { formatCurrency(BigNumber(quote.output.finalValue).div(quote.inputs.fromAmount).toFixed(18)) } </Typography>
             <Typography className={ classes.text } >{ `${toAssetValue?.symbol} per ${fromAssetValue?.symbol}` }</Typography>
           </div>
+        </div>
+        <Typography className={ classes.depositInfoHeading } >Route</Typography>
+        <div className={ classes.route }>
+          <img
+            className={ classes.displayAssetIconSmall }
+            alt=""
+            src={ fromAssetValue ? `${fromAssetValue.logoURI}` : '' }
+            height='40px'
+            onError={(e)=>{e.target.onerror = null; e.target.src="/tokens/unknown-logo.png"}}
+          />
+          <div className={ classes.line }></div>
+          { quote && quote.output && quote.output.routeAsset &&
+            <>
+              <img
+                className={ classes.displayAssetIconSmall }
+                alt=""
+                src={ quote.output.routeAsset ? `${quote.output.routeAsset.logoURI}` : '' }
+                height='40px'
+                onError={(e)=>{e.target.onerror = null; e.target.src="/tokens/unknown-logo.png"}}
+              />
+              <div className={ classes.line }></div>
+            </>
+          }
+          <img
+            className={ classes.displayAssetIconSmall }
+            alt=""
+            src={ toAssetValue ? `${toAssetValue.logoURI}` : '' }
+            height='40px'
+            onError={(e)=>{e.target.onerror = null; e.target.src="/tokens/unknown-logo.png"}}
+          />
         </div>
       </div>
     )
