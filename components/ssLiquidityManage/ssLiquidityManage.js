@@ -582,7 +582,7 @@ export default function ssLiquidityManage() {
             {
               activeTab === 'withdraw' &&
               <>
-                { renderMassiveInput('withdraw', withdrawAmount, null, withdrawAmountChanged, ((pair && pair.gauge) ? (pair?.gauge?.balance) : (pair?.balance)), pair?.logoURI, null, pair?.gauge?.symbol) }
+                { renderMassiveInput('withdraw', withdrawAmount, null, withdrawAmountChanged, ((pair && pair.gauge) ? (pair?.gauge?.balance) : (pair?.balance)), pair?.logoURI, null, pair?.symbol) }
                 <div className={ classes.swapIconContainer }>
                   <div className={ classes.swapIconSubContainer }>
                     <ArrowDownwardIcon className={ classes.swapIcon } />

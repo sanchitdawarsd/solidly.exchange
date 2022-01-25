@@ -706,8 +706,8 @@ class Store {
       }
 
       this._getGovTokenInfo(web3, account)
-      this._getPairInfo(web3, account)
       this._getBaseAssetInfo(web3, account)
+      this._getPairInfo(web3, account)
     } catch(ex) {
       console.log(ex)
       this.emitter.emit(ACTIONS.ERROR, ex)
@@ -792,19 +792,25 @@ class Store {
         pairs.map(async (pair, idx) => {
 
           const pairContract = new web3.eth.Contract(CONTRACTS.PAIR_ABI, pair.address)
+          const token0Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, pair.token0.address)
+          const token1Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, pair.token1.address)
 
-          const [ totalSupply, reserve0, reserve1, balanceOf, gaugeWeight ] = await Promise.all([
+          const [ totalSupply, reserve0, reserve1, balanceOf, gaugeWeight, token0BalanceOf, token1BalanceOf ] = await Promise.all([
             pairContract.methods.totalSupply().call(),
             pairContract.methods.reserve0().call(),
             pairContract.methods.reserve1().call(),
             pairContract.methods.balanceOf(account.address).call(),
-            gaugesContract.methods.weights(pair.address).call()
+            gaugesContract.methods.weights(pair.address).call(),
+            token0Contract.methods.balanceOf(account.address).call(),
+            token1Contract.methods.balanceOf(account.address).call()
           ])
 
           pair.balance = BigNumber(balanceOf).div(10**pair.decimals).toFixed(parseInt(pair.decimals))
           pair.totalSupply = BigNumber(totalSupply).div(10**pair.decimals).toFixed(parseInt(pair.decimals))
           pair.reserve0 = BigNumber(reserve0).div(10**pair.token0.decimals).toFixed(parseInt(pair.token0.decimals))
           pair.reserve1 = BigNumber(reserve1).div(10**pair.token1.decimals).toFixed(parseInt(pair.token1.decimals))
+          pair.token0.balance = BigNumber(token0BalanceOf).div(10**pair.token0.decimals).toFixed(parseInt(pair.token0.decimals))
+          pair.token1.balance = BigNumber(token1BalanceOf).div(10**pair.token1.decimals).toFixed(parseInt(pair.token1.decimals))
 
           if(pair.gauge && pair.gauge.address !== ZERO_ADDRESS) {
             const gaugeContract = new web3.eth.Contract(CONTRACTS.GAUGE_ABI, pair.gauge.address)
@@ -956,7 +962,7 @@ class Store {
 
       //DOD A CHECK FOR IF THE POOL ALREADY EXISTS
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CREATE LIQUIDITY POOOL FOR ${token0.symbol}/${token1.symbol}`, transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CREATE LIQUIDITY POOL FOR ${token0.symbol}/${token1.symbol}`, transactions: [
         {
           uuid: allowance0TXID,
           description: `CHECKING YOUR ${token0.symbol} ALLOWANCES`,
@@ -1136,10 +1142,19 @@ class Store {
             sendTok = '0'
           }
 
-          this._callContractWait(web3, gaugeContract, 'deposit', [balanceOf, sendTok], account, gasPrice, null, null, stakeTXID, (err) => {
+          this._callContractWait(web3, gaugeContract, 'deposit', [balanceOf, sendTok], account, gasPrice, null, null, stakeTXID, async (err) => {
             if (err) {
               return this.emitter.emit(ACTIONS.ERROR, err)
             }
+
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API}/api/v1/updatePairs`, {
+            	method: 'get',
+            	headers: {
+                'Authorization': `Basic ${process.env.NEXT_PUBLIC_API_TOKEN}`,
+              }
+            })
+            const pairsCall = await response.json()
+            this.setStore({ pairs: pairsCall.data })
 
             this._getPairInfo(web3, account)
 
@@ -1180,7 +1195,7 @@ class Store {
 
       //DOD A CHECK FOR IF THE POOL ALREADY EXISTS
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CREATE LIQUIDITY POOOL FOR ${token0.symbol}/${token1.symbol}`, transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CREATE LIQUIDITY POOL FOR ${token0.symbol}/${token1.symbol}`, transactions: [
         {
           uuid: allowance0TXID,
           description: `CHECKING YOUR ${token0.symbol} ALLOWANCES`,
@@ -1301,6 +1316,15 @@ class Store {
           if (err) {
             return this.emitter.emit(ACTIONS.ERROR, err)
           }
+
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API}/api/v1/updatePairs`, {
+            method: 'get',
+            headers: {
+              'Authorization': `Basic ${process.env.NEXT_PUBLIC_API_TOKEN}`,
+            }
+          })
+          const pairsCall = await response.json()
+          this.setStore({ pairs: pairsCall.data })
 
           this._getPairInfo(web3, account)
 
