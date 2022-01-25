@@ -2330,7 +2330,27 @@ class Store {
       } catch(ex) {
         //asuming there will be exceptions thrown when no route exists
         console.error(ex)
-        return null
+      }
+
+      try {
+        // also do a direct swap check.
+        const routes = [{
+          from: fromAsset.address,
+          to: toAsset.address,
+          stable: false
+        }]
+        const receiveAmounts = await routerContract.methods.getAmountsOut(sendFromAmount, routes).call()
+        const returnVal = {
+          routes: routes,
+          routeAsset: null,
+          receiveAmounts: receiveAmounts,
+          finalValue: BigNumber(receiveAmounts[receiveAmounts.length-1]).div(10**toAsset.decimals).toFixed(toAsset.decimals)
+        }
+
+        amountOuts.push(returnVal)
+      } catch(ex) {
+        //asuming there will be exceptions thrown when no route exists
+        console.error(ex)
       }
 
       const bestAmountOut = amountOuts.filter((ret) => {
@@ -2344,7 +2364,7 @@ class Store {
 
       if(!bestAmountOut) {
         this.emitter.emit(ACTIONS.ERROR, 'No valid route found to complete swap')
-        return
+        return null
       }
 
       const returnValue = {
@@ -2452,6 +2472,9 @@ class Store {
         if (err) {
           return this.emitter.emit(ACTIONS.ERROR, err)
         }
+
+        this._getPairInfo(web3, account)
+        this._getBaseAssetInfo(web3, account)
 
         this.emitter.emit(ACTIONS.SWAP_RETURNED)
       })
