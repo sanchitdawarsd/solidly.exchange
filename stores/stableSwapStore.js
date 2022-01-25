@@ -401,12 +401,12 @@ class Store {
     }
   }
 
-  getPair = async (addressA, addressB) => {
+  getPair = async (addressA, addressB, stab) => {
 
     const pairs = this.getStore('pairs')
     let thePair = pairs.filter((pair) => {
-      return ((pair.token0.address.toLowerCase() == addressA.toLowerCase() && pair.token1.address.toLowerCase() == addressB.toLowerCase()) ||
-      (pair.token0.address.toLowerCase() == addressB.toLowerCase() && pair.token1.address.toLowerCase() == addressA.toLowerCase()))
+      return ((pair.token0.address.toLowerCase() == addressA.toLowerCase() && pair.token1.address.toLowerCase() == addressB.toLowerCase() && pair.isStable == stab) ||
+      (pair.token0.address.toLowerCase() == addressB.toLowerCase() && pair.token1.address.toLowerCase() == addressA.toLowerCase() && pair.isStable == stab))
     })
     if(thePair.length > 0) {
       return thePair[0]
@@ -424,7 +424,7 @@ class Store {
     }
 
     const factoryContract = new web3.eth.Contract(CONTRACTS.FACTORY_ABI, CONTRACTS.FACTORY_ADDRESS)
-    const pairAddress = await factoryContract.methods.getPair(addressA, addressB).call()
+    const pairAddress = await factoryContract.methods.getPair(addressA, addressB, stab).call()
 
     if(pairAddress && pairAddress != ZERO_ADDRESS) {
       const pairContract = new web3.eth.Contract(CONTRACTS.PAIR_ABI, pairAddress)

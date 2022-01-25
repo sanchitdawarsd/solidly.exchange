@@ -39,6 +39,8 @@ export default function SSLiquidityCreate() {
   const [ veToken, setVeToken ] = useState(null)
   const [ advanced, setAdvanced ] = useState(false)
 
+  const [ pair, setPair ] = useState(null)
+
   //might not be correct to d this every time store updates.
   const ssUpdated = async () => {
     const storeAssetOptions = stores.stableSwapStore.getStore('baseAssets')
@@ -66,6 +68,9 @@ export default function SSLiquidityCreate() {
       window.setTimeout(() => {
         callGetCreatePairBalances(asset0, asset1)
       }, 1)
+
+      const p = await stores.stableSwapStore.getPair(asset0.address, asset1.address, stable)
+      setPair(p)
     }
   }
 
@@ -159,14 +164,24 @@ export default function SSLiquidityCreate() {
     setToken(event.target.value);
   }
 
-  const onAssetSelect = (type, value) => {
+  const onAssetSelect = async (type, value) => {
     if(type === 'amount0') {
       setAsset0(value)
       callGetCreatePairBalances(value, asset1, amount0, amount1)
+      const p = await stores.stableSwapStore.getPair(value.address, asset1.address, stable)
+      setPair(p)
     } else {
       setAsset1(value)
       callGetCreatePairBalances(asset0, value, amount0, amount1)
+      const p = await stores.stableSwapStore.getPair(asset0.address, value.address, stable)
+      setPair(p)
     }
+  }
+
+  const setStab = async (val) => {
+    setStable(val)
+    const p = await stores.stableSwapStore.getPair(asset0.address, asset1.address, val)
+    setPair(p)
   }
 
   const renderMediumInputToggle = (type, value) => {
@@ -174,10 +189,10 @@ export default function SSLiquidityCreate() {
       <div className={ classes.textField}>
         <div className={ classes.mediumInputContainer}>
           <div className={ classes.toggles }>
-            <div className={ `${classes.toggleOption} ${stable && classes.active}` } onClick={ () => { setStable(true) } }>
+            <div className={ `${classes.toggleOption} ${stable && classes.active}` } onClick={ () => { setStab(true) } }>
               <Typography className={ classes.toggleOptionText }>Stable</Typography>
             </div>
-            <div className={ `${classes.toggleOption} ${!stable && classes.active}` } onClick={ () => { setStable(false) } }>
+            <div className={ `${classes.toggleOption} ${!stable && classes.active}` } onClick={ () => { setStab(false) } }>
               <Typography className={ classes.toggleOptionText }>Variable</Typography>
             </div>
           </div>
@@ -325,31 +340,46 @@ export default function SSLiquidityCreate() {
             />
           </div>
           <div className={ classes.actionsContainer }>
-            <Button
-              variant='contained'
-              size='large'
-              className={ (createLoading || depositLoading) ? classes.multiApprovalButton : classes.buttonOverride }
-              color='primary'
-              disabled={ createLoading || depositLoading }
-              onClick={ onCreateAndStake }
-              >
-              <Typography className={ classes.actionButtonText }>{ createLoading ? `Creating` : `Create Pair And Stake` }</Typography>
-              { createLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
-            </Button>
-            { advanced &&
-                <>
-                  <Button
-                    variant='contained'
-                    size='large'
-                    className={ (createLoading || depositLoading) ? classes.multiApprovalButton : classes.buttonOverride }
-                    color='primary'
-                    disabled={ createLoading || depositLoading }
-                    onClick={ onCreateAndDeposit }
-                    >
-                    <Typography className={ classes.actionButtonText }>{ depositLoading ? `Depositing` : `Create Pair And Deposit` }</Typography>
-                    { depositLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
-                  </Button>
-                </>
+            { pair === null &&
+              <>
+                <Button
+                  variant='contained'
+                  size='large'
+                  className={ (createLoading || depositLoading) ? classes.multiApprovalButton : classes.buttonOverride }
+                  color='primary'
+                  disabled={ createLoading || depositLoading }
+                  onClick={ onCreateAndStake }
+                  >
+                  <Typography className={ classes.actionButtonText }>{ createLoading ? `Creating` : `Create Pair And Stake` }</Typography>
+                  { createLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
+                </Button>
+                { advanced &&
+                    <>
+                      <Button
+                        variant='contained'
+                        size='large'
+                        className={ (createLoading || depositLoading) ? classes.multiApprovalButton : classes.buttonOverride }
+                        color='primary'
+                        disabled={ createLoading || depositLoading }
+                        onClick={ onCreateAndDeposit }
+                        >
+                        <Typography className={ classes.actionButtonText }>{ depositLoading ? `Depositing` : `Create Pair And Deposit` }</Typography>
+                        { depositLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
+                      </Button>
+                    </>
+                }
+              </>
+            }
+            { pair !== null &&
+              <Button
+                variant='contained'
+                size='large'
+                className={ classes.multiApprovalButton }
+                color='primary'
+                disabled={ true }
+                >
+                <Typography className={ classes.actionButtonText }>{ `Pair exists` }</Typography>
+              </Button>
             }
           </div>
         </div>
