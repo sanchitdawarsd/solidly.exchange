@@ -7,9 +7,9 @@ export const GOV_TOKEN_DECIMALS = 18
 export const GOV_TOKEN_LOGO = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGUogFgNz2W978aSwJIxUbMDbujfii-H40Q5K6MiGulaW8z1fqZwrfBY3IiLgFedGIF54&usqp=CAU'
 export const GOV_TOKEN_ABI = abis.tokenABI
 
-export const VE_TOKEN_ADDRESS = '0x81068A3eD5535c78884c7Ca566985c99069E5f81'
-export const VE_TOKEN_NAME = 'veBaseV1'
-export const VE_TOKEN_SYMBOL = 'veBaseV1'
+export const VE_TOKEN_ADDRESS = '0xBE6bb6d9F4B1Bc2Ea1C0d69a17471b98bd164ab6'
+export const VE_TOKEN_NAME = 've'
+export const VE_TOKEN_SYMBOL = 've'
 export const VE_TOKEN_DECIMALS = 18
 export const VE_TOKEN_LOGO = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGUogFgNz2W978aSwJIxUbMDbujfii-H40Q5K6MiGulaW8z1fqZwrfBY3IiLgFedGIF54&usqp=CAU'
 export const VE_TOKEN_ABI = abis.veTokenABI
@@ -20,19 +20,19 @@ export const WFTM_SYMBOL = 'WFTM'
 export const WFTM_DECIMALS = 18
 export const WFTM_ABI = abis.wftmABI
 
-export const FACTORY_ADDRESS = '0x5Ea8dfc4D2e033C509DbFE04Ec06C528Dc8390E6'
+export const FACTORY_ADDRESS = '0xd231865CE0eDB0079F0D0d7BB2E647458aa60d11'
 export const FACTORY_ABI = abis.factoryABI
 
-export const ROUTER_ADDRESS = '0xb4c16C699F77cA5286998B47C658D0AEdC857dA3'
+export const ROUTER_ADDRESS = '0x612003865305a7E9915Cb3b1b06cC2485F03dD29'
 export const ROUTER_ABI = abis.routerABI
 
-export const VE_DIST_ADDRESS = '0xc5da94535278c6410d8864009D67807cD26FE88A'
+export const VE_DIST_ADDRESS = '0x4Dc46A325B141751E09871279F9c7Fe214DA422C'
 export const VE_DIST_ABI = abis.veDistABI
 
-export const GAUGES_ADDRESS = '0x8C29427Bfa0f46Ab11066Df10D74cAEB363b4904'
+export const GAUGES_ADDRESS = '0xd2F7fF8e5b362bafE2b57a82c5865B4355F884Ae'
 export const GAUGES_ABI = abis.gaugesABI
 
-export const MINTER_ADDRESS = '0xAE27B2DdBFd2D3b25898f769499CCd9c8DBc712b'
+export const MINTER_ADDRESS = '0x3230F944a26288f49F5010b11BA96b0b9dC84e79'
 export const MINTER_ABI = abis.minterABI
 
 export const ERC20_ABI = abis.erc20ABI

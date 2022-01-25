@@ -498,7 +498,7 @@ box-shadow: 0 13px 30px 0 rgba(7,9,18,0.1) !important;
 
 .priceInfos {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   grid-gap: 12px;
   width: 100%;
 }

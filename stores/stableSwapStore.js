@@ -1136,10 +1136,9 @@ class Store {
 
           const done = await Promise.all(allowanceCallsPromise)
 
-
-          let sendTok = token.id
-          if(!token) {
-            sendTok = '0'
+          let sendTok = '0'
+          if(token && token.id) {
+            sendTok = token.id
           }
 
           this._callContractWait(web3, gaugeContract, 'deposit', [balanceOf, sendTok], account, gasPrice, null, null, stakeTXID, async (err) => {
@@ -1564,9 +1563,9 @@ class Store {
 
       const gaugeContract = new web3.eth.Contract(CONTRACTS.GAUGE_ABI, pair.gauge.address)
 
-      let sendTok = token.id
-      if(!token) {
-        sendTok = '0'
+      let sendTok = '0'
+      if(token && token.id) {
+        sendTok = token.id
       }
 
       this._callContractWait(web3, gaugeContract, 'deposit', [balanceOf, sendTok], account, gasPrice, null, null, stakeTXID, (err) => {
@@ -1764,9 +1763,9 @@ class Store {
 
         const balanceOf = await pairContract.methods.balanceOf(account.address).call()
 
-        let sendTok = token.id
-        if(!token) {
-          sendTok = '0'
+        let sendTok = '0'
+        if(token && token.id) {
+          sendTok = token.id
         }
 
         this._callContractWait(web3, gaugeContract, 'deposit', [balanceOf, sendTok], account, gasPrice, null, null, stakeTXID, (err) => {

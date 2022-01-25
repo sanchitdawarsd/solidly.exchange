@@ -47,7 +47,6 @@ function Setup() {
   const [ toAssetOptions, setToAssetOptions ] = useState([])
 
   const [ quote, setQuote ] = useState(null)
-  const [ pair, setPair ] = useState(null)
 
   useEffect(function() {
     const errorReturned = () => {
@@ -116,7 +115,11 @@ function Setup() {
 
   const fromAmountChanged = (event) => {
     setFromAmountValue(event.target.value)
-    calculateReceiveAmount(event.target.value, fromAssetValue, toAssetValue)
+    if(event.target.value == '') {
+      setToAmountValue('')
+    } else {
+      calculateReceiveAmount(event.target.value, fromAssetValue, toAssetValue)
+    }
   }
 
   const toAmountChanged = (event) => {
@@ -192,21 +195,21 @@ function Setup() {
   }
 
   const renderSwapInformation = () => {
+    if(!quote) {
+      return null
+    }
+
     return (
       <div className={ classes.depositInfoContainer }>
         <Typography className={ classes.depositInfoHeading } >Price Info</Typography>
         <div className={ classes.priceInfos}>
           <div className={ classes.priceInfo }>
-            <Typography className={ classes.title } >{  }</Typography>
+            <Typography className={ classes.title } >{ formatCurrency(BigNumber(quote.inputs.fromAmount).div(quote.output.finalValue).toFixed(18)) }</Typography>
             <Typography className={ classes.text } >{ `${fromAssetValue?.symbol} per ${toAssetValue?.symbol}` }</Typography>
           </div>
           <div className={ classes.priceInfo }>
-            <Typography className={ classes.title } >0.000</Typography>
+            <Typography className={ classes.title } > { formatCurrency(BigNumber(quote.output.finalValue).div(quote.inputs.fromAmount).toFixed(18)) } </Typography>
             <Typography className={ classes.text } >{ `${toAssetValue?.symbol} per ${fromAssetValue?.symbol}` }</Typography>
-          </div>
-          <div className={ classes.priceInfo }>
-            <Typography className={ classes.title } >0.000</Typography>
-            <Typography className={ classes.text } >{ `Something` }</Typography>
           </div>
         </div>
       </div>
