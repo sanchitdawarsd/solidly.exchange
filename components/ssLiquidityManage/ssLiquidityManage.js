@@ -53,6 +53,10 @@ export default function ssLiquidityManage() {
     if(router.query.address) {
       const pp = await stores.stableSwapStore.getPairByAddress(router.query.address)
       setPair(pp)
+
+      if(BigNumber(pp.balance).gt(0)) {
+        setAdvanced(true)
+      }
       callGetPairBalances(pp)
 
       setVeToken(stores.stableSwapStore.getStore('veToken'))
@@ -96,7 +100,6 @@ export default function ssLiquidityManage() {
     }
 
     const quoteRemoveReturned = (res) => {
-      console.log(res)
       setWithdrawQuote(res.output)
       setWithdrawAmount0(res.output.amount0)
       setWithdrawAmount1(res.output.amount1)
