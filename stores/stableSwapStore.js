@@ -24,7 +24,6 @@ class Store {
       assets: [],
       govToken: null,
       veToken: null,
-      rewards: {},
       pairs: [],
       vestNFTs: [],
       rewards: [],
@@ -116,6 +115,17 @@ class Store {
           case ACTIONS.GET_VEST_BALANCES:
             this.getVestBalances(payload)
             break
+
+          //REWARDS
+          case ACTIONS.GET_REWARD_BALANCES:
+            this.getRewardBalances(payload)
+            break
+          case ACTIONS.CLAIM_REWARD:
+            this.claimBribes(payload)
+            break
+          case ACTIONS.CLAIM_ALL_REWARDS:
+            this.claimAllBribes(payload)
+            break;
           default: {
           }
         }
@@ -272,15 +282,12 @@ class Store {
   }
 
   getPairByAddress = async (pairAddress) => {
-    console.log('getPairByAddress')
     try {
       const pairs = this.getStore('pairs')
-      console.log(pairs)
       let thePair = pairs.filter((pair) => {
         return (pair.address.toLowerCase() == pairAddress.toLowerCase())
       })
 
-      console.log(thePair)
       if(thePair.length > 0) {
         return thePair[0]
       }
@@ -1319,7 +1326,6 @@ class Store {
 
           await context.updatePairsCall(web3, account)
 
-          console.log('Emitting PAIR_CREATED')
           this.emitter.emit(ACTIONS.PAIR_CREATED, pairFor)
         })
       })
@@ -1340,8 +1346,6 @@ class Store {
       const pairsCall = await response.json()
       this.setStore({ pairs: pairsCall.data })
 
-      console.log(pairsCall.data)
-      console.log('calling _getPairInfo')
       await this._getPairInfo(web3, account, pairsCall.data)
 
     } catch(ex) {
@@ -3015,10 +3019,12 @@ class Store {
 
       const sendAmount = BigNumber(amount).times(10**asset.decimals).toFixed(0)
 
-      this._callContractWait(web3, bribeContract, 'notifyRewardAmount', [asset.address, sendAmount], account, gasPrice, null, null, bribeTXID, (err) => {
+      this._callContractWait(web3, bribeContract, 'notifyRewardAmount', [asset.address, sendAmount], account, gasPrice, null, null, bribeTXID, async (err) => {
         if (err) {
           return this.emitter.emit(ACTIONS.ERROR, err)
         }
+
+        await context.updatePairsCall(web3, account)
 
         this.emitter.emit(ACTIONS.BRIBE_CREATED)
       })
@@ -3092,6 +3098,274 @@ class Store {
       )
 
       this.emitter.emit(ACTIONS.VEST_BALANCES_RETURNED, bribesEarned)
+    } catch(ex) {
+      console.error(ex)
+      this.emitter.emit(ACTIONS.ERROR, ex)
+    }
+  }
+
+  getRewardBalances = async (payload) => {
+    try {
+      const account = stores.accountStore.getStore("account")
+      if (!account) {
+        console.warn('account not found')
+        return null
+      }
+
+      const web3 = await stores.accountStore.getWeb3Provider()
+      if (!web3) {
+        console.warn('web3 not found')
+        return null
+      }
+
+      const { tokenID } = payload.content
+
+      const pairs = this.getStore('pairs')
+
+      const filteredPairs = pairs.filter((pair) => {
+        return pair && pair.gauge
+      })
+
+      const bribesEarned = await Promise.all(
+        filteredPairs.map(async (pair) => {
+
+          const bribesEarned = await Promise.all(
+            pair.gauge.bribes.map(async (bribe) => {
+              const bribeContract = new web3.eth.Contract(CONTRACTS.BRIBE_ABI, pair.gauge.bribeAddress)
+
+              const [ earned ] = await Promise.all([
+                bribeContract.methods.earned(bribe.token.address, tokenID).call(),
+              ])
+
+              bribe.earned = BigNumber(earned).div(10**bribe.token.decimals).toFixed(bribe.token.decimals)
+              return bribe
+            })
+          )
+          pair.gauge.bribesEarned = bribesEarned
+
+          return pair
+        })
+      )
+
+      let filteredBribes = bribesEarned.filter((pair) => {
+        return pair.gauge && pair.gauge.bribesEarned && pair.gauge.bribesEarned.length > 0
+      })
+
+      this.setStore({ rewards: filteredBribes })
+
+      this.emitter.emit(ACTIONS.REWARD_BALANCES_RETURNED, filteredBribes)
+    } catch(ex) {
+      console.error(ex)
+      this.emitter.emit(ACTIONS.ERROR, ex)
+    }
+  }
+
+  claimBribes = async (payload) => {
+    try {
+      const account = stores.accountStore.getStore("account")
+      if (!account) {
+        console.warn('account not found')
+        return null
+      }
+
+      const web3 = await stores.accountStore.getWeb3Provider()
+      if (!web3) {
+        console.warn('web3 not found')
+        return null
+      }
+
+      const { pair, tokenID } = payload.content
+
+      // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
+      let claimTXID = this.getTXUUID()
+
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CLAIM REWARDS FOR ${pair.token0.symbol}/${pair.token1.symbol}`, transactions: [
+        {
+          uuid: claimTXID,
+          description: `SUBMIT CLAIM TRANSACTION`,
+          status: 'WAITING'
+        }
+      ]})
+
+      const gasPrice = await stores.accountStore.getGasPrice()
+
+      // SUBMIT CLAIM TRANSACTION
+      const gaugesContract = new web3.eth.Contract(CONTRACTS.GAUGES_ABI, CONTRACTS.GAUGES_ADDRESS)
+
+      const sendGauges = [ pair.gauge.bribeAddress ]
+      const sendTokens = [ pair.gauge.bribesEarned.map((bribe) => {
+        return bribe.token.address
+      }) ]
+
+      this._callContractWait(web3, gaugesContract, 'claimBribes', [sendGauges, sendTokens, tokenID], account, gasPrice, null, null, claimTXID, async (err) => {
+        if (err) {
+          return this.emitter.emit(ACTIONS.ERROR, err)
+        }
+
+        this.getRewardBalances({ content: { tokenID } })
+        this.emitter.emit(ACTIONS.CLAIM_REWARD_RETURNED)
+      })
+    } catch(ex) {
+      console.error(ex)
+      this.emitter.emit(ACTIONS.ERROR, ex)
+    }
+  }
+
+  claimAllBribes = async (payload) => {
+    try {
+      const account = stores.accountStore.getStore("account")
+      if (!account) {
+        console.warn('account not found')
+        return null
+      }
+
+      const web3 = await stores.accountStore.getWeb3Provider()
+      if (!web3) {
+        console.warn('web3 not found')
+        return null
+      }
+
+      const { pairs, tokenID } = payload.content
+
+      // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
+      let claimTXID = this.getTXUUID()
+
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CLAIM REWARDS FOR ${pairs.length} GAUGES`, transactions: [
+        {
+          uuid: claimTXID,
+          description: `SUBMIT CLAIM TRANSACTION`,
+          status: 'WAITING'
+        }
+      ]})
+
+      const gasPrice = await stores.accountStore.getGasPrice()
+
+      // SUBMIT CLAIM TRANSACTION
+      const gaugesContract = new web3.eth.Contract(CONTRACTS.GAUGES_ABI, CONTRACTS.GAUGES_ADDRESS)
+
+      const sendGauges = pairs.map((pair) => {
+        return pair.gauge.bribeAddress
+      })
+      const sendTokens = pairs.map((pair) => {
+        return pair.gauge.bribesEarned.map((bribe) => {
+          return bribe.token.address
+        })
+      })
+
+      this._callContractWait(web3, gaugesContract, 'claimBribes', [sendGauges, sendTokens, tokenID], account, gasPrice, null, null, claimTXID, async (err) => {
+        if (err) {
+          return this.emitter.emit(ACTIONS.ERROR, err)
+        }
+
+        this.getRewardBalances({ content: { tokenID } })
+        this.emitter.emit(ACTIONS.CLAIM_ALL_REWARDS_RETURNED)
+      })
+    } catch(ex) {
+      console.error(ex)
+      this.emitter.emit(ACTIONS.ERROR, ex)
+    }
+  }
+
+  claimRewards = async (payload) => {
+    try {
+      const account = stores.accountStore.getStore("account")
+      if (!account) {
+        console.warn('account not found')
+        return null
+      }
+
+      const web3 = await stores.accountStore.getWeb3Provider()
+      if (!web3) {
+        console.warn('web3 not found')
+        return null
+      }
+
+      const { pair, tokenID } = payload.content
+
+      // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
+      let claimTXID = this.getTXUUID()
+
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CLAIM REWARDS FOR ${pair.token0.symbol}/${pair.token1.symbol}`, transactions: [
+        {
+          uuid: claimTXID,
+          description: `SUBMIT CLAIM TRANSACTION`,
+          status: 'WAITING'
+        }
+      ]})
+
+      const gasPrice = await stores.accountStore.getGasPrice()
+
+      // SUBMIT CLAIM TRANSACTION
+      const gaugesContract = new web3.eth.Contract(CONTRACTS.GAUGES_ABI, CONTRACTS.GAUGES_ADDRESS)
+
+      const sendGauges = [ pair.gauge.address ]
+      const sendTokens = [ pair.gauge.bribesEarned.map((bribe) => {
+        return bribe.token.address
+      }) ]
+
+      this._callContractWait(web3, gaugesContract, 'claimRewards', [sendGauges, sendTokens], account, gasPrice, null, null, claimTXID, async (err) => {
+        if (err) {
+          return this.emitter.emit(ACTIONS.ERROR, err)
+        }
+
+        this.getRewardBalances({ content: { tokenID } })
+        this.emitter.emit(ACTIONS.CLAIM_REWARD_RETURNED)
+      })
+    } catch(ex) {
+      console.error(ex)
+      this.emitter.emit(ACTIONS.ERROR, ex)
+    }
+  }
+
+  claimAllRewards = async (payload) => {
+    try {
+      const account = stores.accountStore.getStore("account")
+      if (!account) {
+        console.warn('account not found')
+        return null
+      }
+
+      const web3 = await stores.accountStore.getWeb3Provider()
+      if (!web3) {
+        console.warn('web3 not found')
+        return null
+      }
+
+      const { pairs, tokenID } = payload.content
+
+      // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
+      let claimTXID = this.getTXUUID()
+
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CLAIM REWARDS FOR ${pairs.length} GAUGES`, transactions: [
+        {
+          uuid: claimTXID,
+          description: `SUBMIT CLAIM TRANSACTION`,
+          status: 'WAITING'
+        }
+      ]})
+
+      const gasPrice = await stores.accountStore.getGasPrice()
+
+      // SUBMIT CLAIM TRANSACTION
+      const gaugesContract = new web3.eth.Contract(CONTRACTS.GAUGES_ABI, CONTRACTS.GAUGES_ADDRESS)
+
+      const sendGauges = pairs.map((pair) => {
+        return pair.gauge.address
+      })
+      const sendTokens = pairs.map((pair) => {
+        return pair.gauge.bribesEarned.map((bribe) => {
+          return bribe.token.address
+        })
+      })
+
+      this._callContractWait(web3, gaugesContract, 'claimRewards', [sendGauges, sendTokens], account, gasPrice, null, null, claimTXID, async (err) => {
+        if (err) {
+          return this.emitter.emit(ACTIONS.ERROR, err)
+        }
+
+        this.getRewardBalances({ content: { tokenID } })
+        this.emitter.emit(ACTIONS.CLAIM_ALL_REWARDS_RETURNED)
+      })
     } catch(ex) {
       console.error(ex)
       this.emitter.emit(ACTIONS.ERROR, ex)

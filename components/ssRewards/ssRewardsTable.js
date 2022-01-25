@@ -21,16 +21,17 @@ import {
   Popper,
   Fade,
   Grid,
-  Switch
+  Switch,
+  Select,
+  MenuItem
 } from '@material-ui/core';
 import { useRouter } from "next/router";
 import BigNumber from 'bignumber.js';
-import FilterListIcon from '@material-ui/icons/FilterList';
-import SearchIcon from '@material-ui/icons/Search';
-import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 
 import { formatCurrency } from '../../utils';
+import stores from '../../stores'
+import { ACTIONS } from '../../stores/constants';
 
 function descendingComparator(a, b, orderBy) {
   if (!a || !b) {
@@ -61,33 +62,21 @@ function stableSort(array, comparator) {
 }
 
 const headCells = [
-  { id: 'reward', numeric: false, disablePadding: false, label: 'Reward' },
+  { id: 'reward', numeric: false, disablePadding: false, label: 'Pool' },
   {
-    id: 'balance',
+    id: 'total',
     numeric: true,
     disablePadding: false,
-    label: `Don't`,
+    label: 'Total Reward',
   },
   {
-    id: 'poolBalance',
+    id: 'earned',
     numeric: true,
     disablePadding: false,
-    label: 'Know',
+    label: 'You Earned',
   },
   {
-    id: 'stakedBalance',
-    numeric: true,
-    disablePadding: false,
-    label: 'What',
-  },
-  {
-    id: 'reserve0',
-    numeric: true,
-    disablePadding: false,
-    label: 'Yet',
-  },
-  {
-    id: '',
+    id: 'bruh',
     numeric: true,
     disablePadding: false,
     label: 'Actions',
@@ -170,6 +159,12 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: '200',
     fontSize: '12px'
   },
+  textSpacedPadded: {
+    paddingLeft: '10px',
+    lineHeight: '1.5',
+    fontWeight: '200',
+    fontSize: '12px'
+  },
   headerText: {
     fontWeight: '200',
     fontSize: '12px'
@@ -243,6 +238,10 @@ const useStyles = makeStyles((theme) => ({
   },
   statusSafe: {
     color: 'green',
+  },
+  imgLogo: {
+    border: '3px solid rgb(25, 33, 56)',
+    borderRadius: '30px',
   },
   img1Logo: {
     position: 'absolute',
@@ -333,133 +332,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const EnhancedTableToolbar = (props) => {
-  const classes = useStyles()
-  const router = useRouter()
-
-  const [search, setSearch] = useState('');
-
-  const onSearchChanged = (event) => {
-    setSearch(event.target.value);
-  };
-
-  const onClaimAll = () => {
-
-  }
-
-  const [anchorEl, setAnchorEl] = React.useState(null);
-
-  const handleClick = (event) => {
-    setAnchorEl(anchorEl ? null : event.currentTarget);
-  };
-
-  const open = Boolean(anchorEl);
-  const id = open ? 'transitions-popper' : undefined;
-
-  return (
-    <Toolbar className={ classes.toolbar }>
-      <TextField
-        className={classes.searchContainer}
-        variant="outlined"
-        fullWidth
-        placeholder="ETH, CRV, ..."
-        value={search}
-        onChange={onSearchChanged}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <SearchIcon />
-            </InputAdornment>
-          ),
-        }}
-      />
-      <Tooltip placement="top" title="Filter list">
-        <IconButton onClick={handleClick} className={ classes.filterButton } aria-label="filter list">
-          <FilterListIcon />
-        </IconButton>
-      </Tooltip>
-
-      <Popper id={id} open={open} anchorEl={anchorEl} transition placement="bottom-end">
-        {({ TransitionProps }) => (
-          <Fade {...TransitionProps} timeout={350}>
-            <div className={classes.filterContainer}>
-              <Typography className={classes.filterListTitle} variant="h5">List Filters</Typography>
-
-
-              <Grid container spacing={0}>
-                <Grid item lg={9} className={classes.labelColumn}>
-                  <Typography className={classes.filterLabel} variant="body1">Show Active</Typography>
-                </Grid>
-                <Grid item lg={3} className={classes.alignContentRight}>
-                  <Switch
-                    default
-                    color="primary"
-                    inputProps={{ 'aria-label': 'checkbox with default color' }}
-                  />
-                </Grid>
-              </Grid>
-
-              <Grid container spacing={0}>
-                <Grid item lg={9} className={classes.labelColumn}>
-                  <Typography className={classes.filterLabel} variant="body1">Show Active Gauges</Typography>
-                </Grid>
-                <Grid item lg={3} className={classes.alignContentRight}>
-                  <Switch
-                    defaultChecked
-                    color="primary"
-                    inputProps={{ 'aria-label': 'checkbox with default color' }}
-                  />
-                </Grid>
-              </Grid>
-
-              <Grid container spacing={0}>
-                <Grid item lg={9} className={classes.labelColumn}>
-                  <Typography className={classes.filterLabel} variant="body1">Show Stable Pools</Typography>
-                </Grid>
-                <Grid item lg={3} className={classes.alignContentRight}>
-                  <Switch
-                    defaultChecked
-                    color="primary"
-                    inputProps={{ 'aria-label': 'checkbox with default color' }}
-                  />
-                </Grid>
-              </Grid>
-
-              <Grid container spacing={0}>
-                <Grid item lg={9} className={classes.labelColumn}>
-                  <Typography className={classes.filterLabel} variant="body1">Show Variable Pools</Typography>
-                </Grid>
-                <Grid item lg={3} className={classes.alignContentRight}>
-                  <Switch
-                    defaultChecked
-                    color="primary"
-                    inputProps={{ 'aria-label': 'checkbox with default color' }}
-                  />
-                </Grid>
-              </Grid>
-
-
-            </div>
-          </Fade>
-        )}
-      </Popper>
-      <Button
-        variant="contained"
-        color="secondary"
-        className={classes.button}
-        startIcon={<AddCircleOutlineIcon />}
-        size='large'
-        className={ classes.buttonOverride }
-        color='primary'
-        onClick={ onClaimAll }
-      >
-        <Typography className={ classes.actionButtonText }>Claim All</Typography>
-      </Button>
-    </Toolbar>
-  );
-};
-
-export default function EnhancedTable({ rewards }) {
+export default function EnhancedTable({ rewards, vestNFTs, tokenID }) {
   const classes = useStyles();
   const router = useRouter();
 
@@ -486,13 +359,12 @@ export default function EnhancedTable({ rewards }) {
   }
 
   const onClaim = (reward) => {
-
+    stores.dispatcher.dispatch({ type: ACTIONS.CLAIM_REWARD, content: { pair: reward, tokenID } })
   };
 
   return (
 
     <div className={classes.root}>
-      <EnhancedTableToolbar />
       <Paper elevation={0} className={ classes.tableContainer}>
         <TableContainer>
           <Table className={classes.table} aria-labelledby='tableTitle' size={'medium'} aria-label='enhanced table'>
@@ -502,26 +374,38 @@ export default function EnhancedTable({ rewards }) {
                 if (!row) {
                   return null;
                 }
-                const labelId = `enhanced-table-checkbox-${index}`;
 
                 return (
                   <TableRow
-                    key={labelId}
+                    key={'ssRewardsTable'+index}
                     className={classes.assetTableRow}
                   >
                     <TableCell className={classes.cell}>
                       <div className={classes.inline}>
-                        <img
-                          className={classes.img1Logo}
-                          src={``}
-                          width='37'
-                          height='37'
-                          alt=''
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = '/tokens/unknown-logo.png';
-                          }}
-                        />
+                        <div className={ classes.doubleImages}>
+                          <img
+                            className={classes.img1Logo}
+                            src={ (row && row.token0 && row.token0.logoURI) ? row.token0.logoURI : `` }
+                            width='37'
+                            height='37'
+                            alt=''
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = '/tokens/unknown-logo.png';
+                            }}
+                          />
+                          <img
+                            className={classes.img2Logo}
+                            src={ (row && row.token1 && row.token1.logoURI) ? row.token1.logoURI : `` }
+                            width='37'
+                            height='37'
+                            alt=''
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = '/tokens/unknown-logo.png';
+                            }}
+                          />
+                        </div>
                         <div>
                           <Typography variant='h2' noWrap>
                             {row?.symbol}
@@ -530,62 +414,72 @@ export default function EnhancedTable({ rewards }) {
                       </div>
                     </TableCell>
                     <TableCell className={classes.cell} align='right'>
-                      <Typography variant='h2' className={classes.textSpaced}>
-                        {formatCurrency(row?.token0?.balance)} / {formatCurrency(row?.token1?.balance)}
-                      </Typography>
-                      <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                        {row?.token0?.symbol}/{row?.token1?.symbol}
-                      </Typography>
-                    </TableCell>
-                    <TableCell className={classes.cell} align='right'>
-                      <Typography variant='h2' className={classes.textSpaced}>
-                        {formatCurrency(row?.balance)}
-                      </Typography>
-                      <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                        {formatCurrency(BigNumber(row?.balance).times(100).div(row?.totalSupply))}%
-                      </Typography>
-                    </TableCell>
-                    <TableCell className={classes.cell} align='right'>
                       <div className={ classes.inlineEnd }>
-                        <Typography variant='h2' className={classes.textSpaced}>
-                          {formatCurrency(row?.reserve0)}
-                        </Typography>
-                        <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                          { row?.token0?.symbol }
-                        </Typography>
-                      </div>
-                      <div className={ classes.inlineEnd }>
-                        <Typography variant='h2' className={classes.textSpaced}>
-                          {formatCurrency(row?.reserve1)}
-                        </Typography>
-                        <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                          { row?.token1?.symbol }
-                        </Typography>
+                        {
+                          row  && row.gauge.bribesEarned && row.gauge.bribesEarned.map((bribe) => {
+                            return (
+                              <>
+                                <img
+                                  className={classes.imgLogo}
+                                  src={ (bribe && bribe.token && bribe.token.logoURI) ? bribe.token.logoURI : `` }
+                                  width='24'
+                                  height='24'
+                                  alt=''
+                                  onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.src = '/tokens/unknown-logo.png';
+                                  }}
+                                />
+                                <Typography variant='h2' className={classes.textSpacedPadded}>
+                                  { formatCurrency(bribe.rewardAmount) }
+                                </Typography>
+                                <Typography variant='h5' className={classes.textSpacedPadded} color='textSecondary'>
+                                  { bribe.token.symbol }
+                                </Typography>
+                              </>
+                            )
+                          })
+                        }
                       </div>
                     </TableCell>
                     <TableCell className={classes.cell} align='right'>
-                      <Grid container spacing={0}>
-                        <Grid item lg={10}>
-                          <Typography variant='h2' className={classes.textSpaced}>
-                            0.00%
-                          </Typography>
-                        </Grid>
-                        <Grid item lg={2}>
-                        <Tooltip title={ renderTooltip(row)}>
-                          <InfoOutlinedIcon className={classes.infoIcon} />
-                        </Tooltip>
-                        </Grid>
-                      </Grid>
+                      <div className={ classes.inlineEnd }>
+                        {
+                          row  && row.gauge.bribesEarned && row.gauge.bribesEarned.map((bribe) => {
+                            return (
+                              <>
+                                <img
+                                  className={classes.imgLogo}
+                                  src={ (bribe && bribe.token && bribe.token.logoURI) ? bribe.token.logoURI : `` }
+                                  width='24'
+                                  height='24'
+                                  alt=''
+                                  onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.src = '/tokens/unknown-logo.png';
+                                  }}
+                                />
+                                <Typography variant='h2' className={classes.textSpacedPadded}>
+                                  { formatCurrency(bribe.earned) }
+                                </Typography>
+                                <Typography variant='h5' className={classes.textSpacedPadded} color='textSecondary'>
+                                  { bribe.token.symbol }
+                                </Typography>
+                              </>
+                            )
+                          })
+                        }
+                      </div>
                     </TableCell>
                     <TableCell className={classes.cell} align='right'>
                       <Button
                         variant='outlined'
                         color='primary'
                         onClick={() => {
-                          onView(row);
+                          onClaim(row);
                         }}
                       >
-                        Manage
+                        Claim
                       </Button>
                     </TableCell>
                   </TableRow>

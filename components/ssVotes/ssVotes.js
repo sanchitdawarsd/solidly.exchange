@@ -51,14 +51,6 @@ export default function ssVotes() {
   }
 
   useEffect(() => {
-    // const vestNFTsReturned = (nfts) => {
-    //   setVestNFTs(nfts)
-    //   if(nfts.length > 0) {
-    //     setToken(nfts[0]);
-    //     stores.dispatcher.dispatch({ type: ACTIONS.GET_VEST_VOTES, content: { tokenID: nfts[0].id } })
-    //   }
-    // }
-
     const vestVotesReturned = (vals) => {
       console.log(vals)
       setVotes(vals.map((asset) => {

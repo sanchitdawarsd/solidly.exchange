@@ -23,6 +23,96 @@
   cursor: pointer !important;
 }
 
+.toolbarContainer {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+.searchContainer {
+  flex: 1;
+  min-width: 300px;
+  margin-right: 30px !important;
+}
+
+.buttonOverride {
+  color: rgb(6, 211, 215);
+  background: rgb(23, 52, 72);
+  font-weight: 700;
+}
+
+.buttonOverride:hover {
+  background: rgb(19, 44, 60);
+}
+
+.filterContainer {
+  background: #212b48;
+  min-width: 300px;
+  margin-top: 15px;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 10px 20px 0 rgba(0,0,0,0.2);
+  border: 1px solid rgba(126,153,176,0.2);
+}
+
+.filterListTitle {
+  margin-bottom: 10px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(126,153,176,0.2);
+}
+
+.filterButton {
+  margin-right: 30px !important;
+}
+
+
+.mediumInputContainer {
+  display: flex;
+  flex-wrap: wrap;
+  border-radius: 10px;
+  width: 100%;
+  align-items: center;
+  background: rgb(33, 43, 72);
+}
+
+.mediumInputAssetSelect {
+  width: 74px;
+  min-height: 50px;
+  height: 100%;
+}
+
+.mediumInputAmount {
+  flex: 1;
+  height: 100%;
+  width: 300px;
+}
+
+.mediumInputAddress {
+  min-width: 100%;
+  border-top: 1px solid rgba(128, 128, 128, 0.5);
+}
+
+.mediumInput {
+  font-size: 32px !important;
+}
+
+.menuOption {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: calc(100% - 24px);
+  padding: 6px 12px;
+}
+
+.smallerText {
+  font-size: 12px !important;
+}
+
+.tokenIDContainer {
+  margin-left: 30px !important;
+}
+
 @media screen and (max-width: 1200px) {
   .container {
     width: calc(100% - 40px);
