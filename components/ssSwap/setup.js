@@ -82,6 +82,7 @@ function Setup() {
     const swapReturned = (event) => {
       setLoading(false)
       setFromAmountValue('')
+      setToAmountValue('')
       calculateReceiveAmount(0, fromAssetValue, toAssetValue)
       setQuote(null)
     }
