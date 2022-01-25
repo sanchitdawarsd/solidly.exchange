@@ -271,12 +271,15 @@ class Store {
   }
 
   getPairByAddress = async (pairAddress) => {
+    console.log('getPairByAddress')
     try {
       const pairs = this.getStore('pairs')
+      console.log(pairs)
       let thePair = pairs.filter((pair) => {
         return (pair.address.toLowerCase() == pairAddress.toLowerCase())
       })
 
+      console.log(thePair)
       if(thePair.length > 0) {
         return thePair[0]
       }
@@ -776,9 +779,15 @@ class Store {
     }
   }
 
-  _getPairInfo = async (web3, account) => {
+  _getPairInfo = async (web3, account, overridePairs) => {
     try {
-      const pairs = this.getStore('pairs')
+      let pairs = []
+
+      if(overridePairs) {
+        pairs = overridePairs
+      } else {
+        pairs = this.getStore('pairs')
+      }
 
       const factoryContract = new web3.eth.Contract(CONTRACTS.FACTORY_ABI, CONTRACTS.FACTORY_ADDRESS)
       const gaugesContract = new web3.eth.Contract(CONTRACTS.GAUGES_ABI, CONTRACTS.GAUGES_ADDRESS)
@@ -1146,16 +1155,7 @@ class Store {
               return this.emitter.emit(ACTIONS.ERROR, err)
             }
 
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API}/api/v1/updatePairs`, {
-            	method: 'get',
-            	headers: {
-                'Authorization': `Basic ${process.env.NEXT_PUBLIC_API_TOKEN}`,
-              }
-            })
-            const pairsCall = await response.json()
-            this.setStore({ pairs: pairsCall.data })
-
-            this._getPairInfo(web3, account)
+            await context.updatePairsCall(web3, account)
 
             this.emitter.emit(ACTIONS.PAIR_CREATED, pairFor)
           })
@@ -1316,23 +1316,35 @@ class Store {
             return this.emitter.emit(ACTIONS.ERROR, err)
           }
 
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API}/api/v1/updatePairs`, {
-            method: 'get',
-            headers: {
-              'Authorization': `Basic ${process.env.NEXT_PUBLIC_API_TOKEN}`,
-            }
-          })
-          const pairsCall = await response.json()
-          this.setStore({ pairs: pairsCall.data })
+          await context.updatePairsCall(web3, account)
 
-          this._getPairInfo(web3, account)
-
+          console.log('Emitting PAIR_CREATED')
           this.emitter.emit(ACTIONS.PAIR_CREATED, pairFor)
         })
       })
     } catch(ex) {
       console.error(ex)
       this.emitter.emit(ACTIONS.ERROR, ex)
+    }
+  }
+
+  updatePairsCall = async (web3, account) => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API}/api/v1/updatePairs`, {
+        method: 'get',
+        headers: {
+          'Authorization': `Basic ${process.env.NEXT_PUBLIC_API_TOKEN}`,
+        }
+      })
+      const pairsCall = await response.json()
+      this.setStore({ pairs: pairsCall.data })
+
+      console.log(pairsCall.data)
+      console.log('calling _getPairInfo')
+      await this._getPairInfo(web3, account, pairsCall.data)
+
+    } catch(ex) {
+      console.log(ex)
     }
   }
 
