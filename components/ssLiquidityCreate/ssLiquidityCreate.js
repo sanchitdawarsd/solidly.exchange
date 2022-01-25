@@ -21,9 +21,9 @@ export default function SSLiquidityCreate() {
   const [ depositLoading, setDepositLoading ] = useState(false)
 
   const [ amount0, setAmount0 ] = useState('')
-  const [ amount0Error/*, setAmount0Error*/ ] = useState(false)
+  const [ amount0Error, setAmount0Error] = useState(false)
   const [ amount1, setAmount1 ] = useState('')
-  const [ amount1Error/*, setAmount1Error*/ ] = useState(false)
+  const [ amount1Error, setAmount1Error ] = useState(false)
 
   const [ stable, setStable ] = useState(false)
 
@@ -120,27 +120,125 @@ export default function SSLiquidityCreate() {
   }
 
   const onCreateAndStake = () => {
-    setCreateLoading(true)
-    stores.dispatcher.dispatch({ type: ACTIONS.CREATE_PAIR_AND_STAKE, content: {
-      token0: asset0,
-      token1: asset1,
-      amount0: amount0,
-      amount1: amount1,
-      isStable: stable,
-      token: token
-    } })
+    setAmount0Error(false)
+    setAmount1Error(false)
+
+    let error = false
+
+    if(!amount0 || amount0 === '' || isNaN(amount0)) {
+      setAmount0Error('Amount 0 is required')
+      error = true
+    } else {
+      if(!asset0.balance || isNaN(asset0.balance) || BigNumber(asset0.balance).lte(0))  {
+        setAmount0Error('Invalid balance')
+        error = true
+      } else if(BigNumber(amount0).lte(0)) {
+        setAmount0Error('Invalid amount')
+        error = true
+      } else if (asset0 && BigNumber(amount0).gt(asset0.balance)) {
+        setAmount0Error(`Greater than your available balance`)
+        error = true
+      }
+    }
+
+    if(!amount1 || amount1 === '' || isNaN(amount1)) {
+      setAmount1Error('Amount 0 is required')
+      error = true
+    } else {
+      if(!asset1.balance || isNaN(asset1.balance) || BigNumber(asset1.balance).lte(0))  {
+        setAmount1Error('Invalid balance')
+        error = true
+      } else if(BigNumber(amount1).lte(0)) {
+        setAmount1Error('Invalid amount')
+        error = true
+      } else if (asset1 && BigNumber(amount1).gt(asset1.balance)) {
+        setAmount1Error(`Greater than your available balance`)
+        error = true
+      }
+    }
+
+    if(!asset0 || asset0 === null) {
+      setAmount0Error('From asset is required')
+      error = true
+    }
+
+    if(!asset1 || asset1 === null) {
+      setAmount1Error('To asset is required')
+      error = true
+    }
+
+    if(!error) {
+      setCreateLoading(true)
+      stores.dispatcher.dispatch({ type: ACTIONS.CREATE_PAIR_AND_STAKE, content: {
+        token0: asset0,
+        token1: asset1,
+        amount0: amount0,
+        amount1: amount1,
+        isStable: stable,
+        token: token
+      } })
+    }
   }
 
   const onCreateAndDeposit = () => {
-    setDepositLoading(true)
-    stores.dispatcher.dispatch({ type: ACTIONS.CREATE_PAIR_AND_DEPOSIT, content: {
-      token0: asset0,
-      token1: asset1,
-      amount0: amount0,
-      amount1: amount1,
-      isStable: stable,
-      token: token
-    } })
+    setAmount0Error(false)
+    setAmount1Error(false)
+
+    let error = false
+
+    if(!amount0 || amount0 === '' || isNaN(amount0)) {
+      setAmount0Error('Amount 0 is required')
+      error = true
+    } else {
+      if(!asset0.balance || isNaN(asset0.balance) || BigNumber(asset0.balance).lte(0))  {
+        setAmount0Error('Invalid balance')
+        error = true
+      } else if(BigNumber(amount0).lte(0)) {
+        setAmount0Error('Invalid amount')
+        error = true
+      } else if (asset0 && BigNumber(amount0).gt(asset0.balance)) {
+        setAmount0Error(`Greater than your available balance`)
+        error = true
+      }
+    }
+
+    if(!amount1 || amount1 === '' || isNaN(amount1)) {
+      setAmount1Error('Amount 0 is required')
+      error = true
+    } else {
+      if(!asset1.balance || isNaN(asset1.balance) || BigNumber(asset1.balance).lte(0))  {
+        setAmount1Error('Invalid balance')
+        error = true
+      } else if(BigNumber(amount1).lte(0)) {
+        setAmount1Error('Invalid amount')
+        error = true
+      } else if (asset1 && BigNumber(amount1).gt(asset1.balance)) {
+        setAmount1Error(`Greater than your available balance`)
+        error = true
+      }
+    }
+
+    if(!asset0 || asset0 === null) {
+      setAmount0Error('From asset is required')
+      error = true
+    }
+
+    if(!asset1 || asset1 === null) {
+      setAmount1Error('To asset is required')
+      error = true
+    }
+
+    if(!error) {
+      setDepositLoading(true)
+      stores.dispatcher.dispatch({ type: ACTIONS.CREATE_PAIR_AND_DEPOSIT, content: {
+        token0: asset0,
+        token1: asset1,
+        amount0: amount0,
+        amount1: amount1,
+        isStable: stable,
+        token: token
+      } })
+    }
   }
 
   const callGetCreatePairBalances = (a0, a1, am0, am1) => {
@@ -153,10 +251,12 @@ export default function SSLiquidityCreate() {
   }
 
   const amount0Changed = (event) => {
+    setAmount0Error(false)
     setAmount0(event.target.value)
   }
 
   const amount1Changed = (event) => {
+    setAmount1Error(false)
     setAmount1(event.target.value)
   }
 

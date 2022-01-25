@@ -26,9 +26,9 @@ export default function ssLiquidityManage() {
   const [ depositStakeLoading, setDepositStakeLoading ] = useState(false)
 
   const [ amount0, setAmount0 ] = useState('');
-  const [ amount0Error/*, setAmount0Error*/ ] = useState(false);
+  const [ amount0Error, setAmount0Error ] = useState(false);
   const [ amount1, setAmount1 ] = useState('');
-  const [ amount1Error/*, setAmount1Error*/ ] = useState(false);
+  const [ amount1Error, setAmount1Error ] = useState(false);
 
   const [ withdrawAmount, setWithdrawAmount ] = useState('');
   const [ withdrawAmount0, setWithdrawAmount0 ] = useState('');
@@ -54,7 +54,7 @@ export default function ssLiquidityManage() {
       const pp = await stores.stableSwapStore.getPairByAddress(router.query.address)
       setPair(pp)
 
-      if(BigNumber(pp.balance).gt(0)) {
+      if(pp && BigNumber(pp.balance).gt(0)) {
         setAdvanced(true)
       }
       callGetPairBalances(pp)
@@ -170,6 +170,10 @@ export default function ssLiquidityManage() {
       }
     }
 
+    if(BigNumber(amountA).lte(0) || BigNumber(amountB).lte(0) || isNaN(amountA) || isNaN(amountB)) {
+      return null
+    }
+
     stores.dispatcher.dispatch({ type: ACTIONS.QUOTE_ADD_LIQUIDITY, content: {
         pair: pair,
         token0: pair.token0,
@@ -199,6 +203,10 @@ export default function ssLiquidityManage() {
   }
 
   const setAmountPercent = (input, percent) => {
+    setAmount0Error(false)
+    setAmount1Error(false)
+
+
     if(input === 'amount0') {
       let am = BigNumber(pair.token0.balance).times(percent).div(100).toFixed(pair.token0.decimals)
       setAmount0(am);
@@ -233,39 +241,124 @@ export default function ssLiquidityManage() {
   }
 
   const onDeposit = () => {
-    setDepositLoading(true)
+    setAmount0Error(false)
+    setAmount1Error(false)
 
-    stores.dispatcher.dispatch({ type: ACTIONS.ADD_LIQUIDITY, content: {
-      pair: pair,
-      token0: pair.token0,
-      token1: pair.token1,
-      amount0: amount0,
-      amount1: amount1,
-      minLiquidity: quote ? quote : '0'
-    } })
+    let error = false
+
+    if(!amount0 || amount0 === '' || isNaN(amount0)) {
+      setAmount0Error('Amount 0 is required')
+      error = true
+    } else {
+      if(!pair.token0.balance || isNaN(pair.token0.balance) || BigNumber(pair.token0.balance).lte(0))  {
+        setAmount0Error('Invalid balance')
+        error = true
+      } else if(BigNumber(amount0).lte(0)) {
+        setAmount0Error('Invalid amount')
+        error = true
+      } else if (pair.token0 && BigNumber(amount0).gt(pair.token0.balance)) {
+        setAmount0Error(`Greater than your available balance`)
+        error = true
+      }
+    }
+
+    if(!amount1 || amount1 === '' || isNaN(amount1)) {
+      setAmount1Error('Amount 0 is required')
+      error = true
+    } else {
+      if(!pair.token0.balance || isNaN(pair.token0.balance) || BigNumber(pair.token0.balance).lte(0))  {
+        setAmount1Error('Invalid balance')
+        error = true
+      } else if(BigNumber(amount1).lte(0)) {
+        setAmount1Error('Invalid amount')
+        error = true
+      } else if (pair.token0 && BigNumber(amount1).gt(pair.token0.balance)) {
+        setAmount1Error(`Greater than your available balance`)
+        error = true
+      }
+    }
+
+    if(!error) {
+      setDepositLoading(true)
+
+      stores.dispatcher.dispatch({ type: ACTIONS.ADD_LIQUIDITY, content: {
+        pair: pair,
+        token0: pair.token0,
+        token1: pair.token1,
+        amount0: amount0,
+        amount1: amount1,
+        minLiquidity: quote ? quote : '0'
+      } })
+    }
   }
 
   const onStake = () => {
-    setStakeLoading(true)
+    setAmount0Error(false)
+    setAmount1Error(false)
 
-    stores.dispatcher.dispatch({ type: ACTIONS.STAKE_LIQUIDITY, content: {
-      pair: pair,
-      token:  token
-    } })
+    let error = false
+
+    if(!error) {
+      setStakeLoading(true)
+
+      stores.dispatcher.dispatch({ type: ACTIONS.STAKE_LIQUIDITY, content: {
+        pair: pair,
+        token:  token
+      } })
+    }
   }
 
   const onDepositAndStake = () => {
-    setDepositStakeLoading(true)
+    setAmount0Error(false)
+    setAmount1Error(false)
 
-    stores.dispatcher.dispatch({ type: ACTIONS.ADD_LIQUIDITY_AND_STAKE, content: {
-      pair: pair,
-      token0: pair.token0,
-      token1: pair.token1,
-      amount0: amount0,
-      amount1: amount1,
-      minLiquidity: quote ? quote : '0',
-      token: token
-    } })
+    let error = false
+
+    if(!amount0 || amount0 === '' || isNaN(amount0)) {
+      setAmount0Error('Amount 0 is required')
+      error = true
+    } else {
+      if(!pair.token0.balance || isNaN(pair.token0.balance) || BigNumber(pair.token0.balance).lte(0))  {
+        setAmount0Error('Invalid balance')
+        error = true
+      } else if(BigNumber(amount0).lte(0)) {
+        setAmount0Error('Invalid amount')
+        error = true
+      } else if (pair.token0 && BigNumber(amount0).gt(pair.token0.balance)) {
+        setAmount0Error(`Greater than your available balance`)
+        error = true
+      }
+    }
+
+    if(!amount1 || amount1 === '' || isNaN(amount1)) {
+      setAmount1Error('Amount 0 is required')
+      error = true
+    } else {
+      if(!pair.token0.balance || isNaN(pair.token0.balance) || BigNumber(pair.token0.balance).lte(0))  {
+        setAmount1Error('Invalid balance')
+        error = true
+      } else if(BigNumber(amount1).lte(0)) {
+        setAmount1Error('Invalid amount')
+        error = true
+      } else if (pair.token0 && BigNumber(amount1).gt(pair.token0.balance)) {
+        setAmount1Error(`Greater than your available balance`)
+        error = true
+      }
+    }
+
+    if(!error) {
+      setDepositStakeLoading(true)
+
+      stores.dispatcher.dispatch({ type: ACTIONS.ADD_LIQUIDITY_AND_STAKE, content: {
+        pair: pair,
+        token0: pair.token0,
+        token1: pair.token1,
+        amount0: amount0,
+        amount1: amount1,
+        minLiquidity: quote ? quote : '0',
+        token: token
+      } })
+    }
   }
 
   const onWithdraw = () => {
@@ -313,11 +406,13 @@ export default function ssLiquidityManage() {
   }
 
   const amount0Changed = (event) => {
+    setAmount0Error(false)
     setAmount0(event.target.value)
     callQuoteAddLiquidity(event.target.value, amount1, priorityAsset)
   }
 
   const amount1Changed = (event) => {
+    setAmount1Error(false)
     setAmount1(event.target.value)
     callQuoteAddLiquidity(amount0, event.target.value, priorityAsset)
   }
