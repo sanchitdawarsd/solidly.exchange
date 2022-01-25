@@ -214,7 +214,8 @@ const useStyles = makeStyles((theme) => ({
   img1Logo: {
     position: 'absolute',
     left: '0px',
-    top: '0px'
+    top: '0px',
+    borderRadius: '30px'
   },
   img2Logo: {
     position: 'absolute',

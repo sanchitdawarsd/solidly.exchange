@@ -263,6 +263,7 @@ class Store {
       })
 
       this.setStore({ vestNFTs: newVestNFTs })
+      this.emitter.emit(ACTIONS.UPDATED)
       return null
     } catch(ex) {
       console.log(ex)
