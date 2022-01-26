@@ -57,6 +57,7 @@ function Setup() {
     }
 
     const quoteReturned = (val) => {
+      console.log(val)
       if(val && val.inputs && val.inputs.fromAmount === fromAmountValue && val.inputs.fromAsset.address === fromAssetValue.address && val.inputs.toAsset.address === toAssetValue.address) {
         setQuoteLoading(false)
         setToAmountValue(val.output.finalValue)

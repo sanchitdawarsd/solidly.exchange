@@ -2321,10 +2321,7 @@ class Store {
               to: toAsset.address,
               stable: false
             }]
-            console.log(routes)
-            console.log(`GOING FOR ${routeAsset.symbol}`)
             const receiveAmounts = await routerContract.methods.getAmountsOut(sendFromAmount, routes).call()
-            console.log(receiveAmounts)
             const returnVal = {
               routes: routes,
               routeAsset: routeAsset,
@@ -2432,8 +2429,6 @@ class Store {
         //asuming there will be exceptions thrown when no route exists
         console.error(ex)
       }
-
-      console.log(amountOuts)
 
       const bestAmountOut = amountOuts.filter((ret) => {
         return ret != null
