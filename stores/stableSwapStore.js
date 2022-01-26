@@ -2284,8 +2284,6 @@ class Store {
 
       let amountOuts = []
 
-      console.log(routeAssets)
-
       if(includesRouteAddress.length === 0) {
         const amountsOutStable = await Promise.all(routeAssets.map(async (routeAsset) => {
           try {
