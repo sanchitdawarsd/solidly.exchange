@@ -146,89 +146,9 @@ export default function ssRewards() {
   return (
     <div className={ classes.container}>
       <div className={ classes.toolbarContainer }>
-        <TextField
-          className={classes.searchContainer}
-          variant="outlined"
-          fullWidth
-          placeholder="ETH, CRV, ..."
-          value={search}
-          onChange={onSearchChanged}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
-          }}
-        />
-        <Tooltip placement="top" title="Filter list">
-          <IconButton onClick={handleClick} className={ classes.filterButton } aria-label="filter list">
-            <FilterListIcon />
-          </IconButton>
-        </Tooltip>
-
-        <Popper id={id} open={open} anchorEl={anchorEl} transition placement="bottom-end">
-          {({ TransitionProps }) => (
-            <Fade {...TransitionProps} timeout={350}>
-              <div className={classes.filterContainer}>
-                <Typography className={classes.filterListTitle} variant="h5">List Filters</Typography>
-
-
-                <Grid container spacing={0}>
-                  <Grid item lg={9} className={classes.labelColumn}>
-                    <Typography className={classes.filterLabel} variant="body1">Show Active</Typography>
-                  </Grid>
-                  <Grid item lg={3} className={classes.alignContentRight}>
-                    <Switch
-                      default
-                      color="primary"
-                      inputProps={{ 'aria-label': 'checkbox with default color' }}
-                    />
-                  </Grid>
-                </Grid>
-
-                <Grid container spacing={0}>
-                  <Grid item lg={9} className={classes.labelColumn}>
-                    <Typography className={classes.filterLabel} variant="body1">Show Active Gauges</Typography>
-                  </Grid>
-                  <Grid item lg={3} className={classes.alignContentRight}>
-                    <Switch
-                      defaultChecked
-                      color="primary"
-                      inputProps={{ 'aria-label': 'checkbox with default color' }}
-                    />
-                  </Grid>
-                </Grid>
-
-                <Grid container spacing={0}>
-                  <Grid item lg={9} className={classes.labelColumn}>
-                    <Typography className={classes.filterLabel} variant="body1">Show Stable Pools</Typography>
-                  </Grid>
-                  <Grid item lg={3} className={classes.alignContentRight}>
-                    <Switch
-                      defaultChecked
-                      color="primary"
-                      inputProps={{ 'aria-label': 'checkbox with default color' }}
-                    />
-                  </Grid>
-                </Grid>
-
-                <Grid container spacing={0}>
-                  <Grid item lg={9} className={classes.labelColumn}>
-                    <Typography className={classes.filterLabel} variant="body1">Show Variable Pools</Typography>
-                  </Grid>
-                  <Grid item lg={3} className={classes.alignContentRight}>
-                    <Switch
-                      defaultChecked
-                      color="primary"
-                      inputProps={{ 'aria-label': 'checkbox with default color' }}
-                    />
-                  </Grid>
-                </Grid>
-              </div>
-            </Fade>
-          )}
-        </Popper>
+        <div className={ classes.tokenIDContainer }>
+          { renderMediumInput(token, vestNFTs) }
+        </div>
         <Button
           variant="contained"
           color="secondary"
@@ -241,9 +161,6 @@ export default function ssRewards() {
         >
           <Typography className={ classes.actionButtonText }>Claim All</Typography>
         </Button>
-        <div className={ classes.tokenIDContainer }>
-          { renderMediumInput(token, vestNFTs) }
-        </div>
       </div>
       <RewardsTable rewards={rewards} vestNFTs={ vestNFTs } tokenID={ token?.id } />
     </div>
