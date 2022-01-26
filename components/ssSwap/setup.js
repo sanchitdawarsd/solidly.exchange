@@ -32,6 +32,7 @@ function Setup() {
   const forceUpdate = React.useCallback(() => updateState({}), []);
 
   const [ loading, setLoading ] = useState(false)
+  const [ quoteLoading, setQuoteLoading ] = useState(false)
   const [ approvalLoading, setApprovalLoading ] = useState(false)
 
   const [ fromAmountValue, setFromAmountValue ] = useState(null)
@@ -52,10 +53,12 @@ function Setup() {
     const errorReturned = () => {
       setLoading(false)
       setApprovalLoading(false)
+      setQuoteLoading(false)
     }
 
     const quoteReturned = (val) => {
       if(val && val.inputs && val.inputs.fromAmount === fromAmountValue && val.inputs.fromAsset.address === fromAssetValue.address && val.inputs.toAsset.address === toAssetValue.address) {
+        setQuoteLoading(false)
         setToAmountValue(val.output.finalValue)
         setQuote(val)
       }
@@ -118,6 +121,7 @@ function Setup() {
     setFromAmountValue(event.target.value)
     if(event.target.value == '') {
       setToAmountValue('')
+      setQuote(null)
     } else {
       calculateReceiveAmount(event.target.value, fromAssetValue, toAssetValue)
     }
@@ -128,6 +132,7 @@ function Setup() {
 
   const calculateReceiveAmount = (amount, from, to) => {
     if(!isNaN(amount) && to != null) {
+      setQuoteLoading(true)
       stores.dispatcher.dispatch({ type: ACTIONS.QUOTE_SWAP, content: {
         fromAsset: from,
         toAsset: to,
@@ -196,11 +201,17 @@ function Setup() {
   }
 
   const renderSwapInformation = () => {
+    if(quoteLoading) {
+      return (
+        <div className={ classes.quoteLoader }>
+          <CircularProgress size={20} className={ classes.loadingCircle } />
+        </div>
+      )
+    }
+
     if(!quote) {
       return null
     }
-
-    console.log(quote)
 
     return (
       <div className={ classes.depositInfoContainer }>

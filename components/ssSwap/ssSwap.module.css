@@ -545,6 +545,13 @@ box-shadow: 0 13px 30px 0 rgba(7,9,18,0.1) !important;
   border-bottom: 1px solid #fff;
 }
 
+.quoteLoader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 257px;
+}
+
 @media screen and (max-width: 1200px) {
   .swapContainer {
     padding: 12px;
