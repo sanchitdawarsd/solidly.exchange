@@ -451,7 +451,7 @@ const EnhancedTableToolbar = (props) => {
               <Typography className={classes.filterListTitle} variant="h5">List Filters</Typography>
 
 
-              <Grid container spacing={0}>
+              {/*<Grid container spacing={0}>
                 <Grid item lg={9} className={classes.labelColumn}>
                   <Typography className={classes.filterLabel} variant="body1">Show Active</Typography>
                 </Grid>
@@ -463,7 +463,7 @@ const EnhancedTableToolbar = (props) => {
                     onChange={ onToggle }
                   />
                 </Grid>
-              </Grid>
+              </Grid>*/}
 
               <Grid container spacing={0}>
                 <Grid item lg={9} className={classes.labelColumn}>

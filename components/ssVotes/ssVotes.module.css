@@ -91,6 +91,13 @@
   border-radius: 12px;
 }
 
+.searchContainer {
+  flex: 1;
+  display: flex;
+  width: 100%;
+  padding: 0px 24px !important;
+}
+
 .topBarContainer {
   padding: 24px 0px;
   display: flex;
