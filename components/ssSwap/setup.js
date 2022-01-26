@@ -12,6 +12,7 @@ import {
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
+import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
 import ToggleButton from '@material-ui/lab/ToggleButton';
 
 import { withTheme } from '@material-ui/core/styles';
@@ -224,7 +225,11 @@ function Setup() {
             height='40px'
             onError={(e)=>{e.target.onerror = null; e.target.src="/tokens/unknown-logo.png"}}
           />
-          <div className={ classes.line }></div>
+          <div className={ classes.line }>
+            <div className={classes.routeArrow}>
+              <ArrowForwardIosIcon className={classes.routeArrowIcon} />
+            </div>
+          </div>
           { quote && quote.output && quote.output.routeAsset &&
             <>
               <img
@@ -234,7 +239,11 @@ function Setup() {
                 height='40px'
                 onError={(e)=>{e.target.onerror = null; e.target.src="/tokens/unknown-logo.png"}}
               />
-              <div className={ classes.line }></div>
+              <div className={ classes.line }>
+                <div className={classes.routeArrow}>
+                  <ArrowForwardIosIcon className={classes.routeArrowIcon} />
+                </div>
+              </div>
             </>
           }
           <img
