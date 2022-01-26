@@ -322,7 +322,7 @@ function Setup() {
           size='large'
           color='primary'
           className={classes.buttonOverride}
-          disabled={ loading }
+          disabled={ loading || quoteLoading }
           onClick={ onSwap }
           >
           <Typography className={ classes.actionButtonText }>{ loading ? `Swapping` : `Swap` }</Typography>
