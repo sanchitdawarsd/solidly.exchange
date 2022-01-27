@@ -14,6 +14,7 @@ import SearchIcon from '@material-ui/icons/Search';
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
 import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
 import ToggleButton from '@material-ui/lab/ToggleButton';
+import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 
 import { withTheme } from '@material-ui/core/styles';
 
@@ -23,7 +24,8 @@ import classes from './ssSwap.module.css'
 
 import stores from '../../stores'
 import {
-  ACTIONS
+  ACTIONS,
+  ETHERSCAN_URL
 } from '../../stores/constants'
 import BigNumber from 'bignumber.js'
 
@@ -36,18 +38,19 @@ function Setup() {
   const [ quoteLoading, setQuoteLoading ] = useState(false)
   const [ approvalLoading, setApprovalLoading ] = useState(false)
 
-  const [ fromAmountValue, setFromAmountValue ] = useState(null)
+  const [ fromAmountValue, setFromAmountValue ] = useState('')
   const [ fromAmountError, setFromAmountError ] = useState(false)
   const [ fromAssetValue, setFromAssetValue ] = useState(null)
   const [ fromAssetError, setFromAssetError ] = useState(false)
   const [ fromAssetOptions, setFromAssetOptions ] = useState([])
 
-  const [ toAmountValue, setToAmountValue ] = useState(null)
+  const [ toAmountValue, setToAmountValue ] = useState('')
   const [ toAmountError, setToAmountError ] = useState(false)
   const [ toAssetValue, setToAssetValue ] = useState(null)
   const [ toAssetError, setToAssetError ] = useState(false)
   const [ toAssetOptions, setToAssetOptions ] = useState([])
 
+  const [ quoteError, setQuoteError ] = useState(null)
   const [ quote, setQuote ] = useState(null)
 
   useEffect(function() {
@@ -58,30 +61,42 @@ function Setup() {
     }
 
     const quoteReturned = (val) => {
-      console.log(val)
       if(val && val.inputs && val.inputs.fromAmount === fromAmountValue && val.inputs.fromAsset.address === fromAssetValue.address && val.inputs.toAsset.address === toAssetValue.address) {
         setQuoteLoading(false)
-        setToAmountValue(val.output.finalValue)
+        if(BigNumber(val.output.finalValue).eq(0)) {
+          setQuote(null)
+          setToAmountValue('')
+          setQuoteError('Insufficient liquidity or no route available to complete swap')
+          return
+        }
+
+        setToAmountValue(BigNumber(val.output.finalValue).toFixed(8))
         setQuote(val)
       }
     }
 
     const ssUpdated = () => {
-      const storeAssets = stores.stableSwapStore.getStore('baseAssets')
-      const storeSwapAssets = stores.stableSwapStore.getStore('baseAssets')
+      const baseAsset = stores.stableSwapStore.getStore('baseAssets')
 
-      setToAssetOptions(storeAssets)
-      setFromAssetOptions(storeSwapAssets)
+      setToAssetOptions(baseAsset)
+      setFromAssetOptions(baseAsset)
 
-      if(storeAssets.length > 0 && toAssetValue == null) {
-        setToAssetValue(storeAssets[0])
+      if(baseAsset.length > 0 && toAssetValue == null) {
+        setToAssetValue(baseAsset[0])
       }
 
-      if(storeSwapAssets.length > 0 && fromAssetValue == null) {
-        setFromAssetValue(storeSwapAssets[1])
+      if(baseAsset.length > 0 && fromAssetValue == null) {
+        setFromAssetValue(baseAsset[1])
       }
 
       forceUpdate()
+    }
+
+    const assetsUpdated = () => {
+      const baseAsset = stores.stableSwapStore.getStore('baseAssets')
+
+      setToAssetOptions(baseAsset)
+      setFromAssetOptions(baseAsset)
     }
 
     const swapReturned = (event) => {
@@ -97,6 +112,7 @@ function Setup() {
     stores.emitter.on(ACTIONS.UPDATED, ssUpdated)
     stores.emitter.on(ACTIONS.SWAP_RETURNED, swapReturned)
     stores.emitter.on(ACTIONS.QUOTE_SWAP_RETURNED, quoteReturned)
+    stores.emitter.on(ACTIONS.BASE_ASSETS_UPDATED, assetsUpdated)
 
     ssUpdated()
 
@@ -105,22 +121,39 @@ function Setup() {
       stores.emitter.removeListener(ACTIONS.UPDATED, ssUpdated)
       stores.emitter.removeListener(ACTIONS.SWAP_RETURNED, swapReturned)
       stores.emitter.removeListener(ACTIONS.QUOTE_SWAP_RETURNED, quoteReturned)
+      stores.emitter.removeListener(ACTIONS.BASE_ASSETS_UPDATED, assetsUpdated)
     }
-  },[fromAmountValue, toAssetValue]);
+  },[fromAmountValue, fromAssetValue, toAssetValue]);
 
   const onAssetSelect = (type, value) => {
     if(type === 'From') {
-      setFromAssetValue(value)
-      calculateReceiveAmount(fromAmountValue, value, toAssetValue)
+
+      if(value.address === toAssetValue.address) {
+        setToAssetValue(fromAssetValue)
+        setFromAssetValue(toAssetValue)
+        calculateReceiveAmount(fromAmountValue, toAssetValue, fromAssetValue)
+      } else {
+        setFromAssetValue(value)
+        calculateReceiveAmount(fromAmountValue, value, toAssetValue)
+      }
+
+
     } else {
-      setToAssetValue(value)
-      calculateReceiveAmount(fromAmountValue, fromAssetValue, value)
+      if(value.address === fromAssetValue.address) {
+        setFromAssetError(toAssetValue)
+        setToAssetValue(fromAssetValue)
+        calculateReceiveAmount(fromAmountValue, toAssetValue, fromAssetValue)
+      } else {
+        setToAssetValue(value)
+        calculateReceiveAmount(fromAmountValue, fromAssetValue, value)
+      }
     }
 
     forceUpdate()
   }
 
   const fromAmountChanged = (event) => {
+    setFromAmountError(false)
     setFromAmountValue(event.target.value)
     if(event.target.value == '') {
       setToAmountValue('')
@@ -134,8 +167,11 @@ function Setup() {
   }
 
   const calculateReceiveAmount = (amount, from, to) => {
-    if(!isNaN(amount) && to != null) {
+    if(amount !== '' && !isNaN(amount) && to != null) {
+
       setQuoteLoading(true)
+      setQuoteError(false)
+
       stores.dispatcher.dispatch({ type: ACTIONS.QUOTE_SWAP, content: {
         fromAsset: from,
         toAsset: to,
@@ -204,6 +240,15 @@ function Setup() {
   }
 
   const renderSwapInformation = () => {
+
+    if(quoteError) {
+      return (
+        <div className={ classes.quoteLoader }>
+          <Typography className={ classes.quoteError }>{ quoteError }</Typography>
+        </div>
+      )
+    }
+
     if(quoteLoading) {
       return (
         <div className={ classes.quoteLoader }>
@@ -360,7 +405,17 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
 
   useEffect(function() {
 
-    setFilteredAssetOptions(assetOptions)
+    let ao = assetOptions.filter((asset) => {
+      if(search && search !== '') {
+        return asset.address.toLowerCase().includes(search.toLowerCase()) ||
+          asset.symbol.toLowerCase().includes(search.toLowerCase()) ||
+          asset.name.toLowerCase().includes(search.toLowerCase())
+      } else {
+        return true
+      }
+    })
+
+    setFilteredAssetOptions(ao)
 
     return () => {
     }
@@ -389,17 +444,62 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
     //no options in our default list and its an address we search for the address
     if(filteredOptions.length === 0 && event.target.value && event.target.value.length === 42) {
       const baseAsset = await stores.stableSwapStore.getBaseAsset(event.target.value, true, true)
-      console.log(baseAsset)
     }
   }
 
   const onLocalSelect = (type, asset) => {
+    setSearch('')
+    setManageLocal(false)
     setOpen(false)
     onSelect(type, asset)
   }
 
   const onClose = () => {
+    setManageLocal(false)
+    setSearch('')
     setOpen(false)
+  }
+
+  const toggleLocal = () => {
+    setManageLocal(!manageLocal)
+  }
+
+  const deleteOption = (token) => {
+    stores.stableSwapStore.removeBaseAsset(token)
+  }
+
+  const viewOption = (token) => {
+    window.open(`${ETHERSCAN_URL}token/${token.address}`, '_blank')
+  }
+
+  const renderManageOption = (type, asset, idx) => {
+    return (
+      <MenuItem val={ asset.address } key={ asset.address+'_'+idx } className={ classes.assetSelectMenu } >
+        <div className={ classes.assetSelectMenuItem }>
+          <div className={ classes.displayDualIconContainerSmall }>
+            <img
+              className={ classes.displayAssetIconSmall }
+              alt=""
+              src={ asset ? `${asset.logoURI}` : '' }
+              height='60px'
+              onError={(e)=>{e.target.onerror = null; e.target.src="/tokens/unknown-logo.png"}}
+            />
+          </div>
+        </div>
+        <div className={ classes.assetSelectIconName }>
+          <Typography variant='h5'>{ asset ? asset.symbol : '' }</Typography>
+          <Typography variant='subtitle1' color='textSecondary'>{ asset ? asset.name : '' }</Typography>
+        </div>
+        <div className={ classes.assetSelectActions}>
+          <IconButton onClick={ () => { deleteOption(asset) } }>
+            <DeleteOutlineIcon />
+          </IconButton>
+          <IconButton onClick={ () => { viewOption(asset) } }>
+            ↗
+          </IconButton>
+        </div>
+      </MenuItem>
+    )
   }
 
   const renderAssetOption = (type, asset, idx) => {
@@ -428,22 +528,49 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
     )
   }
 
-  return (
-    <React.Fragment>
-      <div className={ classes.displaySelectContainer } onClick={ () => { openSearch() } }>
-        <div className={ classes.assetSelectMenuItem }>
-          <div className={ classes.displayDualIconContainer }>
-            <img
-              className={ classes.displayAssetIcon }
-              alt=""
-              src={ value ? `${value.logoURI}` : '' }
-              height='100px'
-              onError={(e)=>{e.target.onerror = null; e.target.src="/tokens/unknown-logo.png"}}
+  const renderManageLocal = () => {
+    return (
+      <>
+        <div className={ classes.searchContainer }>
+          <div className={ classes.searchInline }>
+            <TextField
+              autoFocus
+              variant="outlined"
+              fullWidth
+              placeholder="FTM, MIM, 0x..."
+              value={ search }
+              onChange={ onSearchChanged }
+              InputProps={{
+                startAdornment: <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>,
+              }}
             />
           </div>
+          <div className={ classes.assetSearchResults }>
+            {
+              filteredAssetOptions ? filteredAssetOptions.filter((option) => {
+                return option.local === true
+              }).map((asset, idx) => {
+                return renderManageOption(type, asset, idx)
+              }) : []
+            }
+          </div>
         </div>
-      </div>
-      <Dialog onClose={ onClose } aria-labelledby="simple-dialog-title" open={ open } >
+        <div className={ classes.manageLocalContainer }>
+          <Button
+            onClick={ toggleLocal }
+            >
+            Back to Assets
+          </Button>
+        </div>
+      </>
+    )
+  }
+
+  const renderOptions = () => {
+    return (
+      <>
         <div className={ classes.searchContainer }>
           <div className={ classes.searchInline }>
             <TextField
@@ -468,6 +595,35 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
             }
           </div>
         </div>
+        <div className={ classes.manageLocalContainer }>
+          <Button
+            onClick={ toggleLocal }
+            >
+            Manage Local Assets
+          </Button>
+        </div>
+      </>
+    )
+  }
+
+  return (
+    <React.Fragment>
+      <div className={ classes.displaySelectContainer } onClick={ () => { openSearch() } }>
+        <div className={ classes.assetSelectMenuItem }>
+          <div className={ classes.displayDualIconContainer }>
+            <img
+              className={ classes.displayAssetIcon }
+              alt=""
+              src={ value ? `${value.logoURI}` : '' }
+              height='100px'
+              onError={(e)=>{e.target.onerror = null; e.target.src="/tokens/unknown-logo.png"}}
+            />
+          </div>
+        </div>
+      </div>
+      <Dialog onClose={ onClose } aria-labelledby="simple-dialog-title" open={ open } >
+        { !manageLocal && renderOptions() }
+        { manageLocal && renderManageLocal() }
       </Dialog>
     </React.Fragment>
   )

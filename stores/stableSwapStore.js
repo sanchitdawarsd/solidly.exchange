@@ -546,6 +546,50 @@ class Store {
     return null
   }
 
+  removeBaseAsset = (asset) => {
+    try {
+      let localBaseAssets = []
+      const localBaseAssetsString = localStorage.getItem('stableSwap-assets')
+
+      if(localBaseAssetsString && localBaseAssetsString !== '') {
+        localBaseAssets = JSON.parse(localBaseAssetsString)
+
+        localBaseAssets = localBaseAssets.filter(function( obj ) {
+          return obj.address.toLowerCase() !== asset.address.toLowerCase()
+        })
+
+        localStorage.setItem('stableSwap-assets', JSON.stringify(localBaseAssets))
+
+        let baseAssets = this.getStore('baseAssets')
+        baseAssets = baseAssets.filter(function( obj ) {
+          return obj.address.toLowerCase() !== asset.address.toLowerCase() && asset.local === true
+        })
+
+        this.setStore({ baseAssets: baseAssets })
+        this.emitter.emit(ACTIONS.BASE_ASSETS_UPDATED, baseAssets)
+      }
+    } catch(ex) {
+      console.log(ex)
+      return null
+    }
+  }
+
+  getLocalAssets = async () => {
+    try {
+      let localBaseAssets = []
+      const localBaseAssetsString = localStorage.getItem('stableSwap-assets')
+
+      if(localBaseAssetsString && localBaseAssetsString !== '') {
+        localBaseAssets = JSON.parse(localBaseAssetsString)
+      }
+
+      return localBaseAssets
+    } catch(ex) {
+      console.log(ex)
+      return []
+    }
+  }
+
   getBaseAsset = async (address, save, getBalance) => {
     try {
       let localBaseAssets = []
@@ -581,7 +625,8 @@ class Store {
         address: address,
         symbol: symbol,
         name: name,
-        decimals: parseInt(decimals)
+        decimals: parseInt(decimals),
+        local: true
       }
 
       if(getBalance) {
@@ -601,6 +646,7 @@ class Store {
         const storeBaseAssets = [...baseAssets, ...localBaseAssets]
 
         this.setStore({ baseAssets: storeBaseAssets })
+        this.emitter.emit(ACTIONS.BASE_ASSETS_UPDATED, storeBaseAssets)
       }
 
       return newBaseAsset

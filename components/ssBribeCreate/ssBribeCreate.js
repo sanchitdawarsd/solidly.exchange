@@ -8,10 +8,12 @@ import classes from './ssBribeCreate.module.css';
 import AddIcon from '@material-ui/icons/Add';
 import SearchIcon from '@material-ui/icons/Search';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 
 import stores from '../../stores'
 import {
-  ACTIONS
+  ACTIONS,
+  ETHERSCAN_URL
 } from '../../stores/constants';
 
 export default function ssBribeCreate() {
@@ -51,9 +53,15 @@ export default function ssBribeCreate() {
       setCreateLoading(false)
     }
 
+    const assetsUpdated = () => {
+      const baseAsset = stores.stableSwapStore.getStore('baseAssets')
+      setAssetOptions(baseAsset)
+    }
+
     stores.emitter.on(ACTIONS.UPDATED, ssUpdated)
     stores.emitter.on(ACTIONS.BRIBE_CREATED, createReturned)
     stores.emitter.on(ACTIONS.ERROR, errorReturned)
+    stores.emitter.on(ACTIONS.BASE_ASSETS_UPDATED, assetsUpdated)
 
     ssUpdated()
 
@@ -61,6 +69,7 @@ export default function ssBribeCreate() {
       stores.emitter.removeListener(ACTIONS.UPDATED, ssUpdated)
       stores.emitter.removeListener(ACTIONS.BRIBE_CREATED, createReturned)
       stores.emitter.removeListener(ACTIONS.ERROR, errorReturned)
+      stores.emitter.removeListener(ACTIONS.BASE_ASSETS_UPDATED, assetsUpdated)
     };
   }, []);
 
@@ -235,23 +244,112 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
   const [ open, setOpen ] = useState(false);
   const [ search, setSearch ] = useState('')
   const [ withBalance, setWithBalance ] = useState(/*type === 'From' ? true : false*/ true)
+  const [ filteredAssetOptions, setFilteredAssetOptions ] = useState([])
+
+  const [ manageLocal, setManageLocal ] = useState(false)
 
   const openSearch = () => {
     setOpen(true)
     setSearch('')
   };
 
-  const onSearchChanged = (event) => {
+  useEffect(function() {
+
+    let ao = assetOptions.filter((asset) => {
+      if(search && search !== '') {
+        return asset.address.toLowerCase().includes(search.toLowerCase()) ||
+          asset.symbol.toLowerCase().includes(search.toLowerCase()) ||
+          asset.name.toLowerCase().includes(search.toLowerCase())
+      } else {
+        return true
+      }
+    })
+
+    setFilteredAssetOptions(ao)
+
+    return () => {
+    }
+  },[assetOptions]);
+
+
+  const onSearchChanged = async (event) => {
     setSearch(event.target.value)
+
+    if(!assetOptions) {
+      return null
+    }
+
+    let filteredOptions = assetOptions.filter((asset) => {
+      if(event.target.value && event.target.value !== '') {
+        return asset.address.toLowerCase().includes(event.target.value.toLowerCase()) ||
+          asset.symbol.toLowerCase().includes(event.target.value.toLowerCase()) ||
+          asset.name.toLowerCase().includes(event.target.value.toLowerCase())
+      } else {
+        return true
+      }
+    })
+
+    setFilteredAssetOptions(filteredOptions)
+
+    //no options in our default list and its an address we search for the address
+    if(filteredOptions.length === 0 && event.target.value && event.target.value.length === 42) {
+      const baseAsset = await stores.stableSwapStore.getBaseAsset(event.target.value, true, true)
+    }
   }
 
   const onLocalSelect = (type, asset) => {
+    setSearch('')
+    setManageLocal(false)
     setOpen(false)
     onSelect(type, asset)
   }
 
   const onClose = () => {
+    setManageLocal(false)
+    setSearch('')
     setOpen(false)
+  }
+
+  const toggleLocal = () => {
+    setManageLocal(!manageLocal)
+  }
+
+  const deleteOption = (token) => {
+    stores.stableSwapStore.removeBaseAsset(token)
+  }
+
+  const viewOption = (token) => {
+    window.open(`${ETHERSCAN_URL}token/${token.address}`, '_blank')
+  }
+
+  const renderManageOption = (type, asset, idx) => {
+    return (
+      <MenuItem val={ asset.address } key={ asset.address+'_'+idx } className={ classes.assetSelectMenu } >
+        <div className={ classes.assetSelectMenuItem }>
+          <div className={ classes.displayDualIconContainerSmall }>
+            <img
+              className={ classes.displayAssetIconSmall }
+              alt=""
+              src={ asset ? `${asset.logoURI}` : '' }
+              height='60px'
+              onError={(e)=>{e.target.onerror = null; e.target.src="/tokens/unknown-logo.png"}}
+            />
+          </div>
+        </div>
+        <div className={ classes.assetSelectIconName }>
+          <Typography variant='h5'>{ asset ? asset.symbol : '' }</Typography>
+          <Typography variant='subtitle1' color='textSecondary'>{ asset ? asset.name : '' }</Typography>
+        </div>
+        <div className={ classes.assetSelectActions}>
+          <IconButton onClick={ () => { deleteOption(asset) } }>
+            <DeleteOutlineIcon />
+          </IconButton>
+          <IconButton onClick={ () => { viewOption(asset) } }>
+            ↗
+          </IconButton>
+        </div>
+      </MenuItem>
+    )
   }
 
   const renderAssetOption = (type, asset, idx) => {
@@ -274,9 +372,87 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
         </div>
         <div className={ classes.assetSelectBalance}>
           <Typography variant='h5'>{ (asset && asset.balance) ? formatCurrency(asset.balance) : '0.00' }</Typography>
-          <Typography variant='subtitle1' color='textSecondary'>{ ' Balance' }</Typography>
+          <Typography variant='subtitle1' color='textSecondary'>{ 'Balance' }</Typography>
         </div>
       </MenuItem>
+    )
+  }
+
+  const renderManageLocal = () => {
+    return (
+      <>
+        <div className={ classes.searchContainer }>
+          <div className={ classes.searchInline }>
+            <TextField
+              autoFocus
+              variant="outlined"
+              fullWidth
+              placeholder="FTM, MIM, 0x..."
+              value={ search }
+              onChange={ onSearchChanged }
+              InputProps={{
+                startAdornment: <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>,
+              }}
+            />
+          </div>
+          <div className={ classes.assetSearchResults }>
+            {
+              filteredAssetOptions ? filteredAssetOptions.filter((option) => {
+                return option.local === true
+              }).map((asset, idx) => {
+                return renderManageOption(type, asset, idx)
+              }) : []
+            }
+          </div>
+        </div>
+        <div className={ classes.manageLocalContainer }>
+          <Button
+            onClick={ toggleLocal }
+            >
+            Back to Assets
+          </Button>
+        </div>
+      </>
+    )
+  }
+
+  const renderOptions = () => {
+    return (
+      <>
+        <div className={ classes.searchContainer }>
+          <div className={ classes.searchInline }>
+            <TextField
+              autoFocus
+              variant="outlined"
+              fullWidth
+              placeholder="FTM, MIM, 0x..."
+              value={ search }
+              onChange={ onSearchChanged }
+              InputProps={{
+                startAdornment: <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>,
+              }}
+            />
+          </div>
+          <div className={ classes.assetSearchResults }>
+            {
+              filteredAssetOptions ? filteredAssetOptions.map((asset, idx) => {
+                return renderAssetOption(type, asset, idx)
+              }) : []
+            }
+          </div>
+        </div>
+        <div className={ classes.manageLocalContainer }>
+          <Button
+            onClick={ toggleLocal }
+            >
+            Manage Local Assets
+          </Button>
+        </div>
+      </>
     )
   }
 
@@ -296,38 +472,8 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
         </div>
       </div>
       <Dialog onClose={ onClose } aria-labelledby="simple-dialog-title" open={ open } >
-        <div className={ classes.searchContainer }>
-          <div className={ classes.searchInline }>
-            <TextField
-              autoFocus
-              variant="outlined"
-              fullWidth
-              placeholder="FTM, MIM, 0x..."
-              value={ search }
-              onChange={ onSearchChanged }
-              InputProps={{
-                startAdornment: <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>,
-              }}
-            />
-          </div>
-          <div className={ classes.assetSearchResults }>
-            {
-              assetOptions ? assetOptions.filter((asset) => {
-                if(search && search !== '') {
-                  return asset.address.toLowerCase().includes(search.toLowerCase()) ||
-                    asset.symbol.toLowerCase().includes(search.toLowerCase()) ||
-                    asset.name.toLowerCase().includes(search.toLowerCase())
-                } else {
-                  return true
-                }
-              }).map((asset, idx) => {
-                return renderAssetOption(type, asset, idx)
-              }) : []
-            }
-          </div>
-        </div>
+        { !manageLocal && renderOptions() }
+        { manageLocal && renderManageLocal() }
       </Dialog>
     </React.Fragment>
   )
