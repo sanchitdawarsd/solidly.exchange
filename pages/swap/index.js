@@ -43,7 +43,7 @@ function Swap({ changeTheme }) {
   return (
     <Layout changeTheme={changeTheme}>
       <Head>
-        <title>Solidly</title>
+        <title>Solidly - Swap</title>
       </Head>
       <div className={classes.ffContainer}>
         {account && account.address ?

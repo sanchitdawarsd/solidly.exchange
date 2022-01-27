@@ -541,7 +541,23 @@ box-shadow: 0 13px 30px 0 rgba(7,9,18,0.1) !important;
 
 .line {
   flex: 1;
-  border-bottom: 1px solid #fff;
+  border-bottom: 1px dashed rgba(126,153,176,0.6);
+  text-align: center;
+  margin-top: -4px;
+}
+
+.routeArrow {
+  width: 20px;
+  height: 10px;
+  background: rgb(25, 33, 56);
+  font-size: 10px !important;
+  margin: auto;
+  margin-bottom: -4px;
+}
+
+.routeArrowIcon {
+  font-size: 13px !important;
+  color: #06D3D7;
 }
 
 .quoteLoader {

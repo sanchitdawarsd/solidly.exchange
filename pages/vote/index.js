@@ -43,7 +43,7 @@ function Vote({ changeTheme }) {
   return (
     <Layout changeTheme={changeTheme}>
       <Head>
-        <title>Solidly</title>
+        <title>Solidly - Vote</title>
       </Head>
       <div className={classes.ffContainer}>
 

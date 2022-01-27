@@ -48,7 +48,7 @@ function Vesting({ changeTheme }) {
   return (
     <Layout changeTheme={changeTheme} title={ '' }>
       <Head>
-        <title>Solidly</title>
+        <title>Solidly - Vest</title>
       </Head>
       <div className={classes.ffContainer}>
         {account && account.address ?
