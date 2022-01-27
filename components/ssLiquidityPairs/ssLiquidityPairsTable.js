@@ -353,10 +353,40 @@ const EnhancedTableToolbar = (props) => {
   const router = useRouter()
 
   const [search, setSearch] = useState('');
+  const [toggleActive, setToggleActive] = useState(false);
+  const [toggleActiveGauge, setToggleActiveGauge] = useState(false);
+  const [toggleStable, setToggleStable] = useState(true);
+  const [toggleVariable, setToggleVariable] = useState(true);
 
   const onSearchChanged = (event) => {
     setSearch(event.target.value);
+    props.setSearch(event.target.value)
   };
+
+  const onToggle = (event) => {
+    console.log(event.target.name)
+    console.log(event.target.checked)
+    switch (event.target.name) {
+      case 'toggleActive':
+        setToggleActive(event.target.checked)
+        props.setToggleActive(event.target.checked)
+        break;
+      case 'toggleActiveGauge':
+        setToggleActiveGauge(event.target.checked)
+        props.setToggleActiveGauge(event.target.checked)
+        break;
+      case 'toggleStable':
+        setToggleStable(event.target.checked)
+        props.setToggleStable(event.target.checked)
+        break;
+      case 'toggleVariable':
+        setToggleVariable(event.target.checked)
+        props.setToggleVariable(event.target.checked)
+        break;
+      default:
+
+    }
+  }
 
   const onCreate = () => {
     router.push('/liquidity/create')
@@ -393,7 +423,7 @@ const EnhancedTableToolbar = (props) => {
           className={classes.searchContainer}
           variant="outlined"
           fullWidth
-          placeholder="ETH, CRV, ..."
+          placeholder="FTM, MIM, 0x..."
           value={search}
           onChange={onSearchChanged}
           InputProps={{
@@ -414,9 +444,6 @@ const EnhancedTableToolbar = (props) => {
       </Grid>
     </Grid>
 
-
-
-
       <Popper id={id} open={open} anchorEl={anchorEl} transition placement="bottom-end">
         {({ TransitionProps }) => (
           <Fade {...TransitionProps} timeout={350}>
@@ -424,18 +451,19 @@ const EnhancedTableToolbar = (props) => {
               <Typography className={classes.filterListTitle} variant="h5">List Filters</Typography>
 
 
-              <Grid container spacing={0}>
+              {/*<Grid container spacing={0}>
                 <Grid item lg={9} className={classes.labelColumn}>
                   <Typography className={classes.filterLabel} variant="body1">Show Active</Typography>
                 </Grid>
                 <Grid item lg={3} className={classes.alignContentRight}>
                   <Switch
-                    default
                     color="primary"
-                    inputProps={{ 'aria-label': 'checkbox with default color' }}
+                    value={ toggleActive }
+                    name={ 'toggleActive' }
+                    onChange={ onToggle }
                   />
                 </Grid>
-              </Grid>
+              </Grid>*/}
 
               <Grid container spacing={0}>
                 <Grid item lg={9} className={classes.labelColumn}>
@@ -443,9 +471,10 @@ const EnhancedTableToolbar = (props) => {
                 </Grid>
                 <Grid item lg={3} className={classes.alignContentRight}>
                   <Switch
-                    defaultChecked
                     color="primary"
-                    inputProps={{ 'aria-label': 'checkbox with default color' }}
+                    value={ toggleActiveGauge }
+                    name={ 'toggleActiveGauge' }
+                    onChange={ onToggle }
                   />
                 </Grid>
               </Grid>
@@ -456,9 +485,10 @@ const EnhancedTableToolbar = (props) => {
                 </Grid>
                 <Grid item lg={3} className={classes.alignContentRight}>
                   <Switch
-                    defaultChecked
                     color="primary"
-                    inputProps={{ 'aria-label': 'checkbox with default color' }}
+                    value={ toggleStable}
+                    name={ 'toggleStable' }
+                    onChange={ onToggle }
                   />
                 </Grid>
               </Grid>
@@ -469,9 +499,10 @@ const EnhancedTableToolbar = (props) => {
                 </Grid>
                 <Grid item lg={3} className={classes.alignContentRight}>
                   <Switch
-                    defaultChecked
                     color="primary"
-                    inputProps={{ 'aria-label': 'checkbox with default color' }}
+                    value={ toggleVariable }
+                    name={ 'toggleVariable' }
+                    onChange={ onToggle }
                   />
                 </Grid>
               </Grid>
@@ -489,8 +520,14 @@ export default function EnhancedTable({ pairs }) {
   const classes = useStyles();
   const router = useRouter();
 
-  const [order, setOrder] = React.useState('desc');
-  const [orderBy, setOrderBy] = React.useState('balance');
+  const [order, setOrder] = useState('desc');
+  const [orderBy, setOrderBy] = useState('balance');
+
+  const [search, setSearch] = useState('')
+  const [toggleActive, setToggleActive] = useState(false);
+  const [toggleActiveGauge, setToggleActiveGauge] = useState(false);
+  const [toggleStable, setToggleStable] = useState(true);
+  const [toggleVariable, setToggleVariable] = useState(true);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -525,15 +562,40 @@ export default function EnhancedTable({ pairs }) {
   }
 
   return (
-
     <div className={classes.root}>
-      <EnhancedTableToolbar />
+      <EnhancedTableToolbar setSearch={setSearch} setToggleActive={setToggleActive} setToggleActiveGauge={setToggleActiveGauge} setToggleStable={setToggleStable} setToggleVariable={setToggleVariable}/>
       <Paper elevation={0} className={ classes.tableContainer}>
         <TableContainer>
           <Table className={classes.table} aria-labelledby='tableTitle' size={'medium'} aria-label='enhanced table'>
             <EnhancedTableHead classes={classes} order={order} orderBy={orderBy} onRequestSort={handleRequestSort} />
             <TableBody>
-              {stableSort(pairs, getComparator(order, orderBy)).map((row, index) => {
+              {stableSort(pairs.filter((pair) => {
+                if(!search || search === '') {
+                  return true
+                }
+
+                const searchLower = search.toLowerCase()
+
+                if(pair.symbol.toLowerCase().includes(searchLower) || pair.address.toLowerCase().includes(searchLower) ||
+                  pair.token0.symbol.toLowerCase().includes(searchLower) || pair.token0.address.toLowerCase().includes(searchLower) || pair.token0.name.toLowerCase().includes(searchLower) ||
+                  pair.token1.symbol.toLowerCase().includes(searchLower) || pair.token1.address.toLowerCase().includes(searchLower) ||  pair.token1.name.toLowerCase().includes(searchLower)) {
+                  return true
+                }
+
+                return false
+              }).filter((pair) => {
+                if(toggleStable !== true && pair.isStable === true) {
+                  return false
+                }
+                if(toggleVariable !== true && pair.isStable === false) {
+                  return false
+                }
+                if(toggleActiveGauge !== true && (!pair.gauge || !pair.gauge.address)) {
+                  return false
+                }
+
+                return true
+              }), getComparator(order, orderBy)).map((row, index) => {
                 if (!row) {
                   return null;
                 }

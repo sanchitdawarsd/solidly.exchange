@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Paper, Typography, Button, CircularProgress, InputAdornment, TextField, MenuItem, Select, Grid } from '@material-ui/core';
 import BigNumber from 'bignumber.js';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
+import SearchIcon from '@material-ui/icons/Search';
 import { useRouter } from "next/router";
 
 import classes from './ssVotes.module.css';
@@ -24,6 +25,8 @@ export default function ssVotes() {
   const [ veToken, setVeToken ] = useState(null)
   const [ token, setToken ] = useState(null)
   const [ vestNFTs, setVestNFTs ] = useState([])
+  const [search, setSearch] = useState('');
+
 
   const ssUpdated = () => {
     setVeToken(stores.stableSwapStore.getStore('veToken'))
@@ -109,6 +112,10 @@ export default function ssVotes() {
     stores.dispatcher.dispatch({ type: ACTIONS.GET_VEST_VOTES, content: { tokenID: event.target.value.id } })
   }
 
+  const onSearchChanged = (event) => {
+    setSearch(event.target.value);
+  };
+
   const onBribe = () => {
     router.push('/bribe/create')
   }
@@ -161,12 +168,42 @@ export default function ssVotes() {
         >
           <Typography className={ classes.actionButtonText }>{ `Create Bribe` }</Typography>
         </Button>
+        <TextField
+          className={classes.searchContainer}
+          variant="outlined"
+          fullWidth
+          placeholder="FTM, MIM, 0x..."
+          value={search}
+          onChange={onSearchChanged}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
         <div className={ classes.tokenIDContainer }>
           { renderMediumInput(token, vestNFTs) }
         </div>
       </div>
       <Paper elevation={0} className={ classes.tableContainer }>
-        <GaugesTable gauges={gauges} setParentSliderValues={setVotes} defaultVotes={votes} veToken={veToken} token={ token } />
+        <GaugesTable gauges={ gauges.filter((pair) => {
+          if(!search || search === '') {
+            return true
+          }
+
+          const searchLower = search.toLowerCase()
+
+          if(pair.symbol.toLowerCase().includes(searchLower) || pair.address.toLowerCase().includes(searchLower) ||
+            pair.token0.symbol.toLowerCase().includes(searchLower) || pair.token0.address.toLowerCase().includes(searchLower) || pair.token0.name.toLowerCase().includes(searchLower) ||
+            pair.token1.symbol.toLowerCase().includes(searchLower) || pair.token1.address.toLowerCase().includes(searchLower) ||  pair.token1.name.toLowerCase().includes(searchLower)) {
+            return true
+          }
+
+          return false
+
+        }) } setParentSliderValues={setVotes} defaultVotes={votes} veToken={veToken} token={ token } />
       </Paper>
       <Paper elevation={10} className={ classes.actionButtons }>
         <Grid container spacing={2}>

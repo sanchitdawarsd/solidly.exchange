@@ -33,6 +33,7 @@ function Setup() {
   const forceUpdate = React.useCallback(() => updateState({}), []);
 
   const [ loading, setLoading ] = useState(false)
+  const [ quoteLoading, setQuoteLoading ] = useState(false)
   const [ approvalLoading, setApprovalLoading ] = useState(false)
 
   const [ fromAmountValue, setFromAmountValue ] = useState(null)
@@ -53,10 +54,13 @@ function Setup() {
     const errorReturned = () => {
       setLoading(false)
       setApprovalLoading(false)
+      setQuoteLoading(false)
     }
 
     const quoteReturned = (val) => {
+      console.log(val)
       if(val && val.inputs && val.inputs.fromAmount === fromAmountValue && val.inputs.fromAsset.address === fromAssetValue.address && val.inputs.toAsset.address === toAssetValue.address) {
+        setQuoteLoading(false)
         setToAmountValue(val.output.finalValue)
         setQuote(val)
       }
@@ -86,6 +90,7 @@ function Setup() {
       setToAmountValue('')
       calculateReceiveAmount(0, fromAssetValue, toAssetValue)
       setQuote(null)
+      setQuoteLoading(false)
     }
 
     stores.emitter.on(ACTIONS.ERROR, errorReturned)
@@ -119,6 +124,7 @@ function Setup() {
     setFromAmountValue(event.target.value)
     if(event.target.value == '') {
       setToAmountValue('')
+      setQuote(null)
     } else {
       calculateReceiveAmount(event.target.value, fromAssetValue, toAssetValue)
     }
@@ -129,6 +135,7 @@ function Setup() {
 
   const calculateReceiveAmount = (amount, from, to) => {
     if(!isNaN(amount) && to != null) {
+      setQuoteLoading(true)
       stores.dispatcher.dispatch({ type: ACTIONS.QUOTE_SWAP, content: {
         fromAsset: from,
         toAsset: to,
@@ -197,11 +204,18 @@ function Setup() {
   }
 
   const renderSwapInformation = () => {
-    if(!quote) {
-      return null
+    if(quoteLoading) {
+      return (
+        <div className={ classes.quoteLoader }>
+          <CircularProgress size={20} className={ classes.loadingCircle } />
+        </div>
+      )
     }
 
-    console.log(quote)
+    if(!quote) {
+      return
+        <div className={ classes.quoteLoader }> </div>
+    }
 
     return (
       <div className={ classes.depositInfoContainer }>
@@ -319,7 +333,7 @@ function Setup() {
           size='large'
           color='primary'
           className={classes.buttonOverride}
-          disabled={ loading }
+          disabled={ loading || quoteLoading }
           onClick={ onSwap }
           >
           <Typography className={ classes.actionButtonText }>{ loading ? `Swapping` : `Swap` }</Typography>
@@ -335,14 +349,37 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
   const [ open, setOpen ] = useState(false);
   const [ search, setSearch ] = useState('')
   const [ withBalance, setWithBalance ] = useState(/*type === 'From' ? true : false*/ true)
+  const [ filteredAssetOptions, setFilteredAssetOptions ] = useState(assetOptions)
 
   const openSearch = () => {
     setOpen(true)
     setSearch('')
   };
 
-  const onSearchChanged = (event) => {
+  const onSearchChanged = async (event) => {
     setSearch(event.target.value)
+
+    if(!assetOptions) {
+      return null
+    }
+
+    let filteredOptions = assetOptions.filter((asset) => {
+      if(search && search !== '') {
+        return asset.address.toLowerCase().includes(search.toLowerCase()) ||
+          asset.symbol.toLowerCase().includes(search.toLowerCase()) ||
+          asset.name.toLowerCase().includes(search.toLowerCase())
+      } else {
+        return true
+      }
+    })
+
+    setFilteredAssetOptions(filteredOptions)
+
+    //no options in our default list and its an address we search for the address
+    if(filteredOptions.length === 0 && event.target.value && event.target.value.length === 42) {
+      const baseAsset = await stores.stableSwapStore.getBaseAsset(event.target.value, true)
+      console.log(baseAsset)
+    }
   }
 
   const onLocalSelect = (type, asset) => {
@@ -402,7 +439,7 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
               autoFocus
               variant="outlined"
               fullWidth
-              placeholder="ETH, CRV, ..."
+              placeholder="FTM, MIM, 0x..."
               value={ search }
               onChange={ onSearchChanged }
               InputProps={{
@@ -414,15 +451,7 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
           </div>
           <div className={ classes.assetSearchResults }>
             {
-              assetOptions ? assetOptions.filter((asset) => {
-                if(search && search !== '') {
-                  return asset.address.toLowerCase().includes(search.toLowerCase()) ||
-                    asset.symbol.toLowerCase().includes(search.toLowerCase()) ||
-                    asset.name.toLowerCase().includes(search.toLowerCase())
-                } else {
-                  return true
-                }
-              }).map((asset, idx) => {
+              filteredAssetOptions ? filteredAssetOptions.map((asset, idx) => {
                 return renderAssetOption(type, asset, idx)
               }) : []
             }

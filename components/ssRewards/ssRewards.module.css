@@ -26,6 +26,7 @@
 .toolbarContainer {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   width: 100%;
   margin-bottom: 24px;
 }
@@ -110,7 +111,6 @@
 }
 
 .tokenIDContainer {
-  margin-left: 30px !important;
 }
 
 @media screen and (max-width: 1200px) {

@@ -263,6 +263,27 @@ const useStyles = makeStyles((theme) => ({
     float: 'right',
     marginLeft: '10px',
   },
+  doubleImages: {
+    display: 'flex',
+    position: 'relative',
+    width: '70px',
+    height: '35px'
+  },
+  img1Logo: {
+    position: 'absolute',
+    left: '0px',
+    top: '0px',
+    border: '3px solid rgb(25, 33, 56)',
+    borderRadius: '30px',
+  },
+  img2Logo: {
+    position: 'absolute',
+    left: '23px',
+    zIndex: '1',
+    top: '0px',
+    border: '3px solid rgb(25, 33, 56)',
+    borderRadius: '30px',
+  },
 }));
 
 export default function EnhancedTable({ gauges, setParentSliderValues, defaultVotes, veToken, token }) {
@@ -350,7 +371,30 @@ export default function EnhancedTable({ gauges, setParentSliderValues, defaultVo
                 <TableRow key={row?.gauge?.address}>
                   <TableCell className={classes.cell}>
                     <div className={ classes.inline }>
-                      <img className={ classes.imgLogo } src={ (row && row.logoURI) ? row.logoURI : `` } width='35' height='35' alt='' onError={(e)=>{e.target.onerror = null; e.target.src="/tokens/unknown-logo.png"}} />
+                      <div className={ classes.doubleImages}>
+                        <img
+                          className={classes.img1Logo}
+                          src={ (row && row.token0 && row.token0.logoURI) ? row.token0.logoURI : `` }
+                          width='37'
+                          height='37'
+                          alt=''
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = '/tokens/unknown-logo.png';
+                          }}
+                        />
+                        <img
+                          className={classes.img2Logo}
+                          src={ (row && row.token1 && row.token1.logoURI) ? row.token1.logoURI : `` }
+                          width='37'
+                          height='37'
+                          alt=''
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = '/tokens/unknown-logo.png';
+                          }}
+                        />
+                      </div>
                       <div>
                         <Typography variant="h2" className={classes.textSpaced}>
                           { row?.symbol }

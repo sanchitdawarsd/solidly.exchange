@@ -302,7 +302,7 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
               autoFocus
               variant="outlined"
               fullWidth
-              placeholder="ETH, CRV, ..."
+              placeholder="FTM, MIM, 0x..."
               value={ search }
               onChange={ onSearchChanged }
               InputProps={{
