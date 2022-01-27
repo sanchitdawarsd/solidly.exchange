@@ -293,7 +293,7 @@ function Header(props) {
             onClose={handleClose}
             className={classes.userMenu}
           >
-            <StyledMenuItem onClick={() => router.push('/dashboard')}>
+            <StyledMenuItem className={classes.hidden} onClick={() => router.push('/dashboard')}>
               <ListItemIcon className={classes.userMenuIcon}>
                 <DashboardOutlinedIcon fontSize="small" />
               </ListItemIcon>

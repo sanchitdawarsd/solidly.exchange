@@ -48,7 +48,7 @@ function Liquidity({ changeTheme }) {
   return (
     <Layout changeTheme={changeTheme} title={ '' }>
       <Head>
-        <title>Solidly</title>
+        <title>Solidly - Liquidity</title>
       </Head>
       <div className={classes.ffContainer}>
         {account && account.address ?
