@@ -11,7 +11,7 @@ function Pair({ changeTheme }) {
   return (
     <Layout changeTheme={changeTheme}>
       <Head>
-        <title>Solid Swap</title>
+        <title>Solidly - Manage Liquidity Pair</title>
       </Head>
       <div className={classes.container}>
         <LiquidityManage />

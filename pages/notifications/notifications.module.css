@@ -1,0 +1,79 @@
+.ffContainer {
+  height: 100%;
+  max-width: 300px;
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  margin-top: 100px;
+  padding-top: 60px;
+  position: relative;
+}
+
+.button {
+  margin-bottom: 20px !important;
+  font-size: 16px !important;
+  padding: 10px 0 !important;
+}
+
+.animClass {
+  width: 130px;
+  margin: auto;
+  padding: 30px 0 20px 0;
+}
+
+.successDialog {
+  max-width: 520px;
+  margin: auto;
+  text-align: center;
+}
+
+.successTitle {
+  padding: 0 40px !important;
+  text-align: center !important;
+  margin-bottom: 6px !important;
+  font-size: 12px !important;
+  transform: scale(0.85);
+}
+
+.successText {
+  padding: 0 40px !important;
+  text-align: center !important;
+  line-height: 1.5rem !important;
+  margin-bottom: 30px !important;
+}
+
+.viewDetailsText {
+  background: none;
+  margin: 10px auto 40px auto !important;
+  font-size: 14px !important;
+}
+
+.viewDetailsText a {
+  color: inherit !important;
+}
+
+.viewDetailsText a:hover {
+  color: #FFF !important;
+}
+
+.dialogButton {
+  border: 1px solid #06D3D7 !important;
+  margin: auto !important;
+  width: 85%;
+  padding: 10px !important;
+  font-weight: 700 !important;
+}
+
+.newWindowIcon {
+  font-size: 15px !important;
+  margin-bottom: -2px;
+  margin-left: 3px;
+}
+
+@media screen and (max-width: 1200px) {
+
+  .ffContainer {
+    padding-top: 120px;
+  }
+
+}

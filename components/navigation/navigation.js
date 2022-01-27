@@ -121,6 +121,12 @@ function Navigation(props) {
     if(activePath.includes('rewards')) {
       setActive('rewards')
     }
+    if(activePath.includes('dashboard')) {
+      setActive('dashboard')
+    }
+    if(activePath.includes('notifications')) {
+      setActive('notifications')
+    }
   }, [])
 
   const renderNavs = () => {

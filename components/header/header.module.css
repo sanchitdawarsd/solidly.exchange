@@ -8,11 +8,13 @@
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 10020 !important;
+  z-index: 9 !important;
   width: calc(100%);
   border: 0;
   border-radius: 0 !important;
 }
+
+.hidden { display: none !important; }
 
 .userMenu {
   z-index: 10030 !important;
