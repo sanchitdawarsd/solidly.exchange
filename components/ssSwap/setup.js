@@ -340,12 +340,23 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
   const [ open, setOpen ] = useState(false);
   const [ search, setSearch ] = useState('')
   const [ withBalance, setWithBalance ] = useState(/*type === 'From' ? true : false*/ true)
-  const [ filteredAssetOptions, setFilteredAssetOptions ] = useState(assetOptions)
+  const [ filteredAssetOptions, setFilteredAssetOptions ] = useState([])
+
+  const [ manageLocal, setManageLocal ] = useState(false)
 
   const openSearch = () => {
     setOpen(true)
     setSearch('')
   };
+
+  useEffect(function() {
+
+    setFilteredAssetOptions(assetOptions)
+
+    return () => {
+    }
+  },[assetOptions]);
+
 
   const onSearchChanged = async (event) => {
     setSearch(event.target.value)
@@ -355,10 +366,10 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
     }
 
     let filteredOptions = assetOptions.filter((asset) => {
-      if(search && search !== '') {
-        return asset.address.toLowerCase().includes(search.toLowerCase()) ||
-          asset.symbol.toLowerCase().includes(search.toLowerCase()) ||
-          asset.name.toLowerCase().includes(search.toLowerCase())
+      if(event.target.value && event.target.value !== '') {
+        return asset.address.toLowerCase().includes(event.target.value.toLowerCase()) ||
+          asset.symbol.toLowerCase().includes(event.target.value.toLowerCase()) ||
+          asset.name.toLowerCase().includes(event.target.value.toLowerCase())
       } else {
         return true
       }
@@ -368,7 +379,7 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
 
     //no options in our default list and its an address we search for the address
     if(filteredOptions.length === 0 && event.target.value && event.target.value.length === 42) {
-      const baseAsset = await stores.stableSwapStore.getBaseAsset(event.target.value, true)
+      const baseAsset = await stores.stableSwapStore.getBaseAsset(event.target.value, true, true)
       console.log(baseAsset)
     }
   }

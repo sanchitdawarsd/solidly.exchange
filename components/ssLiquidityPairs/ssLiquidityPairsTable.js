@@ -354,7 +354,7 @@ const EnhancedTableToolbar = (props) => {
 
   const [search, setSearch] = useState('');
   const [toggleActive, setToggleActive] = useState(false);
-  const [toggleActiveGauge, setToggleActiveGauge] = useState(false);
+  const [toggleActiveGauge, setToggleActiveGauge] = useState(true);
   const [toggleStable, setToggleStable] = useState(true);
   const [toggleVariable, setToggleVariable] = useState(true);
 
@@ -364,8 +364,6 @@ const EnhancedTableToolbar = (props) => {
   };
 
   const onToggle = (event) => {
-    console.log(event.target.name)
-    console.log(event.target.checked)
     switch (event.target.name) {
       case 'toggleActive':
         setToggleActive(event.target.checked)
@@ -472,7 +470,7 @@ const EnhancedTableToolbar = (props) => {
                 <Grid item lg={3} className={classes.alignContentRight}>
                   <Switch
                     color="primary"
-                    value={ toggleActiveGauge }
+                    checked={ toggleActiveGauge }
                     name={ 'toggleActiveGauge' }
                     onChange={ onToggle }
                   />
@@ -486,7 +484,7 @@ const EnhancedTableToolbar = (props) => {
                 <Grid item lg={3} className={classes.alignContentRight}>
                   <Switch
                     color="primary"
-                    value={ toggleStable}
+                    checked={ toggleStable }
                     name={ 'toggleStable' }
                     onChange={ onToggle }
                   />
@@ -500,7 +498,7 @@ const EnhancedTableToolbar = (props) => {
                 <Grid item lg={3} className={classes.alignContentRight}>
                   <Switch
                     color="primary"
-                    value={ toggleVariable }
+                    checked={ toggleVariable }
                     name={ 'toggleVariable' }
                     onChange={ onToggle }
                   />
