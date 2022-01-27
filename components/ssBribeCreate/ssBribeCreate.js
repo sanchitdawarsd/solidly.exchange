@@ -22,7 +22,7 @@ export default function ssBribeCreate() {
   const [ createLoading, setCreateLoading ] = useState(false)
 
   const [ amount, setAmount ] = useState('')
-  const [ amountError/*, setAmount0Error*/ ] = useState(false)
+  const [ amountError, setAmountError ] = useState(false)
   const [ asset, setAsset ] = useState(null)
   const [ assetOptions, setAssetOptions ] = useState([])
   const [ gauge, setGauge ] = useState(null)
@@ -74,26 +74,56 @@ export default function ssBribeCreate() {
   }, []);
 
   const setAmountPercent = (input, percent) => {
+    setAmountError(false)
     if(input === 'amount') {
-      let am = BigNumber(asset0.balance).times(percent).div(100).toFixed(asset0.decimals)
-      setAmount0(am)
+      let am = BigNumber(asset.balance).times(percent).div(100).toFixed(asset.decimals)
+      setAmount(am)
     }
   }
 
   const onCreate = () => {
-    setCreateLoading(true)
-    stores.dispatcher.dispatch({ type: ACTIONS.CREATE_BRIBE, content: {
-      asset: asset,
-      amount: amount,
-      gauge: gauge
-    } })
+    setAmountError(false)
+
+    let error = false
+
+    if(!amount || amount === '' || isNaN(amount)) {
+      setAmountError('From amount is required')
+      error = true
+    } else {
+      if(!asset.balance || isNaN(asset.balance) || BigNumber(asset.balance).lte(0))  {
+        setAmountError('Invalid balance')
+        error = true
+      } else if(BigNumber(amount).lt(0)) {
+        setAmountError('Invalid amount')
+        error = true
+      } else if (asset && BigNumber(amount).gt(asset.balance)) {
+        setAmountError(`Greater than your available balance`)
+        error = true
+      }
+    }
+
+    if(!asset || asset === null) {
+      setAmountError('From asset is required')
+      error = true
+    }
+
+    if(!error) {
+      setCreateLoading(true)
+      stores.dispatcher.dispatch({ type: ACTIONS.CREATE_BRIBE, content: {
+        asset: asset,
+        amount: amount,
+        gauge: gauge
+      } })
+    }
   }
 
   const amountChanged = (event) => {
+    setAmountError(false)
     setAmount(event.target.value)
   }
 
   const onAssetSelect = (type, value) => {
+    setAmountError(false)
     setAsset(value)
   }
 
@@ -155,9 +185,7 @@ export default function ssBribeCreate() {
         <div className={ classes.inputTitleContainer }>
           <div className={ classes.inputBalance }>
             <Typography className={ classes.inputBalanceText } noWrap onClick={ () => {
-              if(type === 'From') {
-                setBalance100()
-              }
+              setAmountPercent(type, 100)
             }}>
               Balance:
               { (assetValue && assetValue.balance) ?

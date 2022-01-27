@@ -3181,7 +3181,7 @@ class Store {
           return this.emitter.emit(ACTIONS.ERROR, err)
         }
 
-        await context.updatePairsCall(web3, account)
+        await this.updatePairsCall(web3, account)
 
         this.emitter.emit(ACTIONS.BRIBE_CREATED)
       })
