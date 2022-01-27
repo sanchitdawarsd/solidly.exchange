@@ -89,6 +89,7 @@ function Setup() {
       setToAmountValue('')
       calculateReceiveAmount(0, fromAssetValue, toAssetValue)
       setQuote(null)
+      setQuoteLoading(false)
     }
 
     stores.emitter.on(ACTIONS.ERROR, errorReturned)
@@ -211,7 +212,8 @@ function Setup() {
     }
 
     if(!quote) {
-      return null
+      return
+        <div className={ classes.quoteLoader }> </div>
     }
 
     return (
@@ -338,14 +340,37 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
   const [ open, setOpen ] = useState(false);
   const [ search, setSearch ] = useState('')
   const [ withBalance, setWithBalance ] = useState(/*type === 'From' ? true : false*/ true)
+  const [ filteredAssetOptions, setFilteredAssetOptions ] = useState(assetOptions)
 
   const openSearch = () => {
     setOpen(true)
     setSearch('')
   };
 
-  const onSearchChanged = (event) => {
+  const onSearchChanged = async (event) => {
     setSearch(event.target.value)
+
+    if(!assetOptions) {
+      return null
+    }
+
+    let filteredOptions = assetOptions.filter((asset) => {
+      if(search && search !== '') {
+        return asset.address.toLowerCase().includes(search.toLowerCase()) ||
+          asset.symbol.toLowerCase().includes(search.toLowerCase()) ||
+          asset.name.toLowerCase().includes(search.toLowerCase())
+      } else {
+        return true
+      }
+    })
+
+    setFilteredAssetOptions(filteredOptions)
+
+    //no options in our default list and its an address we search for the address
+    if(filteredOptions.length === 0 && event.target.value && event.target.value.length === 42) {
+      const baseAsset = await stores.stableSwapStore.getBaseAsset(event.target.value, true)
+      console.log(baseAsset)
+    }
   }
 
   const onLocalSelect = (type, asset) => {
@@ -405,7 +430,7 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
               autoFocus
               variant="outlined"
               fullWidth
-              placeholder="ETH, CRV, ..."
+              placeholder="FTM, MIM, 0x..."
               value={ search }
               onChange={ onSearchChanged }
               InputProps={{
@@ -417,15 +442,7 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
           </div>
           <div className={ classes.assetSearchResults }>
             {
-              assetOptions ? assetOptions.filter((asset) => {
-                if(search && search !== '') {
-                  return asset.address.toLowerCase().includes(search.toLowerCase()) ||
-                    asset.symbol.toLowerCase().includes(search.toLowerCase()) ||
-                    asset.name.toLowerCase().includes(search.toLowerCase())
-                } else {
-                  return true
-                }
-              }).map((asset, idx) => {
+              filteredAssetOptions ? filteredAssetOptions.map((asset, idx) => {
                 return renderAssetOption(type, asset, idx)
               }) : []
             }

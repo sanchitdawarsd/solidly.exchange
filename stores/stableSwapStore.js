@@ -546,7 +546,7 @@ class Store {
     return null
   }
 
-  getBaseAsset = async (address) => {
+  getBaseAsset = async (address, save, getBalance) => {
     try {
       let localBaseAssets = []
       const localBaseAssetsString = localStorage.getItem('stableSwap-assets')
@@ -584,13 +584,24 @@ class Store {
         decimals: parseInt(decimals)
       }
 
-      localBaseAssets = [...localBaseAssets, newBaseAsset]
-      localStorage.setItem('stableSwap-assets', JSON.stringify(localBaseAssets))
+      if(getBalance) {
+        const account = stores.accountStore.getStore("account")
+        if(account) {
+          const balanceOf = await baseAssetContract.methods.balanceOf(account.address).call()
+          newBaseAsset.balance = BigNumber(balanceOf).div(10**newBaseAsset.decimals).toFixed(newBaseAsset.decimals)
+        }
+      } // GET BACK HERE
 
-      const baseAssets = this.getStore('baseAssets')
-      const storeBaseAssets = [...baseAssets, ...localBaseAssets]
+      //only save when a user adds it. don't for when we lookup a pair and find he asset.
+      if(save) {
+        localBaseAssets = [...localBaseAssets, newBaseAsset]
+        localStorage.setItem('stableSwap-assets', JSON.stringify(localBaseAssets))
 
-      this.setStore({ baseAssets: storeBaseAssets })
+        const baseAssets = this.getStore('baseAssets')
+        const storeBaseAssets = [...baseAssets, ...localBaseAssets]
+
+        this.setStore({ baseAssets: storeBaseAssets })
+      }
 
       return newBaseAsset
     } catch(ex) {

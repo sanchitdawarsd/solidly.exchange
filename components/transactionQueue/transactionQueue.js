@@ -120,6 +120,12 @@ export default function TransactionQueue({ setQueueLength }) {
     };
   }, [transactions]);
 
+  const renderDone = () => {
+    return (<div>
+      DONE
+    </div>)
+  }
+
   return (
     <Dialog
       open={open}
@@ -130,16 +136,26 @@ export default function TransactionQueue({ setQueueLength }) {
       fullScreen={fullScreen}
     >
       <DialogContent>
-        <div className={ classes.headingContainer }>
-          <Typography className={ classes.heading }>{ purpose ? purpose : 'Pending Transactions'}</Typography>
-        </div>
-        <div className={ classes.transactionsContainer}>
-          {
-            transactions && transactions.map((tx, idx) => {
-              return <Transaction key={ idx } transaction={tx} />
-            })
-          }
-        </div>
+        { transactions && transactions.filter((tx) => { return ['DONE', 'CONFIRMED'].includes(tx.status) }).length === transactions.length ?
+          (
+            renderDone()
+          )
+          :
+          (
+            <>
+              <div className={ classes.headingContainer }>
+                <Typography className={ classes.heading }>{ purpose ? purpose : 'Pending Transactions'}</Typography>
+              </div>
+              <div className={ classes.transactionsContainer}>
+                {
+                  transactions && transactions.map((tx, idx) => {
+                    return <Transaction key={ idx } transaction={tx} />
+                  })
+                }
+              </div>
+            </>
+          )
+        }
       </DialogContent>
     </Dialog>
   );
