@@ -6,12 +6,18 @@
   align-items: flex-end;
   margin: auto;
   margin-bottom: 60px;
-  padding: 0 0 10px 0px;
+  padding: 20px 0 10px 0px;
 }
 
 .title {
   font-size: 20px !important;
   margin-bottom: 24px !important;
+}
+
+.helpText {
+  color: rgba(126,153,176,0.9);
+  margin: 0 15px 0 0 !important;
+  padding: 15px 0;
 }
 
 .tableContainer {
@@ -38,9 +44,11 @@
 }
 
 .buttonOverride {
-  color: rgb(6, 211, 215);
-  background: rgb(23, 52, 72);
-  font-weight: 700;
+  background: rgb(23, 52, 72) !important;
+  color: rgb(6, 211, 215) !important;
+  font-weight: 700 !important;
+  width: 100%;
+  min-width: 200px !important;
 }
 
 .buttonOverride:hover {
@@ -75,6 +83,8 @@
   width: 100%;
   align-items: center;
   background: rgb(33, 43, 72);
+  padding: 0 20px;
+  min-height: 60px;
 }
 
 .mediumInputAssetSelect {
@@ -86,7 +96,8 @@
 .mediumInputAmount {
   flex: 1;
   height: 100%;
-  width: 300px;
+  width: 100%;
+  min-width: 300px;
 }
 
 .mediumInputAddress {
@@ -119,5 +130,6 @@
     margin: auto;
     padding: 0 0 10px 0px;
     margin-bottom: 20px;
+    margin-top: 100px;
   }
 }

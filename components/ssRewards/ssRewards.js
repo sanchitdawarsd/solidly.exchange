@@ -114,30 +114,37 @@ export default function ssRewards() {
     return (
       <div className={ classes.textField}>
         <div className={ classes.mediumInputContainer}>
-          <div className={ classes.mediumInputAmount }>
-            <Select
-              fullWidth
-              value={ value }
-              onChange={handleChange}
-              InputProps={{
-                className: classes.mediumInput,
-              }}
-            >
-              { options && options.map((option) => {
-                return (
-                  <MenuItem key={option.id} value={option}>
-                    <div className={ classes.menuOption }>
-                      <Typography>Token #{option.id}</Typography>
-                      <div>
-                        <Typography align='right' className={ classes.smallerText }>{ formatCurrency(option.lockValue) }</Typography>
-                        <Typography color='textSecondary' className={ classes.smallerText }>{veToken?.symbol}</Typography>
+          <Grid container>
+            <Grid item lg='auto' md='auto' sm={12} xs={12}>
+              <Typography variant="body2" className={ classes.helpText }>Please select your veNFT:</Typography>
+            </Grid>
+            <Grid item lg={6} md={6} sm={12} xs={12}>
+            <div className={ classes.mediumInputAmount }>
+              <Select
+                fullWidth
+                value={ value }
+                onChange={handleChange}
+                InputProps={{
+                  className: classes.mediumInput,
+                }}
+              >
+                { options && options.map((option) => {
+                  return (
+                    <MenuItem key={option.id} value={option}>
+                      <div className={ classes.menuOption }>
+                        <Typography>Token #{option.id}</Typography>
+                        <div>
+                          <Typography align='right' className={ classes.smallerText }>{ formatCurrency(option.lockValue) }</Typography>
+                          <Typography color='textSecondary' className={ classes.smallerText }>{veToken?.symbol}</Typography>
+                        </div>
                       </div>
-                    </div>
-                  </MenuItem>
-                )
-              })}
-            </Select>
-          </div>
+                    </MenuItem>
+                  )
+                })}
+              </Select>
+            </div>
+            </Grid>
+          </Grid>
         </div>
       </div>
     )
@@ -146,21 +153,29 @@ export default function ssRewards() {
   return (
     <div className={ classes.container}>
       <div className={ classes.toolbarContainer }>
-        <div className={ classes.tokenIDContainer }>
-          { renderMediumInput(token, vestNFTs) }
-        </div>
-        <Button
-          variant="contained"
-          color="secondary"
-          startIcon={<AddCircleOutlineIcon />}
-          size='large'
-          className={ classes.buttonOverride }
-          color='primary'
-          onClick={ onClaimAll }
-          disabled={ loading }
-        >
-          <Typography className={ classes.actionButtonText }>Claim All</Typography>
-        </Button>
+        <Grid container spacing={1}>
+          <Grid item lg='auto' md='auto' sm={12} xs={12}>
+            <div className={ classes.tokenIDContainer }>
+              { renderMediumInput(token, vestNFTs) }
+            </div>
+          </Grid>
+          <Grid item lg={true} md={true} sm={0} xs={0}>
+          </Grid>
+          <Grid item lg='auto' md='auto' sm='12' xs='12'>
+            <Button
+              variant="contained"
+              color="secondary"
+              startIcon={<AddCircleOutlineIcon />}
+              size='large'
+              className={ classes.buttonOverride }
+              color='primary'
+              onClick={ onClaimAll }
+              disabled={ loading }
+            >
+              <Typography className={ classes.actionButtonText }>Claim All</Typography>
+            </Button>
+          </Grid>
+        </Grid>
       </div>
       <RewardsTable rewards={rewards} vestNFTs={ vestNFTs } tokenID={ token?.id } />
     </div>
