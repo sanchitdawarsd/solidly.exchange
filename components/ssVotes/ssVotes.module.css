@@ -9,6 +9,12 @@
   padding: 0 0 70px 0px;
 }
 
+.smallText {
+  color: rgba(126,153,176,0.9);
+  margin: 0 15px 0 0 !important;
+  padding: 15px 0;
+}
+
 .tableContainer {
   border: 1px solid rgba(126, 153, 176, 0.2);
   width: 100%;
@@ -27,6 +33,7 @@
   transform: translatex(-50%);
   border-radius: 12 !important;
   border: 1px solid rgba(126, 153, 176, 0.2);
+  z-index: 10020 !important;
 }
 
 .actionButton {
@@ -66,6 +73,7 @@
   background: rgb(23, 52, 72) !important;
   color: rgb(6, 211, 215) !important;
   font-weight: 700 !important;
+  width: 100%;
   min-width: 200px !important;
 }
 
@@ -113,6 +121,7 @@
   width: 100%;
   align-items: center;
   background: rgb(33, 43, 72);
+  padding: 0 20px;
 }
 
 .mediumInputAssetSelect {
@@ -176,5 +185,9 @@
     transform: translatex(0);
     border-radius: 0 !important;
     border-top: 1px solid rgba(126, 153, 176, 0.2);
+  }
+
+  .searchContainer {
+    padding: 0px !important;
   }
 }

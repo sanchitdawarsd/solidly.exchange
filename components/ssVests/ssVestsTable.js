@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import Skeleton from '@material-ui/lab/Skeleton';
-import { Paper, Button, Table, TableBody, TableCell, InputAdornment, TableContainer, TableHead, TableRow, TableSortLabel, Typography, Tooltip, Toolbar } from '@material-ui/core';
+import { Paper, Button, Table, TableBody, TableCell, InputAdornment, TableContainer, TableHead, TableRow, TableSortLabel, Typography, Tooltip, Toolbar, Grid } from '@material-ui/core';
 import { useRouter } from "next/router";
 import BigNumber from 'bignumber.js';
 import EnhancedEncryptionOutlinedIcon from '@material-ui/icons/EnhancedEncryptionOutlined';
@@ -236,6 +236,7 @@ const useStyles = makeStyles((theme) => ({
     color: 'rgb(6, 211, 215)',
     background: 'rgb(23, 52, 72)',
     fontWeight: '700',
+    width: '100%',
     '&:hover': {
       background: 'rgb(19, 44, 60)'
     },
@@ -273,18 +274,25 @@ const EnhancedTableToolbar = (props) => {
 
   return (
     <Toolbar className={ classes.toolbar }>
-    <Button
-      variant="contained"
-      color="secondary"
-      className={classes.button}
-      startIcon={<EnhancedEncryptionOutlinedIcon />}
-      size='large'
-      className={ classes.buttonOverride }
-      color='primary'
-      onClick={ onCreate }
-    >
-        <Typography className={ classes.actionButtonText }>Create Lock</Typography>
-      </Button>
+
+      <Grid container spacing={1}>
+        <Grid lg='auto' md={12} sm={12} xs={12} item>
+          <Button
+            variant="contained"
+            color="secondary"
+            startIcon={<EnhancedEncryptionOutlinedIcon />}
+            size='large'
+            className={ classes.buttonOverride }
+            color='primary'
+            onClick={ onCreate }
+          >
+            <Typography className={ classes.actionButtonText }>Create Lock</Typography>
+          </Button>
+        </Grid>
+        <Grid item lg={true} md={true} sm={0} xs={0}></Grid>
+      </Grid>
+
+
     </Toolbar>
   );
 };

@@ -5,6 +5,8 @@ import { Typography, Paper, Switch, Button, Tooltip, Grid, SvgIcon } from '@mate
 import { ToggleButton, ToggleButtonGroup } from '@material-ui/lab';
 import { withTheme, withStyles } from '@material-ui/core/styles';
 
+import SSWarning  from '../ssWarning';
+
 import stores from '../../stores';
 import { formatAddress } from '../../utils';
 import classes from './navigation.module.css';
@@ -92,6 +94,22 @@ function Navigation(props) {
 
   function handleNavigate(route) {
     router.push(route);
+  }
+
+  const [warningOpen, setWarningOpen] = useState(false);
+
+  useEffect(function () {
+    const localStorageWarningAccepted = window.localStorage.getItem('fixed.forex-warning-accepted');
+    setWarningOpen(localStorageWarningAccepted ? localStorageWarningAccepted !== 'accepted' : true);
+  }, []);
+
+  const openWarning = () => {
+    setWarningOpen(true)
+  }
+
+  const closeWarning = () => {
+    window.localStorage.setItem('fixed.forex-warning-accepted', 'accepted');
+    setWarningOpen(false)
   }
 
   const onActiveClick = (event, val) => {
@@ -189,6 +207,11 @@ function Navigation(props) {
       </div>
 
       <div className={classes.navigationContent}>{renderNavs()}</div>
+
+      { warningOpen &&
+        <SSWarning close={ closeWarning } />
+      }
+
     </div>
   );
 }

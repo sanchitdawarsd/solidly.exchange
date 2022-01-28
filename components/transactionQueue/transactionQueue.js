@@ -1,5 +1,12 @@
 import React, { useState, useEffect  } from "react";
 import { Typography, Button, CircularProgress, DialogContent, Dialog, Slide } from "@material-ui/core";
+import OpenInNewIcon from '@material-ui/icons/OpenInNew';
+import Lottie from "lottie-react";
+import successAnim from "../../public/lottiefiles/successAnim.json";
+import swapSuccessAnim from "../../public/lottiefiles/swapSuccess.json";
+import lockSuccessAnim from "../../public/lottiefiles/lockSuccess.json";
+import pairSuccessAnim from "../../public/lottiefiles/pairSuccess.json";
+
 import Transaction from './transaction'
 
 function Transition(props) {
@@ -121,13 +128,19 @@ export default function TransactionQueue({ setQueueLength }) {
   }, [transactions]);
 
   const renderDone = () => {
-    return (<div>
-      DONE
-    </div>)
+    return (
+      <div className={classes.successDialog}>
+        <Lottie loop={false} className={classes.animClass} animationData={successAnim} />
+        <Typography className={ classes.successTitle }>Transaction Successful!</Typography>
+        <Typography className={ classes.successText }>Transaction has been confirmed by the blockchain.</Typography>
+        <Typography className={ classes.viewDetailsText }><a href="#" target="_blank">View in Explorer <OpenInNewIcon className={classes.newWindowIcon} /></a></Typography>
+      </div>
+    )
   }
 
   return (
     <Dialog
+      className={classes.dialogScale}
       open={open}
       onClose={handleClose}
       fullWidth={true}

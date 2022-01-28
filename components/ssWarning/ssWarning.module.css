@@ -1,0 +1,170 @@
+.dialogContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 100vw;
+  min-height: 100vh;
+}
+
+.dialogWrapper {
+  z-index: 10030 !important;
+  position: fixed !important;
+}
+
+.warningContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  max-width: 540px;
+  border: 1px solid rgba(104,108,122,0.2);
+  padding: 40px;
+  border-radius: 20px;
+}
+
+.warningIcon {
+  width: 120px;
+  height: 140px;
+  margin-bottom: 20px !important;
+}
+
+.title1 {
+  font: normal normal normal 23px/36px Inter !important;
+  letter-spacing: 0px !important;
+  color: rgba(126,153,176,0.8);
+}
+
+.title2 {
+  font: normal normal bold 29px/36px Inter !important;
+  letter-spacing: 0px !important;
+  margin-bottom: 36px !important;
+}
+
+.para1 {
+  text-align: center;
+  font: normal normal bold 20px/28px Inter !important;
+  letter-spacing: 0px !important;
+  margin-bottom: 33px !important;
+  color: rgba(126,153,176,0.8);
+}
+
+.para2 {
+  font: normal normal normal 16px/26px Inter !important;
+  letter-spacing: 0px;
+  color: #646464;
+  margin-bottom: 32px !important;
+}
+
+.buttonsContainer {
+  padding: 0px 24px;
+}
+
+.primaryButton {
+    background: rgb(23, 52, 72) !important;
+    font-weight: 700 !important;
+    width: 100%;
+    margin-bottom: 15px !important;
+}
+
+.secondaryButton {
+  margin-bottom: 15px !important;
+}
+
+.buttonTextPrimary {
+  font: normal normal bold 14px/19px Inter !important;
+  letter-spacing: 0px  !important;
+  text-transform: none;
+  color: rgb(6, 211, 215) !important;
+}
+
+.buttonTextSecondary {
+  font: normal normal bold 14px/19px Inter !important;
+  letter-spacing: 0px  !important;
+  color: #000 !important;
+  text-transform: none;
+}
+
+
+
+@media screen and (max-width: 960px) {
+  .warningIcon {
+    width: 100px;
+    height: 86px;
+    margin-bottom: 30px !important;
+  }
+
+  .title1 {
+    font: normal normal normal 18px/26px Inter !important;
+  }
+
+  .title2 {
+    font: normal normal bold 22px/26px Inter !important;
+    letter-spacing: 0px !important;
+    margin-bottom: 30px !important;
+  }
+
+  .para1 {
+    font: normal normal bold 14px/18px Inter !important;
+    margin: 0 20px 20px 20px !important;
+  }
+
+  .para2 {
+    font: normal normal normal 14px/18px Inter !important;
+    margin: 0 20px 20px 20px !important;
+  }
+
+  .buttonTextPrimary {
+    font: normal normal bold 13px/16px Inter !important;
+  }
+
+  .buttonTextSecondary {
+    font: normal normal bold 13px/16px Inter !important;
+  }
+
+  .primaryButton {
+    margin: 0 auto 20px auto !important;
+    min-width: inherit !important;
+  }
+}
+
+
+@media screen and (max-width: 320px) {
+  .warningIcon {
+    width: 60px;
+    height: 52px;
+    margin-bottom: 15px !important;
+  }
+
+  .title1 {
+    font: normal normal normal 18px/26px Inter !important;
+  }
+
+  .title2 {
+    font: normal normal bold 22px/26px Inter !important;
+    letter-spacing: 0px !important;
+    margin-bottom: 15px !important;
+  }
+
+  .para1 {
+    font: normal normal bold 14px/18px Inter !important;
+    margin: 0 20px 20px 20px !important;
+  }
+
+  .para2 {
+    font: normal normal normal 13px/15px Inter !important;
+    margin: 0 20px 20px 20px !important;
+  }
+
+  .buttonTextPrimary {
+    font: normal normal bold 13px/16px Inter !important;
+  }
+
+  .buttonTextSecondary {
+    font: normal normal bold 13px/16px Inter !important;
+  }
+
+  .primaryButton {
+    margin: 0 auto 20px auto !important;
+    min-width: inherit !important;
+  }
+}

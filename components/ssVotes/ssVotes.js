@@ -124,30 +124,38 @@ export default function ssVotes() {
     return (
       <div className={ classes.textField}>
         <div className={ classes.mediumInputContainer}>
-          <div className={ classes.mediumInputAmount }>
-            <Select
-              fullWidth
-              value={ value }
-              onChange={handleChange}
-              InputProps={{
-                className: classes.mediumInput,
-              }}
-            >
-              { options && options.map((option) => {
-                return (
-                  <MenuItem key={option.id} value={option}>
-                    <div className={ classes.menuOption }>
-                      <Typography>Token #{option.id}</Typography>
-                      <div>
-                        <Typography align='right' className={ classes.smallerText }>{ formatCurrency(option.lockValue) }</Typography>
-                        <Typography color='textSecondary' className={ classes.smallerText }>{veToken?.symbol}</Typography>
-                      </div>
-                    </div>
-                  </MenuItem>
-                )
-              })}
-            </Select>
-          </div>
+          <Grid container>
+            <Grid item lg='auto' md='auto' sm={12} xs={12}>
+              <Typography variant="body2" className={ classes.smallText }>Please select your veNFT:</Typography>
+            </Grid>
+
+            <Grid item lg={6} md={6} sm={12} xs={12}>
+              <div className={ classes.mediumInputAmount }>
+                <Select
+                  fullWidth
+                  value={ value }
+                  onChange={handleChange}
+                  InputProps={{
+                    className: classes.mediumInput,
+                  }}
+                >
+                  { options && options.map((option) => {
+                    return (
+                      <MenuItem key={option.id} value={option}>
+                        <div className={ classes.menuOption }>
+                          <Typography>Token #{option.id}</Typography>
+                          <div>
+                            <Typography align='right' className={ classes.smallerText }>{ formatCurrency(option.lockValue) }</Typography>
+                            <Typography color='textSecondary' className={ classes.smallerText }>{veToken?.symbol}</Typography>
+                          </div>
+                        </div>
+                      </MenuItem>
+                    )
+                  })}
+                </Select>
+              </div>
+              </Grid>
+            </Grid>
         </div>
       </div>
     )
@@ -156,36 +164,45 @@ export default function ssVotes() {
   return (
     <div className={ classes.container }>
       <div className={ classes.topBarContainer }>
-        <Button
-          variant="contained"
-          color="secondary"
-          className={classes.button}
-          startIcon={<AddCircleOutlineIcon />}
-          size='large'
-          className={ classes.buttonOverride }
-          color='primary'
-          onClick={ onBribe }
-        >
-          <Typography className={ classes.actionButtonText }>{ `Create Bribe` }</Typography>
-        </Button>
-        <TextField
-          className={classes.searchContainer}
-          variant="outlined"
-          fullWidth
-          placeholder="FTM, MIM, 0x..."
-          value={search}
-          onChange={onSearchChanged}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
-          }}
-        />
-        <div className={ classes.tokenIDContainer }>
-          { renderMediumInput(token, vestNFTs) }
-        </div>
+
+        <Grid container spacing={1}>
+          <Grid item lg='auto' lg='auto' sm={12} xs={12}>
+            <Button
+              variant="contained"
+              color="secondary"
+              className={classes.button}
+              startIcon={<AddCircleOutlineIcon />}
+              size='large'
+              className={ classes.buttonOverride }
+              color='primary'
+              onClick={ onBribe }
+            >
+              <Typography className={ classes.actionButtonText }>{ `Create Bribe` }</Typography>
+            </Button>
+          </Grid>
+          <Grid item lg={true} md={true} sm={12} xs={12}>
+            <TextField
+              className={classes.searchContainer}
+              variant="outlined"
+              fullWidth
+              placeholder="FTM, MIM, 0x..."
+              value={search}
+              onChange={onSearchChanged}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Grid>
+          <Grid item lg='auto' lg='auto' sm={12} xs={12}>
+            <div className={ classes.tokenIDContainer }>
+              { renderMediumInput(token, vestNFTs) }
+            </div>
+          </Grid>
+        </Grid>
       </div>
       <Paper elevation={0} className={ classes.tableContainer }>
         <GaugesTable gauges={ gauges.filter((pair) => {
