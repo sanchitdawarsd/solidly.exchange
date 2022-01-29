@@ -12,6 +12,7 @@ import {
   TableHead,
   TableRow,
   TableSortLabel,
+  TablePagination,
   Typography,
   Tooltip,
   Toolbar,
@@ -21,7 +22,7 @@ import {
   Popper,
   Fade,
   Grid,
-  Switch
+  Switch,
 } from '@material-ui/core';
 import { useRouter } from "next/router";
 import BigNumber from 'bignumber.js';
@@ -390,7 +391,7 @@ const EnhancedTableToolbar = (props) => {
     router.push('/liquidity/create')
   }
 
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
 
   const handleClick = (event) => {
     setAnchorEl(anchorEl ? null : event.currentTarget);
@@ -520,6 +521,8 @@ export default function EnhancedTable({ pairs }) {
 
   const [order, setOrder] = useState('desc');
   const [orderBy, setOrderBy] = useState('balance');
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [page, setPage] = useState(0);
 
   const [search, setSearch] = useState('')
   const [toggleActive, setToggleActive] = useState(false);
@@ -559,7 +562,44 @@ export default function EnhancedTable({ pairs }) {
     )
   }
 
-  console.log(toggleActiveGauge)
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const filteredPairs = pairs.filter((pair) => {
+    if(!search || search === '') {
+      return true
+    }
+
+    const searchLower = search.toLowerCase()
+
+    if(pair.symbol.toLowerCase().includes(searchLower) || pair.address.toLowerCase().includes(searchLower) ||
+      pair.token0.symbol.toLowerCase().includes(searchLower) || pair.token0.address.toLowerCase().includes(searchLower) || pair.token0.name.toLowerCase().includes(searchLower) ||
+      pair.token1.symbol.toLowerCase().includes(searchLower) || pair.token1.address.toLowerCase().includes(searchLower) ||  pair.token1.name.toLowerCase().includes(searchLower)) {
+      return true
+    }
+
+    return false
+  }).filter((pair) => {
+    if(toggleStable !== true && pair.isStable === true) {
+      return false
+    }
+    if(toggleVariable !== true && pair.isStable === false) {
+      return false
+    }
+    if(toggleActiveGauge !== true && (!pair.gauge || !pair.gauge.address)) {
+      return false
+    }
+
+    return true
+  })
+
+  const emptyRows = rowsPerPage - Math.min(rowsPerPage, filteredPairs.length - page * rowsPerPage);
 
   return (
     <div className={classes.root}>
@@ -569,33 +609,9 @@ export default function EnhancedTable({ pairs }) {
           <Table className={classes.table} aria-labelledby='tableTitle' size={'medium'} aria-label='enhanced table'>
             <EnhancedTableHead classes={classes} order={order} orderBy={orderBy} onRequestSort={handleRequestSort} />
             <TableBody>
-              {stableSort(pairs.filter((pair) => {
-                if(!search || search === '') {
-                  return true
-                }
-
-                const searchLower = search.toLowerCase()
-
-                if(pair.symbol.toLowerCase().includes(searchLower) || pair.address.toLowerCase().includes(searchLower) ||
-                  pair.token0.symbol.toLowerCase().includes(searchLower) || pair.token0.address.toLowerCase().includes(searchLower) || pair.token0.name.toLowerCase().includes(searchLower) ||
-                  pair.token1.symbol.toLowerCase().includes(searchLower) || pair.token1.address.toLowerCase().includes(searchLower) ||  pair.token1.name.toLowerCase().includes(searchLower)) {
-                  return true
-                }
-
-                return false
-              }).filter((pair) => {
-                if(toggleStable !== true && pair.isStable === true) {
-                  return false
-                }
-                if(toggleVariable !== true && pair.isStable === false) {
-                  return false
-                }
-                if(toggleActiveGauge !== true && (!pair.gauge || !pair.gauge.address)) {
-                  return false
-                }
-
-                return true
-              }), getComparator(order, orderBy)).map((row, index) => {
+              {stableSort(filteredPairs, getComparator(order, orderBy))
+              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+              .map((row, index) => {
                 if (!row) {
                   return null;
                 }
@@ -759,9 +775,23 @@ export default function EnhancedTable({ pairs }) {
                   </TableRow>
                 );
               })}
+              {emptyRows > 0 && (
+                <TableRow style={{ height: 61 * emptyRows }}>
+                  <TableCell colSpan={7} />
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </TableContainer>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={filteredPairs.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
       </Paper>
     </div>
   );

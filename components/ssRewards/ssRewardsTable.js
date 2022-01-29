@@ -12,6 +12,7 @@ import {
   TableHead,
   TableRow,
   TableSortLabel,
+  TablePagination,
   Typography,
   Tooltip,
   Toolbar,
@@ -338,6 +339,17 @@ export default function EnhancedTable({ rewards, vestNFTs, tokenID }) {
 
   const [order, setOrder] = React.useState('desc');
   const [orderBy, setOrderBy] = React.useState('balance');
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [page, setPage] = useState(0);
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -362,6 +374,8 @@ export default function EnhancedTable({ rewards, vestNFTs, tokenID }) {
     stores.dispatcher.dispatch({ type: ACTIONS.CLAIM_REWARD, content: { pair: reward, tokenID } })
   };
 
+  const emptyRows = rowsPerPage - Math.min(rowsPerPage, rewards.length - page * rowsPerPage);
+
   return (
 
     <div className={classes.root}>
@@ -370,7 +384,9 @@ export default function EnhancedTable({ rewards, vestNFTs, tokenID }) {
           <Table className={classes.table} aria-labelledby='tableTitle' size={'medium'} aria-label='enhanced table'>
             <EnhancedTableHead classes={classes} order={order} orderBy={orderBy} onRequestSort={handleRequestSort} />
             <TableBody>
-              {stableSort(rewards, getComparator(order, orderBy)).map((row, index) => {
+              {stableSort(rewards, getComparator(order, orderBy))
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((row, index) => {
                 if (!row) {
                   return null;
                 }
@@ -488,6 +504,15 @@ export default function EnhancedTable({ rewards, vestNFTs, tokenID }) {
             </TableBody>
           </Table>
         </TableContainer>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={rewards.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
       </Paper>
     </div>
   );

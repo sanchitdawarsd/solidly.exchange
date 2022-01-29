@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import Skeleton from '@material-ui/lab/Skeleton';
-import { Paper, Button, Table, TableBody, TableCell, InputAdornment, TableContainer, TableHead, TableRow, TableSortLabel, Typography, Tooltip, Toolbar, Grid } from '@material-ui/core';
+import { Paper, Button, Table, TableBody, TableCell, InputAdornment, TableContainer, TableHead, TableRow, TableSortLabel, TablePagination, Typography, Tooltip, Toolbar, Grid } from '@material-ui/core';
 import { useRouter } from "next/router";
 import BigNumber from 'bignumber.js';
 import EnhancedEncryptionOutlinedIcon from '@material-ui/icons/EnhancedEncryptionOutlined';
@@ -303,6 +303,17 @@ export default function EnhancedTable({ vestNFTs, govToken, veToken }) {
 
   const [order, setOrder] = React.useState('desc');
   const [orderBy, setOrderBy] = React.useState('balance');
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [page, setPage] = useState(0);
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -327,6 +338,8 @@ export default function EnhancedTable({ vestNFTs, govToken, veToken }) {
     router.push(`/vest/${nft.id}`);
   };
 
+  const emptyRows = rowsPerPage - Math.min(rowsPerPage, vestNFTs.length - page * rowsPerPage);
+
   return (
     <div className={classes.root}>
       <EnhancedTableToolbar />
@@ -335,7 +348,9 @@ export default function EnhancedTable({ vestNFTs, govToken, veToken }) {
           <Table className={classes.table} aria-labelledby='tableTitle' size={'medium'} aria-label='enhanced table'>
             <EnhancedTableHead classes={classes} order={order} orderBy={orderBy} onRequestSort={handleRequestSort} />
             <TableBody>
-              {stableSort(vestNFTs, getComparator(order, orderBy)).map((row, index) => {
+              {stableSort(vestNFTs, getComparator(order, orderBy))
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((row, index) => {
                 if (!row) {
                   return null;
                 }
@@ -412,6 +427,15 @@ export default function EnhancedTable({ vestNFTs, govToken, veToken }) {
             </TableBody>
           </Table>
         </TableContainer>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={vestNFTs.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
       </Paper>
     </div>
   );

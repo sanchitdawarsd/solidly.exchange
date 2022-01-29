@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { lighten, makeStyles, withStyles } from '@material-ui/core/styles';
 import Skeleton from '@material-ui/lab/Skeleton';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, Typography, Slider, Tooltip } from '@material-ui/core';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, TablePagination, Typography, Slider, Tooltip } from '@material-ui/core';
 import BigNumber from 'bignumber.js';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 
@@ -292,6 +292,8 @@ export default function EnhancedTable({ gauges, setParentSliderValues, defaultVo
   const [order, setOrder] = useState('desc');
   const [orderBy, setOrderBy] = useState('balance');
   const [sliderValues, setSliderValues] = useState(defaultVotes)
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [page, setPage] = useState(0);
 
   useEffect(() => {
     setSliderValues(defaultVotes)
@@ -314,6 +316,15 @@ export default function EnhancedTable({ gauges, setParentSliderValues, defaultVo
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
   };
 
   if (!gauges) {
@@ -350,13 +361,17 @@ export default function EnhancedTable({ gauges, setParentSliderValues, defaultVo
     )
   }
 
+  const emptyRows = rowsPerPage - Math.min(rowsPerPage, gauges.length - page * rowsPerPage);
+
   return (
     <div className={classes.root}>
       <TableContainer className={ classes.tableContainer }>
         <Table className={classes.table} aria-labelledby="tableTitle" size={'medium'} aria-label="enhanced table">
           <EnhancedTableHead classes={classes} order={order} orderBy={orderBy} onRequestSort={handleRequestSort} />
           <TableBody>
-            {stableSort(gauges, getComparator(order, orderBy)).map((row, index) => {
+            {stableSort(gauges, getComparator(order, orderBy))
+              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+              .map((row, index) => {
               if (!row) {
                 return null;
               }
@@ -443,9 +458,23 @@ export default function EnhancedTable({ gauges, setParentSliderValues, defaultVo
                 </TableRow>
               );
             })}
+            {emptyRows > 0 && (
+              <TableRow style={{ height: 61 * emptyRows }}>
+                <TableCell colSpan={7} />
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[5, 10, 25]}
+        component="div"
+        count={gauges.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
     </div>
   );
 }
