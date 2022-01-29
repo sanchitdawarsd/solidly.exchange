@@ -20,6 +20,12 @@ export const WFTM_SYMBOL = 'WFTM'
 export const WFTM_DECIMALS = 18
 export const WFTM_ABI = abis.wftmABI
 
+export const FTM_ADDRESS = 'FTM'
+export const FTM_NAME = 'Fantom'
+export const FTM_SYMBOL = 'FTM'
+export const FTM_DECIMALS = 18
+export const FTM_LOGO = 'https://assets.coingecko.com/coins/images/4001/large/Fantom.png'
+
 export const FACTORY_ADDRESS = '0xd231865CE0eDB0079F0D0d7BB2E647458aa60d11'
 export const FACTORY_ABI = abis.factoryABI
 

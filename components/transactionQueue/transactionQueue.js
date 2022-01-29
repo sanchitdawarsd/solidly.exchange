@@ -15,7 +15,7 @@ function Transition(props) {
 
 import classes from './transactionQueue.module.css';
 import stores from '../../stores'
-import { ACTIONS } from '../../stores/constants';
+import { ACTIONS, ETHERSCAN_URL } from '../../stores/constants';
 
 export default function TransactionQueue({ setQueueLength }) {
 
@@ -127,13 +127,13 @@ export default function TransactionQueue({ setQueueLength }) {
     };
   }, [transactions]);
 
-  const renderDone = () => {
+  const renderDone = (tx) => {
     return (
       <div className={classes.successDialog}>
         <Lottie loop={false} className={classes.animClass} animationData={successAnim} />
         <Typography className={ classes.successTitle }>Transaction Successful!</Typography>
         <Typography className={ classes.successText }>Transaction has been confirmed by the blockchain.</Typography>
-        <Typography className={ classes.viewDetailsText }><a href="#" target="_blank">View in Explorer <OpenInNewIcon className={classes.newWindowIcon} /></a></Typography>
+        <Typography className={ classes.viewDetailsText }><a href={`${ETHERSCAN_URL}tx/${tx?.txHash}`} target="_blank">View in Explorer <OpenInNewIcon className={classes.newWindowIcon} /></a></Typography>
       </div>
     )
   }
@@ -151,7 +151,7 @@ export default function TransactionQueue({ setQueueLength }) {
       <DialogContent>
         { transactions && transactions.filter((tx) => { return ['DONE', 'CONFIRMED'].includes(tx.status) }).length === transactions.length ?
           (
-            renderDone()
+            renderDone(transactions[transactions.length-1])
           )
           :
           (

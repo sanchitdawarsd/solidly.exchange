@@ -112,6 +112,7 @@ export default function ssLiquidityManage() {
     stores.emitter.on(ACTIONS.LIQUIDITY_REMOVED, depositReturned)
     stores.emitter.on(ACTIONS.REMOVE_LIQUIDITY_AND_UNSTAKED, depositReturned)
     stores.emitter.on(ACTIONS.LIQUIDITY_STAKED, depositReturned)
+    stores.emitter.on(ACTIONS.LIQUIDITY_UNSTAKED, depositReturned)
     stores.emitter.on(ACTIONS.QUOTE_ADD_LIQUIDITY_RETURNED, quoteAddReturned)
     stores.emitter.on(ACTIONS.QUOTE_REMOVE_LIQUIDITY_RETURNED, quoteRemoveReturned)
     stores.emitter.on(ACTIONS.ERROR, errorReturned)
@@ -126,6 +127,7 @@ export default function ssLiquidityManage() {
       stores.emitter.removeListener(ACTIONS.LIQUIDITY_REMOVED, depositReturned)
       stores.emitter.removeListener(ACTIONS.REMOVE_LIQUIDITY_AND_UNSTAKED, depositReturned)
       stores.emitter.removeListener(ACTIONS.LIQUIDITY_STAKED, depositReturned)
+      stores.emitter.removeListener(ACTIONS.LIQUIDITY_UNSTAKED, depositReturned)
       stores.emitter.removeListener(ACTIONS.QUOTE_ADD_LIQUIDITY_RETURNED, quoteAddReturned)
       stores.emitter.removeListener(ACTIONS.QUOTE_REMOVE_LIQUIDITY_RETURNED, quoteRemoveReturned)
       stores.emitter.removeListener(ACTIONS.ERROR, errorReturned)
@@ -266,13 +268,13 @@ export default function ssLiquidityManage() {
       setAmount1Error('Amount 0 is required')
       error = true
     } else {
-      if(!pair.token0.balance || isNaN(pair.token0.balance) || BigNumber(pair.token0.balance).lte(0))  {
+      if(!pair.token1.balance || isNaN(pair.token1.balance) || BigNumber(pair.token1.balance).lte(0))  {
         setAmount1Error('Invalid balance')
         error = true
       } else if(BigNumber(amount1).lte(0)) {
         setAmount1Error('Invalid amount')
         error = true
-      } else if (pair.token0 && BigNumber(amount1).gt(pair.token0.balance)) {
+      } else if (pair.token1 && BigNumber(amount1).gt(pair.token1.balance)) {
         setAmount1Error(`Greater than your available balance`)
         error = true
       }
@@ -334,13 +336,13 @@ export default function ssLiquidityManage() {
       setAmount1Error('Amount 0 is required')
       error = true
     } else {
-      if(!pair.token0.balance || isNaN(pair.token0.balance) || BigNumber(pair.token0.balance).lte(0))  {
+      if(!pair.token1.balance || isNaN(pair.token1.balance) || BigNumber(pair.token1.balance).lte(0))  {
         setAmount1Error('Invalid balance')
         error = true
       } else if(BigNumber(amount1).lte(0)) {
         setAmount1Error('Invalid amount')
         error = true
-      } else if (pair.token0 && BigNumber(amount1).gt(pair.token0.balance)) {
+      } else if (pair.token1 && BigNumber(amount1).gt(pair.token1.balance)) {
         setAmount1Error(`Greater than your available balance`)
         error = true
       }

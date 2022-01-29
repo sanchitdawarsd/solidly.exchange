@@ -33,7 +33,6 @@ export default function SSLiquidityCreate() {
   const [ asset1, setAsset1 ] = useState(null)
   const [ assetOptions, setAssetOptions ] = useState([])
 
-  const [ balances, setBalances ] = useState(null)
   const [ quote, setQuote ] = useState(null)
 
   const [ token, setToken ] = useState(null)
@@ -66,11 +65,6 @@ export default function SSLiquidityCreate() {
     }
 
     if(asset0 && asset1) {
-      //cant dispatch in a dispatch.
-      window.setTimeout(() => {
-        callGetCreatePairBalances(asset0, asset1)
-      }, 1)
-
       const p = await stores.stableSwapStore.getPair(asset0.address, asset1.address, stable)
       setPair(p)
     }
@@ -88,17 +82,12 @@ export default function SSLiquidityCreate() {
       setDepositLoading(false)
     }
 
-    const balancesReturned = (res) => {
-      setBalances(res)
-    }
-
     const assetsUpdated = () => {
       const baseAsset = stores.stableSwapStore.getStore('baseAssets')
       setAssetOptions(baseAsset)
     }
 
     stores.emitter.on(ACTIONS.UPDATED, ssUpdated)
-    stores.emitter.on(ACTIONS.GET_CREATE_PAIR_BALANCES_RETURNED, balancesReturned)
     stores.emitter.on(ACTIONS.PAIR_CREATED, createReturned)
     stores.emitter.on(ACTIONS.ERROR, errorReturned)
     stores.emitter.on(ACTIONS.BASE_ASSETS_UPDATED, assetsUpdated)
@@ -107,7 +96,6 @@ export default function SSLiquidityCreate() {
 
     return () => {
       stores.emitter.removeListener(ACTIONS.UPDATED, ssUpdated)
-      stores.emitter.removeListener(ACTIONS.GET_CREATE_PAIR_BALANCES_RETURNED, balancesReturned)
       stores.emitter.removeListener(ACTIONS.PAIR_CREATED, createReturned)
       stores.emitter.removeListener(ACTIONS.ERROR, errorReturned)
       stores.emitter.removeListener(ACTIONS.BASE_ASSETS_UPDATED, assetsUpdated)
@@ -250,15 +238,6 @@ export default function SSLiquidityCreate() {
     }
   }
 
-  const callGetCreatePairBalances = (a0, a1, am0, am1) => {
-    stores.dispatcher.dispatch({ type: ACTIONS.GET_CREATE_PAIR_BALANCES, content: {
-      token0: a0,
-      token1: a1,
-      amount0: am0,
-      amount1: am1
-    } })
-  }
-
   const amount0Changed = (event) => {
     setAmount0Error(false)
     setAmount0(event.target.value)
@@ -276,12 +255,10 @@ export default function SSLiquidityCreate() {
   const onAssetSelect = async (type, value) => {
     if(type === 'amount0') {
       setAsset0(value)
-      callGetCreatePairBalances(value, asset1, amount0, amount1)
       const p = await stores.stableSwapStore.getPair(value.address, asset1.address, stable)
       setPair(p)
     } else {
       setAsset1(value)
-      callGetCreatePairBalances(asset0, value, amount0, amount1)
       const p = await stores.stableSwapStore.getPair(asset0.address, value.address, stable)
       setPair(p)
     }

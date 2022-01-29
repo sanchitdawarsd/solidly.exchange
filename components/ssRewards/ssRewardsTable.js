@@ -414,11 +414,11 @@ export default function EnhancedTable({ rewards, vestNFTs, tokenID }) {
                       </div>
                     </TableCell>
                     <TableCell className={classes.cell} align='right'>
-                      <div className={ classes.inlineEnd }>
+                      <div>
                         {
                           row  && row.gauge.bribesEarned && row.gauge.bribesEarned.map((bribe) => {
                             return (
-                              <>
+                              <div className={ classes.inlineEnd }>
                                 <img
                                   className={classes.imgLogo}
                                   src={ (bribe && bribe.token && bribe.token.logoURI) ? bribe.token.logoURI : `` }
@@ -436,18 +436,18 @@ export default function EnhancedTable({ rewards, vestNFTs, tokenID }) {
                                 <Typography variant='h5' className={classes.textSpacedPadded} color='textSecondary'>
                                   { bribe.token.symbol }
                                 </Typography>
-                              </>
+                              </div>
                             )
                           })
                         }
                       </div>
                     </TableCell>
                     <TableCell className={classes.cell} align='right'>
-                      <div className={ classes.inlineEnd }>
+                      <div>
                         {
                           row  && row.gauge.bribesEarned && row.gauge.bribesEarned.map((bribe) => {
                             return (
-                              <>
+                              <div className={ classes.inlineEnd }>
                                 <img
                                   className={classes.imgLogo}
                                   src={ (bribe && bribe.token && bribe.token.logoURI) ? bribe.token.logoURI : `` }
@@ -465,7 +465,7 @@ export default function EnhancedTable({ rewards, vestNFTs, tokenID }) {
                                 <Typography variant='h5' className={classes.textSpacedPadded} color='textSecondary'>
                                   { bribe.token.symbol }
                                 </Typography>
-                              </>
+                              </div>
                             )
                           })
                         }

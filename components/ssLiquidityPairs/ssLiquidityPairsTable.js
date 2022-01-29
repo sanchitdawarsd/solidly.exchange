@@ -92,12 +92,12 @@ const headCells = [
     disablePadding: false,
     label: 'Total Pool Staked',
   },
-  {
-    id: 'apy',
-    numeric: true,
-    disablePadding: false,
-    label: 'APY',
-  },
+  // {
+  //   id: 'apy',
+  //   numeric: true,
+  //   disablePadding: false,
+  //   label: 'APY',
+  // },
   {
     id: '',
     numeric: true,
@@ -523,7 +523,7 @@ export default function EnhancedTable({ pairs }) {
 
   const [search, setSearch] = useState('')
   const [toggleActive, setToggleActive] = useState(false);
-  const [toggleActiveGauge, setToggleActiveGauge] = useState(false);
+  const [toggleActiveGauge, setToggleActiveGauge] = useState(true);
   const [toggleStable, setToggleStable] = useState(true);
   const [toggleVariable, setToggleVariable] = useState(true);
 
@@ -558,6 +558,8 @@ export default function EnhancedTable({ pairs }) {
       </div>
     )
   }
+
+  console.log(toggleActiveGauge)
 
   return (
     <div className={classes.root}>
@@ -638,12 +640,22 @@ export default function EnhancedTable({ pairs }) {
                       </div>
                     </TableCell>
                     <TableCell className={classes.cell} align='right'>
-                      <Typography variant='h2' className={classes.textSpaced}>
-                        {formatCurrency(row?.token0?.balance)} / {formatCurrency(row?.token1?.balance)}
-                      </Typography>
-                      <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                        {row?.token0?.symbol}/{row?.token1?.symbol}
-                      </Typography>
+                      <div className={ classes.inlineEnd }>
+                        <Typography variant='h2' className={classes.textSpaced}>
+                          {formatCurrency(row?.token0?.balance)}
+                        </Typography>
+                        <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                          {row?.token0?.symbol}
+                        </Typography>
+                      </div>
+                      <div className={ classes.inlineEnd }>
+                        <Typography variant='h2' className={classes.textSpaced}>
+                          {formatCurrency(row?.token1?.balance)}
+                        </Typography>
+                        <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                          {row?.token1?.symbol}
+                        </Typography>
+                      </div>
                     </TableCell>
                     <TableCell className={classes.cell} align='right'>
                       <Typography variant='h2' className={classes.textSpaced}>
@@ -719,7 +731,7 @@ export default function EnhancedTable({ pairs }) {
                           </Typography>
                         </TableCell>
                     }
-                    <TableCell className={classes.cell} align='right'>
+                    {/*<TableCell className={classes.cell} align='right'>
                       <Grid container spacing={0}>
                         <Grid item lg={10}>
                           <Typography variant='h2' className={classes.textSpaced}>
@@ -732,7 +744,7 @@ export default function EnhancedTable({ pairs }) {
                         </Tooltip>
                         </Grid>
                       </Grid>
-                    </TableCell>
+                    </TableCell>*/}
                     <TableCell className={classes.cell} align='right'>
                       <Button
                         variant='outlined'
