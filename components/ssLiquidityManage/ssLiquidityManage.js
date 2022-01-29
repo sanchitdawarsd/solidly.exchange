@@ -24,6 +24,7 @@ export default function ssLiquidityManage() {
   const [ depositLoading, setDepositLoading ] = useState(false)
   const [ stakeLoading, setStakeLoading ] = useState(false)
   const [ depositStakeLoading, setDepositStakeLoading ] = useState(false)
+  const [ createLoading, setCreateLoading ] = useState(false)
 
   const [ amount0, setAmount0 ] = useState('');
   const [ amount0Error, setAmount0Error ] = useState(false);
@@ -75,6 +76,7 @@ export default function ssLiquidityManage() {
       setDepositLoading(false)
       setStakeLoading(false)
       setDepositStakeLoading(false)
+      setCreateLoading(false)
 
       setAmount0('')
       setAmount1('')
@@ -85,10 +87,16 @@ export default function ssLiquidityManage() {
       setWithdrawQuote(null)
     }
 
+    const createGaugeReturned = () => {
+      setCreateLoading(false)
+      ssUpdated()
+    }
+
     const errorReturned = () => {
       setDepositLoading(false)
       setStakeLoading(false)
       setDepositStakeLoading(false)
+      setCreateLoading(false)
     }
 
     const balancesReturned = (res) => {
@@ -115,6 +123,7 @@ export default function ssLiquidityManage() {
     stores.emitter.on(ACTIONS.LIQUIDITY_UNSTAKED, depositReturned)
     stores.emitter.on(ACTIONS.QUOTE_ADD_LIQUIDITY_RETURNED, quoteAddReturned)
     stores.emitter.on(ACTIONS.QUOTE_REMOVE_LIQUIDITY_RETURNED, quoteRemoveReturned)
+    stores.emitter.on(ACTIONS.CREATE_GAUGE_RETURNED, createGaugeReturned)
     stores.emitter.on(ACTIONS.ERROR, errorReturned)
 
     ssUpdated()
@@ -130,6 +139,7 @@ export default function ssLiquidityManage() {
       stores.emitter.removeListener(ACTIONS.LIQUIDITY_UNSTAKED, depositReturned)
       stores.emitter.removeListener(ACTIONS.QUOTE_ADD_LIQUIDITY_RETURNED, quoteAddReturned)
       stores.emitter.removeListener(ACTIONS.QUOTE_REMOVE_LIQUIDITY_RETURNED, quoteRemoveReturned)
+      stores.emitter.removeListener(ACTIONS.CREATE_GAUGE_RETURNED, createGaugeReturned)
       stores.emitter.removeListener(ACTIONS.ERROR, errorReturned)
     };
   }, []);
@@ -396,6 +406,13 @@ export default function ssLiquidityManage() {
       amount0: withdrawAmount0,
       amount1: withdrawAmount1,
       quote: withdrawQuote
+    } })
+  }
+
+  const onCreateGauge = () => {
+    setCreateLoading(true)
+    stores.dispatcher.dispatch({ type: ACTIONS.CREATE_GAUGE, content: {
+      pair: pair,
     } })
   }
 
@@ -716,17 +733,30 @@ export default function ssLiquidityManage() {
             <div className={ classes.actionsContainer }>
               { // There is no Gauge on the pair yet. Can only deposit
                 !(pair && pair.gauge && pair.gauge.address) &&
-                  <Button
-                    variant='contained'
-                    size='large'
-                    className={ ((amount0 === '' && amount1 === '') || depositLoading || depositStakeLoading) ? classes.multiApprovalButton : classes.buttonOverride }
-                    color='primary'
-                    disabled={ (amount0 === '' && amount1 === '') || depositLoading || depositStakeLoading }
-                    onClick={ onDeposit }
-                    >
-                    <Typography className={ classes.actionButtonText }>{ depositLoading ? `Depositing` : `Deposit` }</Typography>
-                    { depositLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
-                  </Button>
+                  <>
+                    <Button
+                      variant='contained'
+                      size='large'
+                      className={ ((amount0 === '' && amount1 === '') || depositLoading || stakeLoading || depositStakeLoading) ? classes.multiApprovalButton : classes.buttonOverride }
+                      color='primary'
+                      disabled={ (amount0 === '' && amount1 === '') || depositLoading || stakeLoading || depositStakeLoading }
+                      onClick={ onDeposit }
+                      >
+                      <Typography className={ classes.actionButtonText }>{ depositLoading ? `Depositing` : `Deposit` }</Typography>
+                      { depositLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
+                    </Button>
+                    <Button
+                      variant='contained'
+                      size='large'
+                      className={ (createLoading || depositLoading || stakeLoading || depositStakeLoading) ? classes.multiApprovalButton : classes.buttonOverride }
+                      color='primary'
+                      disabled={ createLoading || depositLoading || stakeLoading || depositStakeLoading }
+                      onClick={ onCreateGauge }
+                      >
+                      <Typography className={ classes.actionButtonText }>{ createLoading ? `Creating` : `Create Gauge` }</Typography>
+                      { createLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
+                    </Button>
+                  </>
               }
               { // There is a Gauge on the pair. Can deposit and stake
                 (pair && pair.gauge && pair.gauge.address) &&

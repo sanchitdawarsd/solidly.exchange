@@ -76,6 +76,9 @@ class Store {
           case ACTIONS.UNSTAKE_LIQUIDITY:
             this.unstakeLiquidity(payload)
             break
+          case ACTIONS.CREATE_GAUGE:
+            this.createGauge(payload)
+            break;
 
           // SWAP
           case ACTIONS.QUOTE_SWAP:
@@ -2509,6 +2512,54 @@ class Store {
         }
       }
       this.emitter.emit(ACTIONS.QUOTE_REMOVE_LIQUIDITY_RETURNED, returnVal)
+
+    } catch(ex) {
+      console.error(ex)
+      this.emitter.emit(ACTIONS.ERROR, ex)
+    }
+  }
+
+  createGauge = async (payload) => {
+    try {
+      const context = this
+
+      const account = stores.accountStore.getStore("account")
+      if (!account) {
+        console.warn('account not found')
+        return null
+      }
+
+      const web3 = await stores.accountStore.getWeb3Provider()
+      if (!web3) {
+        console.warn('web3 not found')
+        return null
+      }
+
+      const { pair } = payload.content
+
+      // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
+      let createGaugeTXID = this.getTXUUID()
+
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CREATE LIQUIDITY GAUGE FOR ${pair.token0.symbol}/${pair.token1.symbol}`, transactions: [
+        {
+          uuid: createGaugeTXID,
+          description: `CREATE GAUGE`,
+          status: 'WAITING'
+        }
+      ]})
+
+      const gasPrice = await stores.accountStore.getGasPrice()
+
+      const gaugesContract = new web3.eth.Contract(CONTRACTS.GAUGES_ABI, CONTRACTS.GAUGES_ADDRESS)
+      this._callContractWait(web3, gaugesContract, 'createGauge', [pair.address], account, gasPrice, null, null, createGaugeTXID, async (err) => {
+        if (err) {
+          return this.emitter.emit(ACTIONS.ERROR, err)
+        }
+
+        await this.updatePairsCall(web3, account)
+
+        this.emitter.emit(ACTIONS.CREATE_GAUGE_RETURNED)
+      })
 
     } catch(ex) {
       console.error(ex)
