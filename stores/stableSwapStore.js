@@ -70,7 +70,7 @@ class Store {
           case ACTIONS.UNSTAKE_AND_REMOVE_LIQUIDITY:
             this.unstakeAndRemoveLiquidity(payload)
             break
-          case ACTIONS.QHOTE_REMOVE_LIQUIDITY:
+          case ACTIONS.QUOTE_REMOVE_LIQUIDITY:
             this.quoteRemoveLiquidity(payload)
             break
           case ACTIONS.UNSTAKE_LIQUIDITY:
@@ -1070,6 +1070,29 @@ class Store {
 
       const { token0, token1, amount0, amount1, isStable, token } = payload.content
 
+      let toki0 = token0.address
+      let toki1 = token1.address
+      if(token0.address === 'FTM') {
+        toki0 = CONTRACTS.WFTM_ADDRESS
+      }
+      if(token1.address === 'FTM') {
+        toki1 = CONTRACTS.WFTM_ADDRESS
+      }
+
+      console.log(toki0)
+      console.log(toki1)
+      console.log(isStable)
+
+      const routerContract = new web3.eth.Contract(CONTRACTS.ROUTER_ABI, CONTRACTS.ROUTER_ADDRESS)
+      const pairFor = await routerContract.methods.pairFor(toki0, toki1, isStable).call()
+
+      console.log(pairFor)
+      if(pairFor && pairFor != ZERO_ADDRESS) {
+        await context.updatePairsCall(web3, account)
+        this.emitter.emit(ACTIONS.ERROR, 'Pair already exists')
+        return null
+      }
+
       // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
       let allowance0TXID = this.getTXUUID()
       let allowance1TXID = this.getTXUUID()
@@ -1214,8 +1237,6 @@ class Store {
       const sendAmount1Min = BigNumber(amount1).times(0.97).times(10**token1.decimals).toFixed(0)
 
 
-      const routerContract = new web3.eth.Contract(CONTRACTS.ROUTER_ABI, CONTRACTS.ROUTER_ADDRESS)
-
       let func = 'addLiquidity'
       let params = [token0.address, token1.address, isStable, sendAmount0, sendAmount1, sendAmount0Min, sendAmount1Min, account.address, deadline]
       let sendValue = null
@@ -1336,6 +1357,27 @@ class Store {
       }
 
       const { token0, token1, amount0, amount1, isStable } = payload.content
+      console.log(token0.symbol)
+      console.log(token1.symbol)
+
+      let toki0 = token0.address
+      let toki1 = token1.address
+      if(token0.address === 'FTM') {
+        toki0 = CONTRACTS.WFTM_ADDRESS
+      }
+      if(token1.address === 'FTM') {
+        toki1 = CONTRACTS.WFTM_ADDRESS
+      }
+
+      const routerContract = new web3.eth.Contract(CONTRACTS.ROUTER_ABI, CONTRACTS.ROUTER_ADDRESS)
+      const pairFor = await routerContract.methods.pairFor(toki0, toki1, isStable).call()
+
+      console.log(pairFor)
+      if(pairFor && pairFor != ZERO_ADDRESS) {
+        await context.updatePairsCall(web3, account)
+        this.emitter.emit(ACTIONS.ERROR, 'Pair already exists')
+        return null
+      }
 
       // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
       let allowance0TXID = this.getTXUUID()
@@ -1469,8 +1511,6 @@ class Store {
       const sendAmount0Min = BigNumber(amount0).times(0.97).times(10**token0.decimals).toFixed(0)
       const sendAmount1Min = BigNumber(amount1).times(0.97).times(10**token1.decimals).toFixed(0)
 
-
-      const routerContract = new web3.eth.Contract(CONTRACTS.ROUTER_ABI, CONTRACTS.ROUTER_ADDRESS)
 
       let func = 'addLiquidity'
       let params = [token0.address, token1.address, isStable, sendAmount0, sendAmount1, sendAmount0Min, sendAmount1Min, account.address, deadline]
