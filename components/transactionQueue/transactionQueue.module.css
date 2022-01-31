@@ -73,6 +73,7 @@
   max-width: 400px;
   margin: auto;
   text-align: center;
+  padding-bottom: 20px !important;
 }
 
 .successTitle {
@@ -87,13 +88,13 @@
   padding: 0 40px !important;
   text-align: center !important;
   line-height: 1.5rem !important;
-  margin-bottom: 30px !important;
+  margin-bottom: 40px !important;
   color: rgba(126,153,176,0.8) !important;
 }
 
 .viewDetailsText {
   background: none;
-  margin: 10px auto 40px auto !important;
+  margin: 10px auto 20px auto !important;
   font-size: 14px !important;
 }
 

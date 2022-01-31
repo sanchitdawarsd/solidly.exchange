@@ -127,13 +127,21 @@ export default function TransactionQueue({ setQueueLength }) {
     };
   }, [transactions]);
 
-  const renderDone = (tx) => {
+  const renderDone = (txs) => {
     return (
       <div className={classes.successDialog}>
         <Lottie loop={false} className={classes.animClass} animationData={successAnim} />
         <Typography className={ classes.successTitle }>Transaction Successful!</Typography>
         <Typography className={ classes.successText }>Transaction has been confirmed by the blockchain.</Typography>
-        <Typography className={ classes.viewDetailsText }><a href={`${ETHERSCAN_URL}tx/${tx?.txHash}`} target="_blank">View in Explorer <OpenInNewIcon className={classes.newWindowIcon} /></a></Typography>
+        {
+          txs && txs.length > 0 && txs.filter((tx) => {
+            return tx.txHash != null
+          }).map((tx) => {
+            return (<Typography className={ classes.viewDetailsText }>
+              <a href={`${ETHERSCAN_URL}tx/${tx?.txHash}`} target="_blank">View in Explorer <OpenInNewIcon className={classes.newWindowIcon} /></a>
+            </Typography>)
+          })
+        }
       </div>
     )
   }
@@ -151,7 +159,7 @@ export default function TransactionQueue({ setQueueLength }) {
       <DialogContent>
         { transactions && transactions.filter((tx) => { return ['DONE', 'CONFIRMED'].includes(tx.status) }).length === transactions.length ?
           (
-            renderDone(transactions[transactions.length-1])
+            renderDone(transactions)
           )
           :
           (
