@@ -23,36 +23,35 @@
 }
 
 .warningIcon {
-  width: 120px;
-  height: 140px;
+  height: 50px;
   margin-bottom: 20px !important;
 }
 
 .title1 {
   font: normal normal normal 23px/36px Inter !important;
   letter-spacing: 0px !important;
-  color: rgba(126,153,176,0.8);
+  color: #FFF;
+  margin-bottom: 10px !important;
 }
 
 .title2 {
-  font: normal normal bold 29px/36px Inter !important;
+  font: normal normal bold 24px/28px Inter !important;
   letter-spacing: 0px !important;
   margin-bottom: 36px !important;
+  text-align: center;
+  color: #06D3D7 !important;
 }
 
-.para1 {
+.paragraph {
   text-align: center;
-  font: normal normal bold 20px/28px Inter !important;
+  font: normal normal bold 14px/22px Inter !important;
   letter-spacing: 0px !important;
   margin-bottom: 33px !important;
   color: rgba(126,153,176,0.8);
 }
 
-.para2 {
-  font: normal normal normal 16px/26px Inter !important;
-  letter-spacing: 0px;
-  color: #646464;
-  margin-bottom: 32px !important;
+.paragraph span {
+  color: #FFF;
 }
 
 .buttonsContainer {
@@ -87,9 +86,12 @@
 
 
 @media screen and (max-width: 960px) {
+  .dialogContainer {
+    align-items: flex-start;
+  }
+
   .warningIcon {
-    width: 100px;
-    height: 86px;
+    height: 50px;
     margin-bottom: 30px !important;
   }
 
@@ -103,7 +105,7 @@
     margin-bottom: 30px !important;
   }
 
-  .para1 {
+  .paragraph {
     font: normal normal bold 14px/18px Inter !important;
     margin: 0 20px 20px 20px !important;
   }
@@ -130,8 +132,7 @@
 
 @media screen and (max-width: 320px) {
   .warningIcon {
-    width: 60px;
-    height: 52px;
+    height: 40px;
     margin-bottom: 15px !important;
   }
 
@@ -145,7 +146,7 @@
     margin-bottom: 15px !important;
   }
 
-  .para1 {
+  .paragraph {
     font: normal normal bold 14px/18px Inter !important;
     margin: 0 20px 20px 20px !important;
   }
