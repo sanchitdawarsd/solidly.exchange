@@ -688,7 +688,7 @@ export default function EnhancedTable({ pairs }) {
                             {formatCurrency(row?.gauge?.balance)}
                           </Typography>
                           <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                            {formatCurrency(BigNumber(row?.gauge?.balance).times(100).div(row?.gauge?.totalSupply))}
+                            {formatCurrency(BigNumber(row?.gauge?.balance).times(100).div(row?.gauge?.totalSupply))}%
                           </Typography>
                         </TableCell>
                     }

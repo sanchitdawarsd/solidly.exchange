@@ -30,12 +30,15 @@ export default function ssBribeCreate() {
 
   const ssUpdated = async () => {
     const storeAssetOptions = stores.stableSwapStore.getStore('baseAssets')
+    let filteredStoreAssetOptions = storeAssetOptions.filter((option) => {
+      return option.address !== 'FTM'
+    })
     const storePairs = stores.stableSwapStore.getStore('pairs')
-    setAssetOptions(storeAssetOptions)
+    setAssetOptions(filteredStoreAssetOptions)
     setGaugeOptions(storePairs)
 
-    if(storeAssetOptions.length > 0 && asset == null) {
-      setAsset(storeAssetOptions[0])
+    if(filteredStoreAssetOptions.length > 0 && asset == null) {
+      setAsset(filteredStoreAssetOptions[0])
     }
 
     if(storePairs.length > 0 && gauge == null) {
@@ -55,7 +58,10 @@ export default function ssBribeCreate() {
 
     const assetsUpdated = () => {
       const baseAsset = stores.stableSwapStore.getStore('baseAssets')
-      setAssetOptions(baseAsset)
+      let filteredStoreAssetOptions = baseAsset.filter((option) => {
+        return option.address !== 'FTM'
+      })
+      setAssetOptions(filteredStoreAssetOptions)
     }
 
     stores.emitter.on(ACTIONS.UPDATED, ssUpdated)

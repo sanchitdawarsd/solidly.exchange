@@ -77,13 +77,35 @@ export default function ssLock({ govToken, veToken }) {
   }
 
   const onLock = () => {
-    setLockLoading(true)
+    setAmountError(false)
 
-    const now = moment()
-    const expiry = moment(selectedDate).add(1, 'days')
-    const secondsToExpire = expiry.diff(now, 'seconds')
+    let error = false
 
-    stores.dispatcher.dispatch({ type: ACTIONS.CREATE_VEST, content: { amount, unlockTime: secondsToExpire } })
+    if(!amount || amount === '' || isNaN(amount)) {
+      setAmountError('Amount is required')
+      error = true
+    } else {
+      if(!govToken.balance || isNaN(govToken.balance) || BigNumber(govToken.balance).lte(0))  {
+        setAmountError('Invalid balance')
+        error = true
+      } else if(BigNumber(amount).lte(0)) {
+        setAmountError('Invalid amount')
+        error = true
+      } else if (govToken && BigNumber(amount).gt(govToken.balance)) {
+        setAmountError(`Greater than your available balance`)
+        error = true
+      }
+    }
+
+    if(!error) {
+      setLockLoading(true)
+
+      const now = moment()
+      const expiry = moment(selectedDate).add(1, 'days')
+      const secondsToExpire = expiry.diff(now, 'seconds')
+
+      stores.dispatcher.dispatch({ type: ACTIONS.CREATE_VEST, content: { amount, unlockTime: secondsToExpire } })
+    }
   }
 
   const focus = () => {
@@ -91,6 +113,7 @@ export default function ssLock({ govToken, veToken }) {
   }
 
   const onAmountChanged = (event) => {
+    setAmountError(false)
     setAmount(event.target.value)
   }
 

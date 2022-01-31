@@ -33,7 +33,7 @@
   transform: translatex(-50%);
   border-radius: 12 !important;
   border: 1px solid rgba(126, 153, 176, 0.2);
-  z-index: 10020 !important;
+  z-index: 20 !important;
 }
 
 .actionButton {
