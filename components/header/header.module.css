@@ -251,7 +251,7 @@
   height: 100vh;
   flex-wrap: wrap;
   background: rgba(17,23,42,0.9);
-  z-index: 11 !important;
+  z-index: 1100 !important;
 }
 
 .ErrorContent {
