@@ -56,7 +56,7 @@ function Dashboard({ changeTheme }) {
   return (
     <Layout changeTheme={changeTheme}>
       <Head>
-        <title>Dashboard - Solid Swap</title>
+        <title>Solidly</title>
       </Head>
       <div className={classes.ffContainer}>
         {account && account.address ?

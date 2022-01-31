@@ -11,7 +11,7 @@ function Bribe({ changeTheme }) {
   return (
     <Layout changeTheme={changeTheme}>
       <Head>
-        <title>Solid Swap</title>
+        <title>Solidly</title>
       </Head>
       <div className={classes.container}>
         <BribeCreate />

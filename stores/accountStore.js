@@ -7,12 +7,9 @@ import {
   injected,
   walletconnect,
   walletlink,
-  // fortmatic,
-  // portis,
   network
 } from './connectors';
 
-import BigNumber from 'bignumber.js';
 import Web3 from 'web3';
 
 class Store {
@@ -30,8 +27,6 @@ class Store {
         TrustWallet: injected,
         WalletConnect: walletconnect,
         WalletLink: walletlink,
-        // Fortmatic: fortmatic,
-        // Portis: portis,
       },
       gasPrices: {
         standard: 90,

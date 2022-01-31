@@ -11,7 +11,6 @@ import DashboardOutlinedIcon from '@material-ui/icons/DashboardOutlined';
 
 import Navigation from '../navigation'
 import Unlock from '../unlock';
-import AboutModal from './aboutModal';
 import TransactionQueue from '../transactionQueue';
 
 import { ACTIONS } from '../../stores/constants';
@@ -157,7 +156,6 @@ function Header(props) {
   const router = useRouter();
 
   const [account, setAccount] = useState(accountStore);
-  const [toggleAboutModal, setToggleAboutModal] = useState(false);
   const [darkMode, setDarkMode] = useState(props.theme.palette.type === 'dark' ? true : false);
   const [unlockOpen, setUnlockOpen] = useState(false);
   const [chainInvalid, setChainInvalid] = useState(false)
@@ -321,7 +319,6 @@ function Header(props) {
 
         </div>
         {unlockOpen && <Unlock modalOpen={unlockOpen} closeModal={closeUnlock} />}
-        {toggleAboutModal && <AboutModal setToggleAboutModal={setToggleAboutModal} />}
         <TransactionQueue setQueueLength={ setQueueLength } />
     </div>
     {chainInvalid ? (

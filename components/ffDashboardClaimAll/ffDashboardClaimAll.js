@@ -72,7 +72,7 @@ export default function ffClaimAll() {
 
     if(rewards && rewards.feeDistribution && BigNumber(rewards.feeDistribution.earned).gt(0)) {
       cl.push({
-        type: 'Solid Swap',
+        type: 'Solidly',
         description: 'Fee Claim',
         earned: rewards.feeDistribution.earned,
         symbol: 'ibEUR'
@@ -80,7 +80,7 @@ export default function ffClaimAll() {
     }
     if(rewards && rewards.veIBFFDistribution && BigNumber(rewards.veIBFFDistribution.earned).gt(0)) {
       cl.push({
-        type: 'Solid Swap',
+        type: 'Solidly',
         description: 'Vesting Rewards',
         earned: rewards.veIBFFDistribution.earned,
         symbol: 'rKP3R'
@@ -88,7 +88,7 @@ export default function ffClaimAll() {
     }
     if(rKP3R && BigNumber(rKP3R.balance).gt(0)) {
       cl.push({
-        type: 'Solid Swap',
+        type: 'Solidly',
         description: 'Redeemable KP3R',
         earned: rKP3R.balance,
         symbol: 'rKP3R'

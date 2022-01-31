@@ -239,11 +239,11 @@ export default function EnhancedTable({ claimable, crv, ibEUR, rKP3R }) {
     if(asset.gauge) {
       // this is a gauge
       stores.dispatcher.dispatch({ type: ACTIONS.FIXED_FOREX_CLAIM_CURVE_REWARDS, content: { asset: asset.gauge }})
-    } else if(asset.type === 'Solid Swap' && asset.description === 'Fee Claim') {
+    } else if(asset.type === 'Solidly' && asset.description === 'Fee Claim') {
       stores.dispatcher.dispatch({ type: ACTIONS.FIXED_FOREX_CLAIM_DISTRIBUTION_REWARD, content: {  }})
-    } else if(asset.type === 'Solid Swap' && asset.description === 'Vesting Rewards') {
+    } else if(asset.type === 'Solidly' && asset.description === 'Vesting Rewards') {
       stores.dispatcher.dispatch({ type: ACTIONS.FIXED_FOREX_CLAIM_VESTING_REWARD, content: {  }})
-    } else if(asset.type === 'Solid Swap' && asset.description === 'Redeemable KP3R') {
+    } else if(asset.type === 'Solidly' && asset.description === 'Redeemable KP3R') {
       stores.dispatcher.dispatch({ type: ACTIONS.FIXED_FOREX_CLAIM_RKP3R, content: {  }})
     }
   }
@@ -287,9 +287,9 @@ export default function EnhancedTable({ claimable, crv, ibEUR, rKP3R }) {
 
                             <Grid item lg={3} md={2} sm={2} xs={2}>
                               {
-                              row?.type === 'Solid Swap' && <img className={ classes.imgLogo } src={`/images/ff-icon.svg`} width='35' height='35' alt='' />}
+                              row?.type === 'Solidly' && <img className={ classes.imgLogo } src={`/images/ff-icon.svg`} width='35' height='35' alt='' />}
                               {
-                              row?.type !== 'Solid Swap' && <img className={ classes.imgLogo } src={`https://raw.githubusercontent.com/yearn/yearn-assets/master/icons/multichain-tokens/1/${row.address}/logo-128.png`} width='35' height='35' alt='' />
+                              row?.type !== 'Solidly' && <img className={ classes.imgLogo } src={`https://raw.githubusercontent.com/yearn/yearn-assets/master/icons/multichain-tokens/1/${row.address}/logo-128.png`} width='35' height='35' alt='' />
                               }
                             </Grid>
 
