@@ -3313,12 +3313,16 @@ class Store {
       // SUBMIT INCREASE TRANSACTION
       const gaugesContract = new web3.eth.Contract(CONTRACTS.GAUGES_ABI, CONTRACTS.GAUGES_ADDRESS)
 
-      let tokens = votes.map((v) => {
-        return v.address
+      let onlyVotes = votes.filter((vote) => {
+        return BigNumber(vote.value).gt(0)
       })
 
-      let voteCounts = votes.map((v) => {
-        return BigNumber(v.value).times(100).toFixed(0)
+      let tokens = onlyVotes.map((vote) => {
+        return vote.address
+      })
+
+      let voteCounts = onlyVotes.map((vote) => {
+        return BigNumber(vote.value).times(100).toFixed(0)
       })
 
       this._callContractWait(web3, gaugesContract, 'vote', [tokenID, tokens, voteCounts], account, gasPrice, null, null, voteTXID, (err) => {
