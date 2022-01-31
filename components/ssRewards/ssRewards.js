@@ -51,7 +51,6 @@ export default function ssRewards() {
     if(nfts && nfts.length > 0 && !token) {
       setToken(nfts[0])
       window.setTimeout(() => {
-        console.log('are we here again')
         stores.dispatcher.dispatch({ type: ACTIONS.GET_REWARD_BALANCES, content: { tokenID: nfts[0].id } })
       })
     }
@@ -80,6 +79,8 @@ export default function ssRewards() {
     const claimAllReturned = () => {
       setLoading(false)
     }
+
+    stableSwapUpdated()
 
     stores.emitter.on(ACTIONS.CLAIM_REWARD_RETURNED, claimReturned);
     stores.emitter.on(ACTIONS.CLAIM_ALL_REWARDS_RETURNED, claimAllReturned);

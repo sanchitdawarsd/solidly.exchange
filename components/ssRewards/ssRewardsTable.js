@@ -450,7 +450,7 @@ export default function EnhancedTable({ rewards, vestNFTs, tokenID }) {
                                   { formatCurrency(bribe.rewardAmount) }
                                 </Typography>
                                 <Typography variant='h5' className={classes.textSpacedPadded} color='textSecondary'>
-                                  { bribe.token.symbol }
+                                  { bribe.token?.symbol }
                                 </Typography>
                               </div>
                             )
@@ -479,7 +479,7 @@ export default function EnhancedTable({ rewards, vestNFTs, tokenID }) {
                                   { formatCurrency(bribe.earned) }
                                 </Typography>
                                 <Typography variant='h5' className={classes.textSpacedPadded} color='textSecondary'>
-                                  { bribe.token.symbol }
+                                  { bribe.token?.symbol }
                                 </Typography>
                               </div>
                             )
