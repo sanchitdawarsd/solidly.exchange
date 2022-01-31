@@ -1,4 +1,4 @@
-import async from "async"
+import async from "promise-async"
 import {
   MAX_UINT256,
   ZERO_ADDRESS,
@@ -883,84 +883,75 @@ class Store {
         gaugesContract.methods.totalWeight().call()
       ])
 
+      const ps = await async.mapLimit(pairs, 10, async (pair, callback) => {
+        const pairContract = new web3.eth.Contract(CONTRACTS.PAIR_ABI, pair.address)
+        const token0Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, pair.token0.address)
+        const token1Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, pair.token1.address)
 
-      // first we get basic pair info
-      const ps = await Promise.all(
-        pairs.map(async (pair, idx) => {
+        const [ totalSupply, reserves, balanceOf, token0BalanceOf, token1BalanceOf ] = await this._makeBatchRequest(web3, account.address, [
+          pairContract.methods.totalSupply().call,
+          pairContract.methods.getReserves().call,
+          pairContract.methods.balanceOf(account.address).call,
+          token0Contract.methods.balanceOf(account.address).call,
+          token1Contract.methods.balanceOf(account.address).call
+        ])
 
-          const pairContract = new web3.eth.Contract(CONTRACTS.PAIR_ABI, pair.address)
-          const token0Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, pair.token0.address)
-          const token1Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, pair.token1.address)
+        pair.balance = BigNumber(balanceOf).div(10**pair.decimals).toFixed(parseInt(pair.decimals))
+        pair.totalSupply = BigNumber(totalSupply).div(10**pair.decimals).toFixed(parseInt(pair.decimals))
+        pair.reserve0 = BigNumber(reserves._reserve0).div(10**pair.token0.decimals).toFixed(parseInt(pair.token0.decimals))
+        pair.reserve1 = BigNumber(reserves._reserve1).div(10**pair.token1.decimals).toFixed(parseInt(pair.token1.decimals))
+        pair.token0.balance = BigNumber(token0BalanceOf).div(10**pair.token0.decimals).toFixed(parseInt(pair.token0.decimals))
+        pair.token1.balance = BigNumber(token1BalanceOf).div(10**pair.token1.decimals).toFixed(parseInt(pair.token1.decimals))
 
-          const [ totalSupply, reserve0, reserve1, balanceOf, token0BalanceOf, token1BalanceOf ] = await Promise.all([
-            pairContract.methods.totalSupply().call(),
-            pairContract.methods.reserve0().call(),
-            pairContract.methods.reserve1().call(),
-            pairContract.methods.balanceOf(account.address).call(),
-            token0Contract.methods.balanceOf(account.address).call(),
-            token1Contract.methods.balanceOf(account.address).call()
-          ])
-
-          pair.balance = BigNumber(balanceOf).div(10**pair.decimals).toFixed(parseInt(pair.decimals))
-          pair.totalSupply = BigNumber(totalSupply).div(10**pair.decimals).toFixed(parseInt(pair.decimals))
-          pair.reserve0 = BigNumber(reserve0).div(10**pair.token0.decimals).toFixed(parseInt(pair.token0.decimals))
-          pair.reserve1 = BigNumber(reserve1).div(10**pair.token1.decimals).toFixed(parseInt(pair.token1.decimals))
-          pair.token0.balance = BigNumber(token0BalanceOf).div(10**pair.token0.decimals).toFixed(parseInt(pair.token0.decimals))
-          pair.token1.balance = BigNumber(token1BalanceOf).div(10**pair.token1.decimals).toFixed(parseInt(pair.token1.decimals))
-
-          return pair
-        })
-      )
+        callback(null, pair)
+      })
 
       this.setStore({ pairs: ps })
       this.emitter.emit(ACTIONS.UPDATED)
 
 
-      const ps1 = await Promise.all(
-        ps.map(async (pair, idx) => {
 
-          if(pair.gauge && pair.gauge.address !== ZERO_ADDRESS) {
+      const ps1 = await async.mapLimit(ps, 10, async (pair, callback) => {
 
-            const gaugeContract = new web3.eth.Contract(CONTRACTS.GAUGE_ABI, pair.gauge.address)
+        if(pair.gauge && pair.gauge.address !== ZERO_ADDRESS) {
+          const gaugeContract = new web3.eth.Contract(CONTRACTS.GAUGE_ABI, pair.gauge.address)
 
-            const [ totalSupply, gaugeBalance, gaugeWeight ] = await Promise.all([
-              gaugeContract.methods.totalSupply().call(),
-              gaugeContract.methods.balanceOf(account.address).call(),
-              gaugesContract.methods.weights(pair.address).call()
-            ])
+          const [ totalSupply, gaugeBalance, gaugeWeight ] = await this._makeBatchRequest(web3, account.address, [
+            gaugeContract.methods.totalSupply().call,
+            gaugeContract.methods.balanceOf(account.address).call,
+            gaugesContract.methods.weights(pair.address).call
+          ])
 
-            const bribeContract = new web3.eth.Contract(CONTRACTS.BRIBE_ABI, pair.gauge.bribeAddress)
+          const bribeContract = new web3.eth.Contract(CONTRACTS.BRIBE_ABI, pair.gauge.bribeAddress)
 
-            const bribes = await Promise.all(
-              pair.gauge.bribes.map(async (bribe, idx) => {
+          const bribes = await Promise.all(
+            pair.gauge.bribes.map(async (bribe, idx) => {
 
-                const [ rewardRate ] = await Promise.all([
-                  bribeContract.methods.rewardRate(bribe.token.address).call(),
-                ])
+              const [ rewardRate ] = await Promise.all([
+                bribeContract.methods.rewardRate(bribe.token.address).call(),
+              ])
 
-                bribe.rewardRate = BigNumber(rewardRate).div(10**bribe.token.decimals).toFixed(bribe.token.decimals)
-                bribe.rewardAmount = BigNumber(rewardRate).times(604800).div(10**bribe.token.decimals).toFixed(bribe.token.decimals)
+              bribe.rewardRate = BigNumber(rewardRate).div(10**bribe.token.decimals).toFixed(bribe.token.decimals)
+              bribe.rewardAmount = BigNumber(rewardRate).times(604800).div(10**bribe.token.decimals).toFixed(bribe.token.decimals)
 
-                return bribe
-              })
-            )
+              return bribe
+            })
+          )
 
-            pair.gauge.balance = BigNumber(gaugeBalance).div(10**18).toFixed(18)
-            pair.gauge.totalSupply = BigNumber(totalSupply).div(10**18).toFixed(18)
-            pair.gauge.reserve0 = pair.totalSupply > 0 ? BigNumber(pair.reserve0).times(pair.gauge.totalSupply).div(pair.totalSupply) : '0'
-            pair.gauge.reserve1 = pair.totalSupply > 0 ? BigNumber(pair.reserve1).times(pair.gauge.totalSupply).div(pair.totalSupply) : '0'
-            pair.gauge.weight = BigNumber(gaugeWeight).div(10**18).toFixed(18)
-            pair.gauge.weightPercent = BigNumber(gaugeWeight).times(100).div(totalWeight).toFixed(2)
-            pair.gaugebribes = bribes
-          }
+          pair.gauge.balance = BigNumber(gaugeBalance).div(10**18).toFixed(18)
+          pair.gauge.totalSupply = BigNumber(totalSupply).div(10**18).toFixed(18)
+          pair.gauge.reserve0 = pair.totalSupply > 0 ? BigNumber(pair.reserve0).times(pair.gauge.totalSupply).div(pair.totalSupply) : '0'
+          pair.gauge.reserve1 = pair.totalSupply > 0 ? BigNumber(pair.reserve1).times(pair.gauge.totalSupply).div(pair.totalSupply) : '0'
+          pair.gauge.weight = BigNumber(gaugeWeight).div(10**18).toFixed(18)
+          pair.gauge.weightPercent = BigNumber(gaugeWeight).times(100).div(totalWeight).toFixed(2)
+          pair.gaugebribes = bribes
+        }
 
-          return pair
-        })
-      )
+        callback(null, pair)
+      })
 
       this.setStore({ pairs: ps1 })
       this.emitter.emit(ACTIONS.UPDATED)
-      // now we get gauge info
 
     } catch (ex) {
       console.log(ex)
@@ -3905,6 +3896,23 @@ class Store {
         this.emitter.emit(ACTIONS.TX_REJECTED, { uuid, error: 'Error estimating gas' })
         callback(ex)
       })
+  }
+
+  _makeBatchRequest = (web3, callFrom, calls) => {
+    let batch = new web3.BatchRequest();
+
+    let promises = calls.map(call => {
+      return new Promise((res, rej) => {
+        let req = call.request({from: callFrom}, (err, data) => {
+          if(err) rej(err);
+          else res(data)
+        });
+        batch.add(req)
+      })
+    })
+    batch.execute()
+
+    return Promise.all(promises)
   }
 }
 
