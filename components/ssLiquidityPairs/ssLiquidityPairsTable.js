@@ -656,40 +656,72 @@ export default function EnhancedTable({ pairs }) {
                       </div>
                     </TableCell>
                     <TableCell className={classes.cell} align='right'>
-                      <div className={ classes.inlineEnd }>
-                        <Typography variant='h2' className={classes.textSpaced}>
-                          {formatCurrency(row?.token0?.balance)}
-                        </Typography>
-                        <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                          {row?.token0?.symbol}
-                        </Typography>
-                      </div>
-                      <div className={ classes.inlineEnd }>
-                        <Typography variant='h2' className={classes.textSpaced}>
-                          {formatCurrency(row?.token1?.balance)}
-                        </Typography>
-                        <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                          {row?.token1?.symbol}
-                        </Typography>
-                      </div>
+                      { (row && row.token0 && row.token0.balance) &&
+                        <div className={ classes.inlineEnd }>
+                          <Typography variant='h2' className={classes.textSpaced}>
+                            { formatCurrency(row.token0.balance) }
+                          </Typography>
+                          <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                            {row.token0.symbol}
+                          </Typography>
+                        </div>
+                      }
+                      { !(row && row.token0 && row.token0.balance) &&
+                        <div className={ classes.inlineEnd }>
+                          <Skeleton variant="rect"width={120} height={16} style={{ marginTop: '1px', marginBottom: '1px' }} />
+                        </div>
+                      }
+                      { (row && row.token1 && row.token1.balance) &&
+                        <div className={ classes.inlineEnd }>
+                          <Typography variant='h2' className={classes.textSpaced}>
+                            {formatCurrency(row.token1.balance)}
+                          </Typography>
+                          <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                            {row.token1.symbol}
+                          </Typography>
+                        </div>
+                      }
+                      { !(row && row.token1 && row.token1.balance) &&
+                        <div className={ classes.inlineEnd }>
+                          <Skeleton variant="rect"width={120} height={16} style={{ marginTop: '1px', marginBottom: '1px' }} />
+                        </div>
+                      }
                     </TableCell>
                     <TableCell className={classes.cell} align='right'>
-                      <Typography variant='h2' className={classes.textSpaced}>
-                        {formatCurrency(row?.balance)}
-                      </Typography>
-                      <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                        {formatCurrency(BigNumber(row?.balance).times(100).div(row?.totalSupply))}%
-                      </Typography>
+                      { (row && row.balance && row.totalSupply) &&
+                        <>
+                          <Typography variant='h2' className={classes.textSpaced}>
+                            {formatCurrency(row.balance)}
+                          </Typography>
+                          <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                            {formatCurrency(BigNumber(row.balance).times(100).div(row.totalSupply))}%
+                          </Typography>
+                        </>
+                      }
+                      { !(row && row.balance && row.totalSupply) &&
+                        <div className={ classes.inlineEnd }>
+                          <Skeleton variant="rect"width={120} height={16} style={{ marginTop: '1px', marginBottom: '1px' }} />
+                        </div>
+                      }
                     </TableCell>
                     {
                       (row && row.gauge && row.gauge.address) &&
                         <TableCell className={classes.cell} align='right'>
-                          <Typography variant='h2' className={classes.textSpaced}>
-                            {formatCurrency(row?.gauge?.balance)}
-                          </Typography>
-                          <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                            {formatCurrency(BigNumber(row?.gauge?.balance).times(100).div(row?.gauge?.totalSupply))}%
-                          </Typography>
+                          { (row && row.gauge && row.gauge.balance && row.gauge.totalSupply) &&
+                            <>
+                              <Typography variant='h2' className={classes.textSpaced}>
+                                {formatCurrency(row.gauge.balance)}
+                              </Typography>
+                              <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                                {formatCurrency(BigNumber(row.gauge.balance).times(100).div(row.gauge.totalSupply))}%
+                              </Typography>
+                            </>
+                          }
+                          { !(row && row.gauge && row.gauge.balance && row.gauge.totalSupply) &&
+                            <div className={ classes.inlineEnd }>
+                              <Skeleton variant="rect"width={120} height={16} style={{ marginTop: '1px', marginBottom: '1px' }} />
+                            </div>
+                          }
                         </TableCell>
                     }
                     {
@@ -701,42 +733,70 @@ export default function EnhancedTable({ pairs }) {
                         </TableCell>
                     }
                     <TableCell className={classes.cell} align='right'>
-                      <div className={ classes.inlineEnd }>
-                        <Typography variant='h2' className={classes.textSpaced}>
-                          {formatCurrency(row?.reserve0)}
-                        </Typography>
-                        <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                          { row?.token0?.symbol }
-                        </Typography>
-                      </div>
-                      <div className={ classes.inlineEnd }>
-                        <Typography variant='h2' className={classes.textSpaced}>
-                          {formatCurrency(row?.reserve1)}
-                        </Typography>
-                        <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                          { row?.token1?.symbol }
-                        </Typography>
-                      </div>
+                      { (row && row.reserve0 && row.token0) &&
+                        <div className={ classes.inlineEnd }>
+                          <Typography variant='h2' className={classes.textSpaced}>
+                            {formatCurrency(row.reserve0)}
+                          </Typography>
+                          <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                            { row.token0.symbol }
+                          </Typography>
+                        </div>
+                      }
+                      { !(row && row.reserve0 && row.token0) &&
+                        <div className={ classes.inlineEnd }>
+                          <Skeleton variant="rect"width={120} height={16} style={{ marginTop: '1px', marginBottom: '1px' }} />
+                        </div>
+                      }
+                      { (row && row.reserve1 && row.token1) &&
+                        <div className={ classes.inlineEnd }>
+                          <Typography variant='h2' className={classes.textSpaced}>
+                            {formatCurrency(row.reserve1)}
+                          </Typography>
+                          <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                            { row.token1.symbol }
+                          </Typography>
+                        </div>
+                      }
+                      { !(row && row.reserve1 && row.token1) &&
+                        <div className={ classes.inlineEnd }>
+                          <Skeleton variant="rect"width={120} height={16} style={{ marginTop: '1px', marginBottom: '1px' }} />
+                        </div>
+                      }
                     </TableCell>
                     {
                       (row && row.gauge && row.gauge.address) &&
                         <TableCell className={classes.cell} align='right'>
-                          <div className={ classes.inlineEnd }>
-                            <Typography variant='h2' className={classes.textSpaced}>
-                              {formatCurrency(row?.gauge?.reserve0)}
-                            </Typography>
-                            <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                              { row?.token0?.symbol }
-                            </Typography>
-                          </div>
-                          <div className={ classes.inlineEnd }>
-                            <Typography variant='h2' className={classes.textSpaced}>
-                              {formatCurrency(row?.gauge?.reserve1)}
-                            </Typography>
-                            <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                              { row?.token1?.symbol }
-                            </Typography>
-                          </div>
+                          { (row && row.gauge && row.gauge.reserve0 && row.token0) &&
+                            <div className={ classes.inlineEnd }>
+                              <Typography variant='h2' className={classes.textSpaced}>
+                                {formatCurrency(row.gauge.reserve0)}
+                              </Typography>
+                              <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                                { row.token0.symbol }
+                              </Typography>
+                            </div>
+                          }
+                          { !(row && row.gauge && row.gauge.reserve0 && row.token0) &&
+                            <div className={ classes.inlineEnd }>
+                              <Skeleton variant="rect"width={120} height={16} style={{ marginTop: '1px', marginBottom: '1px' }} />
+                            </div>
+                          }
+                          { (row && row.gauge && row.gauge.reserve1 && row.token1) &&
+                            <div className={ classes.inlineEnd }>
+                              <Typography variant='h2' className={classes.textSpaced}>
+                                {formatCurrency(row.gauge.reserve1)}
+                              </Typography>
+                              <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                                { row.token1.symbol }
+                              </Typography>
+                            </div>
+                          }
+                          { !(row && row.gauge && row.gauge.reserve1 && row.token1) &&
+                            <div className={ classes.inlineEnd }>
+                              <Skeleton variant="rect"width={120} height={16} style={{ marginTop: '1px', marginBottom: '1px' }} />
+                            </div>
+                          }
                         </TableCell>
                     }
                     {
