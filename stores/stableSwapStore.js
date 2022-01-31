@@ -2023,7 +2023,7 @@ class Store {
         sendValue = sendAmount1
       }
 
-      this._callContractWait(web3, routerContract, params, params, account, gasPrice, null, null, depositTXID, async (err) => {
+      this._callContractWait(web3, routerContract, func, params, account, gasPrice, null, null, depositTXID, async (err) => {
         if (err) {
           return this.emitter.emit(ACTIONS.ERROR, err)
         }
