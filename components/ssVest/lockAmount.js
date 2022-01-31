@@ -58,7 +58,7 @@ export default function ffLockAmount({ nft, govToken, updateLockAmount }) {
         <div className={ classes.inputTitleContainer }>
           <div className={ classes.inputBalance }>
             <Typography className={ classes.inputBalanceText } noWrap onClick={ () => {
-              setAmountPercent(type, 100)
+              setAmountPercent(100)
             }}>
               Balance: { balance ? ' ' + formatCurrency(balance) : '' }
             </Typography>
