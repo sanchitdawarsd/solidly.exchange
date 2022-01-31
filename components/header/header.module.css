@@ -47,6 +47,15 @@
 
 .logoContainer {
   width: 260px;
+  position: relative;
+}
+
+.version {
+  position: absolute;
+  top: 3px;
+  left: 10px;
+  color: #fff !important;
+  font-size: 10px !important;
 }
 
 .networkIcon {
