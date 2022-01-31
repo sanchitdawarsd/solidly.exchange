@@ -649,8 +649,11 @@ export default function EnhancedTable({ pairs }) {
                           />
                         </div>
                         <div>
-                          <Typography variant='h2' noWrap>
-                            {row?.symbol}
+                          <Typography variant='h2' className={classes.textSpaced} noWrap>
+                            { row?.symbol }
+                          </Typography>
+                          <Typography variant='h2' className={classes.textSpaced} noWrap color='textSecondary'>
+                            { row?.isStable ? 'Stable Pool' : 'Variable Pool' }
                           </Typography>
                         </div>
                       </div>
