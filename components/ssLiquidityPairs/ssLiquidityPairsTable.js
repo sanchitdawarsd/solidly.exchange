@@ -414,7 +414,7 @@ const EnhancedTableToolbar = (props) => {
           color='primary'
           onClick={ onCreate }
         >
-          <Typography className={ classes.actionButtonText }>Create Pair</Typography>
+          <Typography className={ classes.actionButtonText }>Add Liquidity</Typography>
         </Button>
       </Grid>
       <Grid item lg={9} md={9} sm={10} xs={10}>
@@ -450,19 +450,19 @@ const EnhancedTableToolbar = (props) => {
               <Typography className={classes.filterListTitle} variant="h5">List Filters</Typography>
 
 
-              {/*<Grid container spacing={0}>
+              <Grid container spacing={0}>
                 <Grid item lg={9} className={classes.labelColumn}>
-                  <Typography className={classes.filterLabel} variant="body1">Show Active</Typography>
+                  <Typography className={classes.filterLabel} variant="body1">My Deposits</Typography>
                 </Grid>
                 <Grid item lg={3} className={classes.alignContentRight}>
                   <Switch
                     color="primary"
-                    value={ toggleActive }
+                    checked={ toggleActive }
                     name={ 'toggleActive' }
                     onChange={ onToggle }
                   />
                 </Grid>
-              </Grid>*/}
+              </Grid>
 
               <Grid container spacing={0}>
                 <Grid item lg={9} className={classes.labelColumn}>
@@ -525,7 +525,7 @@ export default function EnhancedTable({ pairs }) {
   const [page, setPage] = useState(0);
 
   const [search, setSearch] = useState('')
-  const [toggleActive, setToggleActive] = useState(false);
+  const [toggleActive, setToggleActive] = useState(true);
   const [toggleActiveGauge, setToggleActiveGauge] = useState(true);
   const [toggleStable, setToggleStable] = useState(true);
   const [toggleVariable, setToggleVariable] = useState(true);
@@ -595,11 +595,16 @@ export default function EnhancedTable({ pairs }) {
     if(toggleActiveGauge !== true && (!pair.gauge || !pair.gauge.address)) {
       return false
     }
+    if(toggleActive === true) {
+      if(!BigNumber(pair?.gauge?.balance).gt(0) && !BigNumber(pair?.balance).gt(0)) {
+        return false
+      }
+    }
 
     return true
   })
 
-  const emptyRows = rowsPerPage - Math.min(rowsPerPage, filteredPairs.length - page * rowsPerPage);
+  const emptyRows = 5 - Math.min(5, filteredPairs.length - page * 5);
 
   return (
     <div className={classes.root}>
