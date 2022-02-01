@@ -433,7 +433,7 @@
   width: 100%;
   font-weight: 700 !important;
   color: #06D3D7 !important;
-  padding-bottom: 15px !important;
+  padding-bottom: 6px !important;
   border-bottom: 1px solid rgba(126, 153, 176, 0.2);
   font-size: 14px !important;
 }
@@ -457,13 +457,13 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 12px 0px;
+  padding: 12px 0px 24px 0px;
 }
 
 .priceInfo > .title {
   font-weight: bold !important;
   font-size: 14px !important;
-  padding: 6px 0px;
+  padding-bottom: 6px;
 }
 
 .priceInfo > .text {

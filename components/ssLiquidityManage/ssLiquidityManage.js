@@ -839,6 +839,17 @@ export default function ssLiquidityManage() {
               <Typography className={ classes.text } >{ `LP Received ` }</Typography>
             </div>
           </div>
+          <Typography className={ classes.depositInfoHeading } >Your Balances</Typography>
+          <div className={ classes.createPriceInfos}>
+            <div className={ classes.priceInfo }>
+              <Typography className={ classes.title } >{ formatCurrency(pair?.balance) }</Typography>
+              <Typography className={ classes.text } >{ `Pooled ${pair?.symbol}` }</Typography>
+            </div>
+            <div className={ classes.priceInfo }>
+              <Typography className={ classes.title } >{ formatCurrency(pair?.gauge?.reserve1) }</Typography>
+              <Typography className={ classes.text } >{ `Staked ${pair?.symbol} ` }</Typography>
+            </div>
+          </div>
         </div>
       )
     }
@@ -860,6 +871,17 @@ export default function ssLiquidityManage() {
           <div className={ classes.priceInfo }>
             <Typography className={ classes.title } >0.000</Typography>
             <Typography className={ classes.text } >{ `$ per LP ` }</Typography>
+          </div>
+        </div>
+        <Typography className={ classes.depositInfoHeading } >Your Balances</Typography>
+        <div className={ classes.createPriceInfos}>
+          <div className={ classes.priceInfo }>
+            <Typography className={ classes.title } >{ formatCurrency(pair?.balance) }</Typography>
+            <Typography className={ classes.text } >{ `Pooled ${pair?.symbol}` }</Typography>
+          </div>
+          <div className={ classes.priceInfo }>
+            <Typography className={ classes.title } >{ formatCurrency(pair?.gauge?.reserve1) }</Typography>
+            <Typography className={ classes.text } >{ `Staked ${pair?.symbol} ` }</Typography>
           </div>
         </div>
       </div>
