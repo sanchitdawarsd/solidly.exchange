@@ -698,12 +698,22 @@ export default function EnhancedTable({ pairs }) {
                     <TableCell className={classes.cell} align='right'>
                       { (row && row.balance && row.totalSupply) &&
                         <>
-                          <Typography variant='h2' className={classes.textSpaced}>
-                            {formatCurrency(row.balance)}
-                          </Typography>
-                          <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                            {formatCurrency(BigNumber(row.balance).times(100).div(row.totalSupply))}%
-                          </Typography>
+                          <div className={ classes.inlineEnd }>
+                            <Typography variant='h2' className={classes.textSpaced}>
+                              {formatCurrency(BigNumber(row.balance).times(row.reserve0).div(row.reserve1))}
+                            </Typography>
+                            <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                              {row.token0.symbol}
+                            </Typography>
+                          </div>
+                          <div className={ classes.inlineEnd }>
+                            <Typography variant='h5' className={classes.textSpaced}>
+                              {formatCurrency(BigNumber(row.balance).times(row.reserve1).div(row.reserve0))}
+                            </Typography>
+                            <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                              {row.token1.symbol}
+                            </Typography>
+                          </div>
                         </>
                       }
                       { !(row && row.balance && row.totalSupply) &&
@@ -717,12 +727,22 @@ export default function EnhancedTable({ pairs }) {
                         <TableCell className={classes.cell} align='right'>
                           { (row && row.gauge && row.gauge.balance && row.gauge.totalSupply) &&
                             <>
-                              <Typography variant='h2' className={classes.textSpaced}>
-                                {formatCurrency(row.gauge.balance)}
-                              </Typography>
-                              <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                                {formatCurrency(BigNumber(row.gauge.balance).times(100).div(row.gauge.totalSupply))}%
-                              </Typography>
+                              <div className={ classes.inlineEnd }>
+                                <Typography variant='h2' className={classes.textSpaced}>
+                                  {formatCurrency(BigNumber(row.gauge.balance).times(row.reserve0).div(row.reserve1))}
+                                </Typography>
+                                <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                                  {row.token0.symbol}
+                                </Typography>
+                              </div>
+                              <div className={ classes.inlineEnd }>
+                                <Typography variant='h5' className={classes.textSpaced}>
+                                  {formatCurrency(BigNumber(row.gauge.balance).times(row.reserve1).div(row.reserve0))}
+                                </Typography>
+                                <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                                  {row.token1.symbol}
+                                </Typography>
+                              </div>
                             </>
                           }
                           { !(row && row.gauge && row.gauge.balance && row.gauge.totalSupply) &&
