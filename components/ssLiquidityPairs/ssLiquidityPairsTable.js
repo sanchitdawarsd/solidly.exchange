@@ -354,7 +354,7 @@ const EnhancedTableToolbar = (props) => {
   const router = useRouter()
 
   const [search, setSearch] = useState('');
-  const [toggleActive, setToggleActive] = useState(false);
+  const [toggleActive, setToggleActive] = useState(true);
   const [toggleActiveGauge, setToggleActiveGauge] = useState(true);
   const [toggleStable, setToggleStable] = useState(true);
   const [toggleVariable, setToggleVariable] = useState(true);
