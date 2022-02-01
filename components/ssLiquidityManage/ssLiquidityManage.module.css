@@ -39,6 +39,15 @@
   cursor: help !important;
 }
 
+.nextTo {
+  display: flex;
+  align-items: center;
+}
+
+.paddTiny {
+  padding-right: 3px !important;
+}
+
 .topLeftButton,
 .bottomLeftButton {
   border-radius: 8px 8px 0 0 !important;

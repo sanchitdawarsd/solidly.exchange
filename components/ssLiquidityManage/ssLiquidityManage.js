@@ -40,7 +40,10 @@ export default function ssLiquidityManage() {
   const [ assetOptions, setAssetOptions ] = useState([])
 
   const [ withdrawAsset, setWithdrawAsset ] = useState(null)
+  const [ withdrawAassetOptions, setWithdrawAssetOptions ] = useState([])
   const [ withdrawAmount, setWithdrawAmount ] = useState('');
+  const [ withdrawAmountError, setWithdrawAmountError ] = useState(false);
+
   const [ withdrawAmount0, setWithdrawAmount0 ] = useState('');
   const [ withdrawAmount1, setWithdrawAmount1 ] = useState('');
 
@@ -63,7 +66,13 @@ export default function ssLiquidityManage() {
     const storeAssetOptions = stores.stableSwapStore.getStore('baseAssets')
     const nfts = stores.stableSwapStore.getStore('vestNFTs')
     const veTok = stores.stableSwapStore.getStore('veToken')
+    const pairs = stores.stableSwapStore.getStore('pairs')
 
+    const onlyWithBalance = pairs.filter((ppp) => {
+      return BigNumber(ppp.balance).gt(0) || (ppp.gauge && BigNumber(ppp.gauge.balance).gt(0))
+    })
+
+    setWithdrawAssetOptions(onlyWithBalance)
     setAssetOptions(storeAssetOptions)
     setVeToken(veTok)
     setVestNFTs(nfts)
@@ -84,6 +93,9 @@ export default function ssLiquidityManage() {
       if(pp && asset1 == null) {
         setAsset1(pp.token1)
       }
+      if(pp && withdrawAsset == null) {
+        setWithdrawAsset(pp)
+      }
       if(pp) {
         setStable(pp.isStable)
       }
@@ -101,6 +113,9 @@ export default function ssLiquidityManage() {
       if(storeAssetOptions.length > 0 && asset1 == null) {
         setAsset1(storeAssetOptions[1])
         aa1 = storeAssetOptions[1]
+      }
+      if(withdrawAassetOptions.length > 0 && withdrawAsset == null) {
+        setWithdrawAsset(withdrawAassetOptions[1])
       }
 
       if(aa0 && aa1) {
@@ -233,15 +248,15 @@ export default function ssLiquidityManage() {
     })
   }
 
-  const callQuoteRemoveLiquidity = (amount) => {
+  const callQuoteRemoveLiquidity = (p, amount) => {
     if(!pair) {
       return null
     }
 
     stores.dispatcher.dispatch({ type: ACTIONS.QUOTE_REMOVE_LIQUIDITY, content: {
-        pair: pair,
-        token0: pair.token0,
-        token1: pair.token1,
+        pair: p,
+        token0: p.token0,
+        token1: p.token1,
         withdrawAmount: amount
       }
     })
@@ -278,14 +293,8 @@ export default function ssLiquidityManage() {
         setWithdrawAmount0('')
         setWithdrawAmount1('')
       } else if(am !== '' && !isNaN(am)) {
-        callQuoteRemoveLiquidity(am)
+        calcRemove(pair, am)
       }
-    } else if (input === 'withdrawAmount0') {
-      setWithdrawAmount0Percent(percent)
-      setWithdrawAmount0(BigNumber(asset0.balance).times(percent).div(100).toFixed(asset0.decimals));
-    } else if (input === 'withdrawAmount1') {
-      setWithdrawAmount1Percent(percent)
-      setWithdrawAmount1(BigNumber(asset1.balance).times(percent).div(100).toFixed(asset1.decimals));
     }
   }
 
@@ -449,12 +458,12 @@ export default function ssLiquidityManage() {
     }
 
     if(!asset0 || asset0 === null) {
-      setAmount0Error('From asset is required')
+      setAmount0Error('Asset is required')
       error = true
     }
 
     if(!asset1 || asset1 === null) {
-      setAmount1Error('To asset is required')
+      setAmount1Error('Asset is required')
       error = true
     }
 
@@ -510,12 +519,12 @@ export default function ssLiquidityManage() {
     }
 
     if(!asset0 || asset0 === null) {
-      setAmount0Error('From asset is required')
+      setAmount0Error('Asset is required')
       error = true
     }
 
     if(!asset1 || asset1 === null) {
-      setAmount1Error('To asset is required')
+      setAmount1Error('Asset is required')
       error = true
     }
 
@@ -533,30 +542,68 @@ export default function ssLiquidityManage() {
   }
 
   const onWithdraw = () => {
-    setDepositLoading(true)
-    stores.dispatcher.dispatch({ type: ACTIONS.REMOVE_LIQUIDITY, content: {
-      pair: pair,
-      token0: pair.token0,
-      token1: pair.token1,
-      quote: withdrawQuote
-    } })
+    setWithdrawAmountError(false)
+
+    let error = false
+
+    if(!withdrawAsset || withdrawAsset === null) {
+      setWithdrawAmountError('Asset is required')
+      error = true
+    }
+
+    if(!error) {
+      setDepositLoading(true)
+      stores.dispatcher.dispatch({ type: ACTIONS.REMOVE_LIQUIDITY, content: {
+        pair: pair,
+        token0: pair.token0,
+        token1: pair.token1,
+        quote: withdrawQuote
+      } })
+    }
   }
 
   const onUnstakeAndWithdraw = () => {
-    setDepositLoading(true)
-    stores.dispatcher.dispatch({ type: ACTIONS.UNSTAKE_AND_REMOVE_LIQUIDITY, content: {
-      pair: pair,
-      token0: pair.token0,
-      token1: pair.token1,
-      amount: withdrawAmount,
-      amount0: withdrawAmount0,
-      amount1: withdrawAmount1,
-      quote: withdrawQuote
-    } })
+    setWithdrawAmountError(false)
+
+    let error = false
+
+    if(!withdrawAmount || withdrawAmount === '' || isNaN(withdrawAmount)) {
+      setWithdrawAmountError('Amount is required')
+      error = true
+    } else {
+      if(withdrawAsset && withdrawAsset.gauge && (!withdrawAsset.gauge.balance || isNaN(withdrawAsset.gauge.balance) || BigNumber(withdrawAsset.gauge.balance).lte(0)))  {
+        setWithdrawAmountError('Invalid balance')
+        error = true
+      } else if(BigNumber(withdrawAmount).lte(0)) {
+        setWithdrawAmountError('Invalid amount')
+        error = true
+      } else if (withdrawAsset && BigNumber(withdrawAmount).gt(withdrawAsset.gauge.balance)) {
+        setWithdrawAmountError(`Greater than your available balance`)
+        error = true
+      }
+    }
+
+    if(!withdrawAsset || withdrawAsset === null) {
+      setWithdrawAmountError('From asset is required')
+      error = true
+    }
+
+    if(!error) {
+      setDepositStakeLoading(true)
+      stores.dispatcher.dispatch({ type: ACTIONS.UNSTAKE_AND_REMOVE_LIQUIDITY, content: {
+        pair: pair,
+        token0: pair.token0,
+        token1: pair.token1,
+        amount: withdrawAmount,
+        amount0: withdrawAmount0,
+        amount1: withdrawAmount1,
+        quote: withdrawQuote
+      } })
+    }
   }
 
   const onUnstake = () => {
-    setDepositLoading(true)
+    setStakeLoading(true)
     stores.dispatcher.dispatch({ type: ACTIONS.UNSTAKE_LIQUIDITY, content: {
       pair: pair,
       token0: pair.token0,
@@ -606,18 +653,21 @@ export default function ssLiquidityManage() {
   }
 
   const onAssetSelect = async (type, value) => {
-    console.log(type)
-    console.log(value)
     if(type === 'amount0') {
       setAsset0(value)
       const p = await stores.stableSwapStore.getPair(value.address, asset1.address, stable)
       setPair(p)
       callQuoteAddLiquidity(amount0, amount1, priorityAsset, stable, p)
-    } else {
+    } else if (type === 'amount1') {
       setAsset1(value)
       const p = await stores.stableSwapStore.getPair(asset0.address, value.address, stable)
       setPair(p)
       callQuoteAddLiquidity(amount0, amount1, priorityAsset, stable, p)
+    } else if (type === 'withdraw') {
+      setWithdrawAsset(value)
+      const p = await stores.stableSwapStore.getPair(value.token0.address, value.token1.address, value.isStable)
+      setPair(p)
+      calcRemove(p, withdrawAmount)
     }
   }
 
@@ -629,18 +679,22 @@ export default function ssLiquidityManage() {
   }
 
   const withdrawAmountChanged = (event) => {
+    setWithdrawAmountError(false)
     setWithdrawAmount(event.target.value);
     if(event.target.value === '') {
       setWithdrawAmount0('')
       setWithdrawAmount1('')
     } else if(event.target.value !== '' && !isNaN(event.target.value)) {
-      const totalBalances = BigNumber(pair.token0.poolBalance).plus(pair.token1.poolBalance)
-      const coin0Ratio = BigNumber(pair.token0.poolBalance).div(totalBalances).toFixed(18)
-      const coin1Ratio = BigNumber(pair.token1.poolBalance).div(totalBalances).toFixed(18)
-      setWithdrawAmount0(BigNumber(coin0Ratio).times(pair.virtualPrice).times(event.target.value).toFixed(18))
-      setWithdrawAmount1(BigNumber(coin1Ratio).times(pair.virtualPrice).times(event.target.value).toFixed(18))
+      calcRemove(pair, event.target.value)
     }
-    callQuoteRemoveLiquidity(event.target.value)
+  }
+
+  const calcRemove = (pear, amount) => {
+    if(!(amount && amount != '' && amount > 0)) {
+      return
+    }
+
+    callQuoteRemoveLiquidity(pear, amount)
   }
 
   const renderMediumInput = (type, value, logo, symbol) => {
@@ -697,15 +751,32 @@ export default function ssLiquidityManage() {
       <div className={ classes.textField}>
         <div className={ classes.inputTitleContainer }>
           <div className={ classes.inputBalance }>
-            <Typography className={ classes.inputBalanceText } noWrap onClick={ () => {
-              setAmountPercent(type, 100)
-            }}>
-              Balance:
-              { (assetValue && assetValue.balance) ?
-                ' ' +   formatCurrency(assetValue.balance) :
-                ''
-              }
-            </Typography>
+            { type !== 'withdraw' &&
+              <Typography className={ classes.inputBalanceText } noWrap onClick={ () => {
+                setAmountPercent(type, 100)
+              }}>
+                Balance:
+                { (assetValue && assetValue.balance) ?
+                  ' ' + formatCurrency(assetValue.balance) :
+                  ''
+                }
+              </Typography>
+            }
+            { type === 'withdraw' &&
+              <Typography className={ classes.inputBalanceText } noWrap onClick={ () => {
+                setAmountPercent(type, 100)
+              }}>
+                Balance:
+                {  (assetValue && assetValue.gauge && assetValue.gauge.balance) ?
+                    (' ' + formatCurrency(assetValue.gauge.balance)) :
+                    (
+                      (assetValue && assetValue.balance) ?
+                      (' ' + formatCurrency(assetValue.balance)) :
+                      '0.00'
+                    )
+                }
+              </Typography>
+            }
           </div>
         </div>
         <div className={ `${classes.massiveInputContainer} ${ (amountError || assetError) && classes.error }` }>
@@ -849,6 +920,8 @@ export default function ssLiquidityManage() {
     setAdvanced(!advanced)
   }
 
+  console.log(pair)
+
   return (
     <div className={classes.retain}>
       <Paper elevation={0} className={ classes.container }>
@@ -896,7 +969,7 @@ export default function ssLiquidityManage() {
             {
               activeTab === 'withdraw' &&
               <>
-                { renderMassiveInput('withdraw', withdrawAmount, null, withdrawAmountChanged, ((pair && pair.gauge) ? (pair?.gauge?.balance) : (pair?.balance)), pair?.logoURI, null, pair?.symbol) }
+                { renderMassiveInput('withdraw', withdrawAmount, withdrawAmountError, withdrawAmountChanged, withdrawAsset, null, withdrawAassetOptions, onAssetSelect, null) }
                 <div className={ classes.swapIconContainer }>
                   <div className={ classes.swapIconSubContainer }>
                     <ArrowDownwardIcon className={ classes.swapIcon } />
@@ -1233,8 +1306,26 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
           <Typography variant='subtitle1' color='textSecondary'>{ asset ? asset.name : '' }</Typography>
         </div>
         <div className={ classes.assetSelectBalance}>
-          <Typography variant='h5'>{ (asset && asset.balance) ? formatCurrency(asset.balance) : '0.00' }</Typography>
-          <Typography variant='subtitle1' color='textSecondary'>{ 'Balance' }</Typography>
+          {
+            (type === 'withdraw') &&
+            <>
+              <div className={ classes.nextTo }>
+                <Typography variant='subtitle1' color='textSecondary' className={ classes.paddTiny }>Staked:</Typography>
+                <Typography variant='h5'>{ (asset && asset.gauge && asset.gauge.balance) ? formatCurrency(asset.gauge.balance) : '0.00' }</Typography>
+              </div>
+              <div className={ classes.nextTo }>
+                <Typography variant='subtitle1' color='textSecondary' className={ classes.paddTiny }>LP:</Typography>
+                <Typography variant='h5'>{ (asset && asset.balance) ? formatCurrency(asset.balance) : '0.00' }</Typography>
+              </div>
+            </>
+          }
+          {
+            !(type === 'withdraw') &&
+            <>
+              <Typography variant='h5'>{ (asset && asset.balance) ? formatCurrency(asset.balance) : '0.00' }</Typography>
+              <Typography variant='subtitle1' color='textSecondary'>{ 'Balance' }</Typography>
+            </>
+          }
         </div>
       </MenuItem>
     )
