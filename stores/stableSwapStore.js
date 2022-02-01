@@ -1079,14 +1079,9 @@ class Store {
         toki1 = CONTRACTS.WFTM_ADDRESS
       }
 
-      console.log(toki0)
-      console.log(toki1)
-      console.log(isStable)
+      const factoryContract = new web3.eth.Contract(CONTRACTS.FACTORY_ABI, CONTRACTS.FACTORY_ADDRESS)
+      const pairFor = await factoryContract.methods.getPair(toki0, toki1, isStable).call()
 
-      const routerContract = new web3.eth.Contract(CONTRACTS.ROUTER_ABI, CONTRACTS.ROUTER_ADDRESS)
-      const pairFor = await routerContract.methods.pairFor(toki0, toki1, isStable).call()
-
-      console.log(pairFor)
       if(pairFor && pairFor != ZERO_ADDRESS) {
         await context.updatePairsCall(web3, account)
         this.emitter.emit(ACTIONS.ERROR, 'Pair already exists')
@@ -1103,7 +1098,7 @@ class Store {
 
       //DOD A CHECK FOR IF THE POOL ALREADY EXISTS
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CREATE LIQUIDITY POOL FOR ${token0.symbol}/${token1.symbol}`, transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CREATE LIQUIDITY POOL FOR ${token0.symbol}/${token1.symbol}`, type: 'Liquidity', verb: 'Liquidity Pool Created', transactions: [
         {
           uuid: allowance0TXID,
           description: `CHECKING YOUR ${token0.symbol} ALLOWANCES`,
@@ -1252,6 +1247,7 @@ class Store {
         sendValue = sendAmount1
       }
 
+      const routerContract = new web3.eth.Contract(CONTRACTS.ROUTER_ABI, CONTRACTS.ROUTER_ADDRESS)
       this._callContractWait(web3, routerContract, func, params, account, gasPrice, null, null, depositTXID, async (err) => {
         if (err) {
           return this.emitter.emit(ACTIONS.ERROR, err)
@@ -1266,7 +1262,7 @@ class Store {
         if(token1.address === 'FTM') {
           tok1 = CONTRACTS.WFTM_ADDRESS
         }
-        const pairFor = await routerContract.methods.pairFor(tok0, tok1, isStable).call()
+        const pairFor = await factoryContract.methods.getPair(tok0, tok1, isStable).call()
 
         // SUBMIT CREATE GAUGE TRANSACTION
         const gaugesContract = new web3.eth.Contract(CONTRACTS.GAUGES_ABI, CONTRACTS.GAUGES_ADDRESS)
@@ -1357,8 +1353,6 @@ class Store {
       }
 
       const { token0, token1, amount0, amount1, isStable } = payload.content
-      console.log(token0.symbol)
-      console.log(token1.symbol)
 
       let toki0 = token0.address
       let toki1 = token1.address
@@ -1369,8 +1363,9 @@ class Store {
         toki1 = CONTRACTS.WFTM_ADDRESS
       }
 
-      const routerContract = new web3.eth.Contract(CONTRACTS.ROUTER_ABI, CONTRACTS.ROUTER_ADDRESS)
-      const pairFor = await routerContract.methods.pairFor(toki0, toki1, isStable).call()
+
+      const factoryContract = new web3.eth.Contract(CONTRACTS.FACTORY_ABI, CONTRACTS.FACTORY_ADDRESS)
+      const pairFor = await factoryContract.methods.getPair(toki0, toki1, isStable).call()
 
       console.log(pairFor)
       if(pairFor && pairFor != ZERO_ADDRESS) {
@@ -1387,7 +1382,7 @@ class Store {
 
       //DOD A CHECK FOR IF THE POOL ALREADY EXISTS
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CREATE LIQUIDITY POOL FOR ${token0.symbol}/${token1.symbol}`, transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CREATE LIQUIDITY POOL FOR ${token0.symbol}/${token1.symbol}`, type: 'Liquidity', verb: 'Liquidity Pool Created', transactions: [
         {
           uuid: allowance0TXID,
           description: `CHECKING YOUR ${token0.symbol} ALLOWANCES`,
@@ -1527,6 +1522,7 @@ class Store {
         sendValue = sendAmount1
       }
 
+      const routerContract = new web3.eth.Contract(CONTRACTS.ROUTER_ABI, CONTRACTS.ROUTER_ADDRESS)
       this._callContractWait(web3, routerContract, func, params, account, gasPrice, null, null, depositTXID, async (err) => {
         if (err) {
           return this.emitter.emit(ACTIONS.ERROR, err)
@@ -1541,7 +1537,7 @@ class Store {
         if(token1.address === 'FTM') {
           tok1 = CONTRACTS.WFTM_ADDRESS
         }
-        const pairFor = await routerContract.methods.pairFor(tok0, tok1, isStable).call()
+        const pairFor = await factoryContract.methods.getPair(tok0, tok1, isStable).call()
 
         // SUBMIT CREATE GAUGE TRANSACTION
         const gaugesContract = new web3.eth.Contract(CONTRACTS.GAUGES_ABI, CONTRACTS.GAUGES_ADDRESS)
@@ -1610,7 +1606,7 @@ class Store {
       let allowance1TXID = this.getTXUUID()
       let depositTXID = this.getTXUUID()
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `ADD LIQUIDITY TO ${pair.symbol}`, transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `ADD LIQUIDITY TO ${pair.symbol}`, verb: 'Liquidity Added', type: 'Liquidity', transactions: [
         {
           uuid: allowance0TXID,
           description: `CHECKING YOUR ${token0.symbol} ALLOWANCES`,
@@ -1785,7 +1781,7 @@ class Store {
       let stakeTXID = this.getTXUUID()
 
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `STAKE ${pair.symbol} IN GAUGE`, transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `STAKE ${pair.symbol} IN GAUGE`, type: 'Liquidity', verb: 'Liquidity Staked', transactions: [
         {
           uuid: stakeAllowanceTXID,
           description: `CHECKING YOUR ${pair.symbol} ALLOWANCES`,
@@ -1888,7 +1884,7 @@ class Store {
       let stakeTXID = this.getTXUUID()
 
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `ADD LIQUIDITY TO ${pair.symbol}`, transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `ADD LIQUIDITY TO ${pair.symbol}`, type: 'Liquidity', verb: 'Liquidity Added', transactions: [
         {
           uuid: allowance0TXID,
           description: `CHECKING YOUR ${token0.symbol} ALLOWANCES`,
@@ -2265,7 +2261,7 @@ class Store {
       let allowanceTXID = this.getTXUUID()
       let withdrawTXID = this.getTXUUID()
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `REMOVE LIQUIDITY FROM ${pair.symbol}`, transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `REMOVE LIQUIDITY FROM ${pair.symbol}`, type: 'Liquidity', verb: 'Liquidity Removed', transactions: [
         {
           uuid: allowanceTXID,
           description: `CHECKING YOUR ${pair.symbol} ALLOWANCES`,
@@ -2373,7 +2369,7 @@ class Store {
       let unstakeTXID = this.getTXUUID()
 
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `REMOVE LIQUIDITY FROM ${pair.symbol}`, transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `REMOVE LIQUIDITY FROM ${pair.symbol}`, type: 'Liquidity', verb: 'Liquidity Removed', transactions: [
         {
           uuid: allowanceTXID,
           description: `CHECKING YOUR ${pair.symbol} ALLOWANCES`,
@@ -2489,7 +2485,7 @@ class Store {
       let unstakeTXID = this.getTXUUID()
 
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `UNSTAKE LIQUIDITY FROM GAUGE`, transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `UNSTAKE LIQUIDITY FROM GAUGE`, type: 'Liquidity', verb: 'Liquidity Unstaked', transactions: [
         {
           uuid: unstakeTXID,
           description: `UNSTAKE POOL TOKENS FROM GAUGE`,
@@ -2587,7 +2583,7 @@ class Store {
       // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
       let createGaugeTXID = this.getTXUUID()
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CREATE LIQUIDITY GAUGE FOR ${pair.token0.symbol}/${pair.token1.symbol}`, transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CREATE LIQUIDITY GAUGE FOR ${pair.token0.symbol}/${pair.token1.symbol}`, type: 'Liquidity', verb: 'Gauge Created', transactions: [
         {
           uuid: createGaugeTXID,
           description: `CREATE GAUGE`,
@@ -2849,7 +2845,7 @@ class Store {
       let swapTXID = this.getTXUUID()
 
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `SWAP ${fromAsset.symbol} FOR ${toAsset.symbol}`, transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `SWAP ${fromAsset.symbol} FOR ${toAsset.symbol}`, type: 'Swap', verb: 'Swap Successful', transactions: [
         {
           uuid: allowanceTXID,
           description: `CHECKING YOUR ${fromAsset.symbol} ALLOWANCES`,
@@ -3036,7 +3032,7 @@ class Store {
 
       const unlockString = moment().add(unlockTime, 'seconds').format('YYYY-MM-DD')
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `VEST ${govToken.symbol} UNTIL ${unlockString}`, transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `VEST ${govToken.symbol} UNTIL ${unlockString}`, type: 'Vest', verb: 'Vest Created', transactions: [
         {
           uuid: allowanceTXID,
           description: `CHECKING YOUR ${govToken.symbol} ALLOWANCES`,
@@ -3144,7 +3140,7 @@ class Store {
       let allowanceTXID = this.getTXUUID()
       let vestTXID = this.getTXUUID()
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `INCREASE VEST AMOUNT ON TOKEN #${tokenID}`, transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `INCREASE VEST AMOUNT ON TOKEN #${tokenID}`, type: 'Vest', verb: 'Vest Increased', transactions: [
         {
           uuid: allowanceTXID,
           description: `CHECKING YOUR ${govToken.symbol} ALLOWANCES`,
@@ -3240,7 +3236,7 @@ class Store {
       // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
       let vestTXID = this.getTXUUID()
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `INCREASE UNLOCK TIME ON TOKEN #${tokenID}`, transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `INCREASE UNLOCK TIME ON TOKEN #${tokenID}`, type: 'Vest', verb: 'Vest Increased', transactions: [
         {
           uuid: vestTXID,
           description: `SUBMIT VEST TRANSACTION`,
@@ -3290,7 +3286,7 @@ class Store {
       // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
       let vestTXID = this.getTXUUID()
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `WITHDRAW VEST AMOUNT ON TOKEN #${tokenID}`, transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `WITHDRAW VEST AMOUNT ON TOKEN #${tokenID}`, type: 'Vest', verb: 'Vest Withdrawn', transactions: [
         {
           uuid: vestTXID,
           description: `SUBMIT WITHDRAW VEST TRANSACTION`,
@@ -3340,7 +3336,7 @@ class Store {
       // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
       let voteTXID = this.getTXUUID()
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CAST VOTES USING TOKEN #${tokenID}`, transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CAST VOTES USING TOKEN #${tokenID}`, verb: 'Votes Cast', transactions: [
         {
           uuid: voteTXID,
           description: `SUBMIT VOTE TRANSACTION`,
@@ -3456,7 +3452,7 @@ class Store {
       let allowanceTXID = this.getTXUUID()
       let bribeTXID = this.getTXUUID()
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CREATE BRIBE ON ${gauge.token0.symbol}/${gauge.token1.symbol}`, transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CREATE BRIBE ON ${gauge.token0.symbol}/${gauge.token1.symbol}`, verb: 'Bribe Created', transactions: [
         {
           uuid: allowanceTXID,
           description: `CHECKING YOUR ${asset.symbol} ALLOWANCES`,
@@ -3675,7 +3671,7 @@ class Store {
       // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
       let claimTXID = this.getTXUUID()
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CLAIM REWARDS FOR ${pair.token0.symbol}/${pair.token1.symbol}`, transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CLAIM REWARDS FOR ${pair.token0.symbol}/${pair.token1.symbol}`, verb: 'Rewards Claimed', transactions: [
         {
           uuid: claimTXID,
           description: `SUBMIT CLAIM TRANSACTION`,
@@ -3726,7 +3722,7 @@ class Store {
       // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
       let claimTXID = this.getTXUUID()
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CLAIM REWARDS FOR ${pairs.length} GAUGES`, transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CLAIM REWARDS FOR ${pairs.length} GAUGES`, verb: 'Rewards Claimed', transactions: [
         {
           uuid: claimTXID,
           description: `SUBMIT CLAIM TRANSACTION`,
@@ -3781,7 +3777,7 @@ class Store {
       // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
       let claimTXID = this.getTXUUID()
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CLAIM REWARDS FOR ${pair.token0.symbol}/${pair.token1.symbol}`, transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CLAIM REWARDS FOR ${pair.token0.symbol}/${pair.token1.symbol}`, verb: 'Rewards Claimed', transactions: [
         {
           uuid: claimTXID,
           description: `SUBMIT CLAIM TRANSACTION`,
@@ -3832,7 +3828,7 @@ class Store {
       // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
       let claimTXID = this.getTXUUID()
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CLAIM REWARDS FOR ${pairs.length} GAUGES`, transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CLAIM REWARDS FOR ${pairs.length} GAUGES`, verb: 'Rewards Claimed', transactions: [
         {
           uuid: claimTXID,
           description: `SUBMIT CLAIM TRANSACTION`,

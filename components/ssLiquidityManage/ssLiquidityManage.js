@@ -84,6 +84,9 @@ export default function ssLiquidityManage() {
       if(pp && asset1 == null) {
         setAsset1(pp.token1)
       }
+      if(pp) {
+        setStable(pp.isStable)
+      }
 
       if(pp && BigNumber(pp.balance).gt(0)) {
         setAdvanced(true)
@@ -100,7 +103,7 @@ export default function ssLiquidityManage() {
         aa1 = storeAssetOptions[1]
       }
 
-      if(asset0 && asset1) {
+      if(aa0 && aa1) {
         const p = await stores.stableSwapStore.getPair(aa0.address, aa1.address, stable)
         setPair(p)
       }
@@ -159,6 +162,7 @@ export default function ssLiquidityManage() {
     stores.emitter.on(ACTIONS.REMOVE_LIQUIDITY_AND_UNSTAKED, depositReturned)
     stores.emitter.on(ACTIONS.LIQUIDITY_STAKED, depositReturned)
     stores.emitter.on(ACTIONS.LIQUIDITY_UNSTAKED, depositReturned)
+    stores.emitter.on(ACTIONS.PAIR_CREATED, depositReturned)
     stores.emitter.on(ACTIONS.QUOTE_ADD_LIQUIDITY_RETURNED, quoteAddReturned)
     stores.emitter.on(ACTIONS.QUOTE_REMOVE_LIQUIDITY_RETURNED, quoteRemoveReturned)
     stores.emitter.on(ACTIONS.CREATE_GAUGE_RETURNED, createGaugeReturned)
@@ -175,6 +179,7 @@ export default function ssLiquidityManage() {
       stores.emitter.removeListener(ACTIONS.REMOVE_LIQUIDITY_AND_UNSTAKED, depositReturned)
       stores.emitter.removeListener(ACTIONS.LIQUIDITY_STAKED, depositReturned)
       stores.emitter.removeListener(ACTIONS.LIQUIDITY_UNSTAKED, depositReturned)
+      stores.emitter.removeListener(ACTIONS.PAIR_CREATED, depositReturned)
       stores.emitter.removeListener(ACTIONS.QUOTE_ADD_LIQUIDITY_RETURNED, quoteAddReturned)
       stores.emitter.removeListener(ACTIONS.QUOTE_REMOVE_LIQUIDITY_RETURNED, quoteRemoveReturned)
       stores.emitter.removeListener(ACTIONS.CREATE_GAUGE_RETURNED, createGaugeReturned)
@@ -200,7 +205,7 @@ export default function ssLiquidityManage() {
       if(amountA == '') {
         setAmount1('')
       } else {
-        amountB = BigNumber(amountA).times(pp.reserve1).div(pp.reserve0).toFixed(pp.token1.decimals)
+        amountB = BigNumber(amountA).times(pp.reserve1).div(pp.reserve0).toFixed(pp.token1.decimals>6?6:pp.token1.decimals)
         setAmount1(amountB)
       }
     }
@@ -208,7 +213,7 @@ export default function ssLiquidityManage() {
       if(amountB == '') {
         setAmount0('')
       } else {
-        amountA = BigNumber(amountB).times(pp.reserve0).div(pp.reserve1).toFixed(pp.token0.decimals)
+        amountA = BigNumber(amountB).times(pp.reserve0).div(pp.reserve1).toFixed(pp.token0.decimals>6?6:pp.token0.decimals)
         setAmount0(amountA)
       }
     }

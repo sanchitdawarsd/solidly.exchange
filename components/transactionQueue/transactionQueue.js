@@ -22,6 +22,8 @@ export default function TransactionQueue({ setQueueLength }) {
   const [open, setOpen] = useState(false)
   const [ transactions, setTransactions ] = useState([])
   const [ purpose, setPurpose ] = useState(null)
+  const [ type, setType ] = useState(null)
+  const [ action, setAction ] = useState(null)
 
   const handleClose = () => {
     setOpen(false);
@@ -41,6 +43,8 @@ export default function TransactionQueue({ setQueueLength }) {
 
     const transactionAdded = (params) => {
       setPurpose(params.title)
+      setType(params.type)
+      setAction(params.verb)
       setOpen(true)
       const txs = [...params.transactions]
       setTransactions(txs)
@@ -128,10 +132,22 @@ export default function TransactionQueue({ setQueueLength }) {
   }, [transactions]);
 
   const renderDone = (txs) => {
+
+    console.log('renderDone')
+
+    let lottie = <Lottie loop={false} className={classes.animClass} animationData={successAnim} />
+    if(type === 'Liquidity') {
+      lottie = <Lottie loop={false} className={classes.animClass} animationData={pairSuccessAnim} />
+    } else if (type === 'Swap') {
+      lottie = <Lottie loop={false} className={classes.animClass} animationData={swapSuccessAnim} />
+    } else if (type === 'Vest') {
+      lottie = <Lottie loop={false} className={classes.animClass} animationData={lockSuccessAnim} />
+    }
+
     return (
       <div className={classes.successDialog}>
-        <Lottie loop={false} className={classes.animClass} animationData={successAnim} />
-        <Typography className={ classes.successTitle }>Transaction Successful!</Typography>
+        { lottie }
+        <Typography className={ classes.successTitle }>{ action ? action : 'Transaction Successful!' }</Typography>
         <Typography className={ classes.successText }>Transaction has been confirmed by the blockchain.</Typography>
         {
           txs && txs.length > 0 && txs.filter((tx) => {
@@ -157,7 +173,7 @@ export default function TransactionQueue({ setQueueLength }) {
       fullScreen={fullScreen}
     >
       <DialogContent>
-        { transactions && transactions.filter((tx) => { return ['DONE', 'CONFIRMED'].includes(tx.status) }).length === transactions.length ?
+        { (transactions && transactions.filter((tx) => { return ['DONE', 'CONFIRMED'].includes(tx.status) }).length === transactions.length) ?
           (
             renderDone(transactions)
           )
