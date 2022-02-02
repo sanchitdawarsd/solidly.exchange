@@ -1,6 +1,8 @@
 import React, { useState, useEffect  } from "react";
-import { Typography, Button, CircularProgress, DialogContent, Dialog, Slide } from "@material-ui/core";
+import { Typography, Button, CircularProgress, DialogContent, Dialog, Slide, IconButton } from "@material-ui/core";
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
+import CloseIcon from '@material-ui/icons/Close';
+
 import Lottie from "lottie-react";
 import successAnim from "../../public/lottiefiles/successAnim.json";
 import swapSuccessAnim from "../../public/lottiefiles/swapSuccess.json";
@@ -133,8 +135,6 @@ export default function TransactionQueue({ setQueueLength }) {
 
   const renderDone = (txs) => {
 
-    console.log('renderDone')
-
     let lottie = <Lottie loop={false} className={classes.animClass} animationData={successAnim} />
     if(type === 'Liquidity') {
       lottie = <Lottie loop={false} className={classes.animClass} animationData={pairSuccessAnim} />
@@ -153,8 +153,9 @@ export default function TransactionQueue({ setQueueLength }) {
           txs && txs.length > 0 && txs.filter((tx) => {
             return tx.txHash != null
           }).map((tx) => {
+            console.log(tx)
             return (<Typography className={ classes.viewDetailsText }>
-              <a href={`${ETHERSCAN_URL}tx/${tx?.txHash}`} target="_blank">View in Explorer <OpenInNewIcon className={classes.newWindowIcon} /></a>
+              <a href={`${ETHERSCAN_URL}tx/${tx?.txHash}`} target="_blank">{ tx && tx.description ? tx.description : 'View in Explorer' } <OpenInNewIcon className={classes.newWindowIcon} /></a>
             </Typography>)
           })
         }
@@ -173,6 +174,10 @@ export default function TransactionQueue({ setQueueLength }) {
       fullScreen={fullScreen}
     >
       <DialogContent>
+        <IconButton className={ classes.closeIconbutton }
+          onClick={handleClose}>
+          <CloseIcon />
+        </IconButton>
         { (transactions && transactions.filter((tx) => { return ['DONE', 'CONFIRMED'].includes(tx.status) }).length === transactions.length) ?
           (
             renderDone(transactions)

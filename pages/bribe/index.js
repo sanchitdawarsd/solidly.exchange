@@ -69,7 +69,7 @@ function Bribes({ changeTheme }) {
             <BalanceIcon className={ classes.overviewIcon } />
              <Typography className={classes.mainHeadingNC} variant='h1'>Bribes</Typography>
              <Typography className={classes.mainDescNC} variant='body2'>
-               Earn Rewards. Incentivizing users to vote for your favourite Liquidity Pool
+               Use your veSolid to vote for your selected pool’s rewards distribution or create a bribe to encourage others to do the same.
              </Typography>
              <Button
                disableElevation

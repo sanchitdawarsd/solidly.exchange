@@ -90,7 +90,7 @@ function Vest({ changeTheme }) {
               <BalanceIcon className={ classes.overviewIcon } />
               <Typography className={classes.mainHeadingNC} variant='h1'>Vest</Typography>
               <Typography className={classes.mainDescNC} variant='body2'>
-                Vesting your kp3r in the Solidly gauge means that you will be locking up your assets in order to gain a voting right in how the protocol emits rewards.
+                Lock your Solid to earn rewards and governance rights. Each locked position is created and represented as an NFT, meaning you can hold multiple locked positions.
               </Typography>
               <Button
                 disableElevation

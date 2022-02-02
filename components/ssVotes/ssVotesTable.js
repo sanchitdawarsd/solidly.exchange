@@ -82,7 +82,7 @@ const headCells = [
     id: 'apy',
     numeric: true,
     disablePadding: false,
-    label: 'APY',
+    label: 'Bribes',
   },
   {
     id: 'myVotes',
@@ -436,13 +436,17 @@ export default function EnhancedTable({ gauges, setParentSliderValues, defaultVo
                       { formatCurrency(row?.gauge?.weightPercent) } %
                     </Typography>
                   </TableCell>
-                  <TableCell className={classes.cell} align='right'>
-                    <Tooltip title={ renderTooltip(row)}>
-                      <InfoOutlinedIcon className={classes.infoIcon} />
-                    </Tooltip>
-                    <Typography variant='h2' className={classes.textSpacedFloat}>
-                      0.00%
-                    </Typography>
+                  <TableCell className={classes.cell} align="right">
+                    {
+                      row?.gauge?.bribes.map((bribe, idx) => {
+                        return (
+                          <>
+                            <Typography variant="h2" className={classes.textSpaced}>{ formatCurrency(bribe.rewardAmount) }</Typography>
+                            <Typography variant="h5" className={classes.textSpaced} color='textSecondary'>{ bribe.token.symbol }</Typography>
+                          </>
+                        )
+                      })
+                    }
                   </TableCell>
                   <TableCell className={classes.cell} align="right">
                     <Typography variant="h2" className={classes.textSpaced}>

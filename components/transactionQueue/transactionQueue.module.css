@@ -26,10 +26,20 @@
   background: rgba(0, 0, 0, 0.2);
 }
 
+.closeIconbutton {
+  position: absolute !important;
+  right: 0px;
+  top: 0px;
+}
+
 .transactionInfo {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.capitalise {
+  text-transform: capitalize !important;
 }
 
 .transactionExpanded {

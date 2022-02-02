@@ -70,7 +70,7 @@ export default function Transaction({ transaction }) {
         <div className={ classes.transactionExpanded }>
           { transaction.txHash &&
             <div className={ classes.transaactionHash }>
-              <Typography>{ formatAddress(transaction.txHash, 'long') }</Typography>
+              <Typography color='textSecondary'>{ formatAddress(transaction.txHash, 'long') }</Typography>
               <Button
                 onClick={ onViewTX }>
                 View in Explorer

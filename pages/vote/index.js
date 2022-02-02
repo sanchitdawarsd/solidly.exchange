@@ -49,10 +49,6 @@ function Vote({ changeTheme }) {
 
         {account && account.address ?
           <div className={classes.connected}>
-            <Typography className={classes.mainHeading} variant='h1'>Vote</Typography>
-            <Typography className={classes.mainDesc} variant='body2'>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.
-            </Typography>
             <Gauges />
           </div>
           :
@@ -61,7 +57,7 @@ function Vote({ changeTheme }) {
             <div className={classes.contentFloat}>
             <Typography className={classes.mainHeadingNC} variant='h1'>Vote</Typography>
             <Typography className={classes.mainDescNC} variant='body2'>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.
+              Use your veSolid to vote for your selected pool’s rewards distribution or create a bribe to encourage others to do the same.
             </Typography>
             <Button
               disableElevation

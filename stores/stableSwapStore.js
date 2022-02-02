@@ -1098,35 +1098,35 @@ class Store {
 
       //DOD A CHECK FOR IF THE POOL ALREADY EXISTS
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CREATE LIQUIDITY POOL FOR ${token0.symbol}/${token1.symbol}`, type: 'Liquidity', verb: 'Liquidity Pool Created', transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `Create liquidity pool for ${token0.symbol}/${token1.symbol}`, type: 'Liquidity', verb: 'Liquidity Pool Created', transactions: [
         {
           uuid: allowance0TXID,
-          description: `CHECKING YOUR ${token0.symbol} ALLOWANCES`,
+          description: `Checking your ${token0.symbol} allowance`,
           status: 'WAITING'
         },
         {
           uuid: allowance1TXID,
-          description: `CHECKING YOUR ${token1.symbol} ALLOWANCES`,
+          description: `Checking your ${token1.symbol} allowance`,
           status: 'WAITING'
         },
         {
           uuid: depositTXID,
-          description: `CREATE LIQUIDITY POOL`,
+          description: `Create liquidity pool`,
           status: 'WAITING'
         },
         {
           uuid: createGaugeTXID,
-          description: `CREATE GAUGE`,
+          description: `Create gauge`,
           status: 'WAITING'
         },
         {
           uuid: stakeAllowanceTXID,
-          description: `CHECKING YOUR POOL ALLOWANCES`,
+          description: `Checking your pool allowance`,
           status: 'WAITING'
         },
         {
           uuid: stakeTXID,
-          description: `STAKE POOL TOKENS IN GAUGE`,
+          description: `Stake LP tokens in the gauge`,
           status: 'WAITING'
         }
       ]})
@@ -1140,12 +1140,12 @@ class Store {
         if(BigNumber(allowance0).lt(amount0)) {
           this.emitter.emit(ACTIONS.TX_STATUS, {
             uuid: allowance0TXID,
-            description: `ALLOW ROUTER TO SPEND YOUR ${token0.symbol}`
+            description: `Allow the router to spend your ${token0.symbol}`
           })
         } else {
           this.emitter.emit(ACTIONS.TX_STATUS, {
             uuid: allowance0TXID,
-            description: `ALLOWANCE ON ${token0.symbol} SET`,
+            description: `Allowance on ${token0.symbol} sufficient`,
             status: 'DONE'
           })
         }
@@ -1153,7 +1153,7 @@ class Store {
         allowance0 = MAX_UINT256
         this.emitter.emit(ACTIONS.TX_STATUS, {
           uuid: allowance0TXID,
-          description: `ALLOWANCE ON ${token0.symbol} SET`,
+          description: `Allowance on ${token0.symbol} sufficient`,
           status: 'DONE'
         })
       }
@@ -1163,12 +1163,12 @@ class Store {
         if(BigNumber(allowance1).lt(amount1)) {
           this.emitter.emit(ACTIONS.TX_STATUS, {
             uuid: allowance1TXID,
-            description: `ALLOW ROUTER TO SPEND YOUR ${token1.symbol}`
+            description: `Allow the router to spend your ${token1.symbol}`
           })
         } else {
           this.emitter.emit(ACTIONS.TX_STATUS, {
             uuid: allowance1TXID,
-            description: `ALLOWANCE ON ${token1.symbol} SET`,
+            description: `Allowance on ${token1.symbol} sufficient`,
             status: 'DONE'
           })
         }
@@ -1176,7 +1176,7 @@ class Store {
         allowance1 = MAX_UINT256
         this.emitter.emit(ACTIONS.TX_STATUS, {
           uuid: allowance1TXID,
-          description: `ALLOWANCE ON ${token1.symbol} SET`,
+          description: `Allowance on ${token1.symbol} sufficient`,
           status: 'DONE'
         })
       }
@@ -1284,12 +1284,12 @@ class Store {
           if(BigNumber(stakeAllowance).lt( BigNumber(balanceOf).div(10**pair.decimals).toFixed(pair.decimals) )) {
             this.emitter.emit(ACTIONS.TX_STATUS, {
               uuid: stakeAllowanceTXID,
-              description: `ALLOW ROUTER TO SPEND YOUR ${pair.symbol}`
+              description: `Allow the router to spend your ${pair.symbol}`
             })
           } else {
             this.emitter.emit(ACTIONS.TX_STATUS, {
               uuid: stakeAllowanceTXID,
-              description: `ALLOWANCE ON ${pair.symbol} SET`,
+              description: `Allowance on ${pair.symbol} sufficient`,
               status: 'DONE'
             })
           }
@@ -1382,25 +1382,25 @@ class Store {
 
       //DOD A CHECK FOR IF THE POOL ALREADY EXISTS
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CREATE LIQUIDITY POOL FOR ${token0.symbol}/${token1.symbol}`, type: 'Liquidity', verb: 'Liquidity Pool Created', transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `Create liquidity pool for ${token0.symbol}/${token1.symbol}`, type: 'Liquidity', verb: 'Liquidity Pool Created', transactions: [
         {
           uuid: allowance0TXID,
-          description: `CHECKING YOUR ${token0.symbol} ALLOWANCES`,
+          description: `Checking your ${token0.symbol} allowance`,
           status: 'WAITING'
         },
         {
           uuid: allowance1TXID,
-          description: `CHECKING YOUR ${token1.symbol} ALLOWANCES`,
+          description: `Checking your ${token1.symbol} allowance`,
           status: 'WAITING'
         },
         {
           uuid: depositTXID,
-          description: `CREATE LIQUIDITY POOL`,
+          description: `Create liquidity pool`,
           status: 'WAITING'
         },
         {
           uuid: createGaugeTXID,
-          description: `CREATE GAUGE`,
+          description: `Create gauge`,
           status: 'WAITING'
         }
       ]})
@@ -1414,12 +1414,12 @@ class Store {
         if(BigNumber(allowance0).lt(amount0)) {
           this.emitter.emit(ACTIONS.TX_STATUS, {
             uuid: allowance0TXID,
-            description: `ALLOW ROUTER TO SPEND YOUR ${token0.symbol}`
+            description: `Allow the router to spend your ${token0.symbol}`
           })
         } else {
           this.emitter.emit(ACTIONS.TX_STATUS, {
             uuid: allowance0TXID,
-            description: `ALLOWANCE ON ${token0.symbol} SET`,
+            description: `Allowance on ${token0.symbol} sufficient`,
             status: 'DONE'
           })
         }
@@ -1427,7 +1427,7 @@ class Store {
         allowance0 = MAX_UINT256
         this.emitter.emit(ACTIONS.TX_STATUS, {
           uuid: allowance0TXID,
-          description: `ALLOWANCE ON ${token0.symbol} SET`,
+          description: `Allowance on ${token0.symbol} sufficient`,
           status: 'DONE'
         })
       }
@@ -1437,12 +1437,12 @@ class Store {
         if(BigNumber(allowance1).lt(amount1)) {
           this.emitter.emit(ACTIONS.TX_STATUS, {
             uuid: allowance1TXID,
-            description: `ALLOW ROUTER TO SPEND YOUR ${token1.symbol}`
+            description: `Allow the router to spend your ${token1.symbol}`
           })
         } else {
           this.emitter.emit(ACTIONS.TX_STATUS, {
             uuid: allowance1TXID,
-            description: `ALLOWANCE ON ${token1.symbol} SET`,
+            description: `Allowance on ${token1.symbol} sufficient`,
             status: 'DONE'
           })
         }
@@ -1450,7 +1450,7 @@ class Store {
         allowance1 = MAX_UINT256
         this.emitter.emit(ACTIONS.TX_STATUS, {
           uuid: allowance1TXID,
-          description: `ALLOWANCE ON ${token1.symbol} SET`,
+          description: `Allowance on ${token1.symbol} sufficient`,
           status: 'DONE'
         })
       }
@@ -1606,20 +1606,20 @@ class Store {
       let allowance1TXID = this.getTXUUID()
       let depositTXID = this.getTXUUID()
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `ADD LIQUIDITY TO ${pair.symbol}`, verb: 'Liquidity Added', type: 'Liquidity', transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `Add liquidity to ${pair.symbol}`, verb: 'Liquidity Added', type: 'Liquidity', transactions: [
         {
           uuid: allowance0TXID,
-          description: `CHECKING YOUR ${token0.symbol} ALLOWANCES`,
+          description: `Checking your ${token0.symbol} allowance`,
           status: 'WAITING'
         },
         {
           uuid: allowance1TXID,
-          description: `CHECKING YOUR ${token1.symbol} ALLOWANCES`,
+          description: `Checking your ${token1.symbol} allowance`,
           status: 'WAITING'
         },
         {
           uuid: depositTXID,
-          description: `DEPOSIT TOKENS IN POOL`,
+          description: `Deposit tokens in the pool`,
           status: 'WAITING'
         },
       ]})
@@ -1633,12 +1633,12 @@ class Store {
         if(BigNumber(allowance0).lt(amount0)) {
           this.emitter.emit(ACTIONS.TX_STATUS, {
             uuid: allowance0TXID,
-            description: `ALLOW ROUTER TO SPEND YOUR ${token0.symbol}`
+            description: `Allow the router to spend your ${token0.symbol}`
           })
         } else {
           this.emitter.emit(ACTIONS.TX_STATUS, {
             uuid: allowance0TXID,
-            description: `ALLOWANCE ON ${token0.symbol} SET`,
+            description: `Allowance on ${token0.symbol} sufficient`,
             status: 'DONE'
           })
         }
@@ -1646,7 +1646,7 @@ class Store {
         allowance0 = MAX_UINT256
         this.emitter.emit(ACTIONS.TX_STATUS, {
           uuid: allowance0TXID,
-          description: `ALLOWANCE ON ${token0.symbol} SET`,
+          description: `Allowance on ${token0.symbol} sufficient`,
           status: 'DONE'
         })
       }
@@ -1656,12 +1656,12 @@ class Store {
         if(BigNumber(allowance1).lt(amount1)) {
           this.emitter.emit(ACTIONS.TX_STATUS, {
             uuid: allowance1TXID,
-            description: `ALLOW ROUTER TO SPEND YOUR ${token1.symbol}`
+            description: `Allow the router to spend your ${token1.symbol}`
           })
         } else {
           this.emitter.emit(ACTIONS.TX_STATUS, {
             uuid: allowance1TXID,
-            description: `ALLOWANCE ON ${token1.symbol} SET`,
+            description: `Allowance on ${token1.symbol} sufficient`,
             status: 'DONE'
           })
         }
@@ -1669,7 +1669,7 @@ class Store {
         allowance1 = MAX_UINT256
         this.emitter.emit(ACTIONS.TX_STATUS, {
           uuid: allowance1TXID,
-          description: `ALLOWANCE ON ${token1.symbol} SET`,
+          description: `Allowance on ${token1.symbol} sufficient`,
           status: 'DONE'
         })
       }
@@ -1781,15 +1781,15 @@ class Store {
       let stakeTXID = this.getTXUUID()
 
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `STAKE ${pair.symbol} IN GAUGE`, type: 'Liquidity', verb: 'Liquidity Staked', transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `Stake ${pair.symbol} in the gauge`, type: 'Liquidity', verb: 'Liquidity Staked', transactions: [
         {
           uuid: stakeAllowanceTXID,
-          description: `CHECKING YOUR ${pair.symbol} ALLOWANCES`,
+          description: `Checking your ${pair.symbol} allowance`,
           status: 'WAITING'
         },
         {
           uuid: stakeTXID,
-          description: `STAKE POOL TOKENS IN GAUGE`,
+          description: `Stake LP tokens in the gauge`,
           status: 'WAITING'
         }
       ]})
@@ -1802,12 +1802,12 @@ class Store {
       if(BigNumber(stakeAllowance).lt( BigNumber(balanceOf).div(10**pair.decimals).toFixed(pair.decimals) )) {
         this.emitter.emit(ACTIONS.TX_STATUS, {
           uuid: stakeAllowanceTXID,
-          description: `ALLOW ROUTER TO SPEND YOUR ${pair.symbol}`
+          description: `Allow the router to spend your ${pair.symbol}`
         })
       } else {
         this.emitter.emit(ACTIONS.TX_STATUS, {
           uuid: stakeAllowanceTXID,
-          description: `ALLOWANCE ON ${pair.symbol} SET`,
+          description: `Allowance on ${pair.symbol} sufficient`,
           status: 'DONE'
         })
       }
@@ -1884,30 +1884,30 @@ class Store {
       let stakeTXID = this.getTXUUID()
 
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `ADD LIQUIDITY TO ${pair.symbol}`, type: 'Liquidity', verb: 'Liquidity Added', transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `Add liquidity to ${pair.symbol}`, type: 'Liquidity', verb: 'Liquidity Added', transactions: [
         {
           uuid: allowance0TXID,
-          description: `CHECKING YOUR ${token0.symbol} ALLOWANCES`,
+          description: `Checking your ${token0.symbol} allowance`,
           status: 'WAITING'
         },
         {
           uuid: allowance1TXID,
-          description: `CHECKING YOUR ${token1.symbol} ALLOWANCES`,
+          description: `Checking your ${token1.symbol} allowance`,
           status: 'WAITING'
         },
         {
           uuid: stakeAllowanceTXID,
-          description: `CHECKING YOUR ${pair.symbol} ALLOWANCES`,
+          description: `Checking your ${pair.symbol} allowance`,
           status: 'WAITING'
         },
         {
           uuid: depositTXID,
-          description: `DEPOSIT TOKENS IN POOL`,
+          description: `Deposit tokens in the pool`,
           status: 'WAITING'
         },
         {
           uuid: stakeTXID,
-          description: `STAKE POOL TOKENS IN GAUGE`,
+          description: `Stake LP tokens in the gauge`,
           status: 'WAITING'
         }
       ]})
@@ -1921,12 +1921,12 @@ class Store {
         if(BigNumber(allowance0).lt(amount0)) {
           this.emitter.emit(ACTIONS.TX_STATUS, {
             uuid: allowance0TXID,
-            description: `ALLOW ROUTER TO SPEND YOUR ${token0.symbol}`
+            description: `Allow the router to spend your ${token0.symbol}`
           })
         } else {
           this.emitter.emit(ACTIONS.TX_STATUS, {
             uuid: allowance0TXID,
-            description: `ALLOWANCE ON ${token0.symbol} SET`,
+            description: `Allowance on ${token0.symbol} sufficient`,
             status: 'DONE'
           })
         }
@@ -1934,7 +1934,7 @@ class Store {
         allowance0 = MAX_UINT256
         this.emitter.emit(ACTIONS.TX_STATUS, {
           uuid: allowance0TXID,
-          description: `ALLOWANCE ON ${token0.symbol} SET`,
+          description: `Allowance on ${token0.symbol} sufficient`,
           status: 'DONE'
         })
       }
@@ -1944,12 +1944,12 @@ class Store {
         if(BigNumber(allowance1).lt(amount1)) {
           this.emitter.emit(ACTIONS.TX_STATUS, {
             uuid: allowance1TXID,
-            description: `ALLOW ROUTER TO SPEND YOUR ${token1.symbol}`
+            description: `Allow the router to spend your ${token1.symbol}`
           })
         } else {
           this.emitter.emit(ACTIONS.TX_STATUS, {
             uuid: allowance1TXID,
-            description: `ALLOWANCE ON ${token1.symbol} SET`,
+            description: `Allowance on ${token1.symbol} sufficient`,
             status: 'DONE'
           })
         }
@@ -1957,7 +1957,7 @@ class Store {
         allowance1 = MAX_UINT256
         this.emitter.emit(ACTIONS.TX_STATUS, {
           uuid: allowance1TXID,
-          description: `ALLOWANCE ON ${token1.symbol} SET`,
+          description: `Allowance on ${token1.symbol} sufficient`,
           status: 'DONE'
         })
       }
@@ -1968,12 +1968,12 @@ class Store {
       if(BigNumber(stakeAllowance).lt(minLiquidity)) {
         this.emitter.emit(ACTIONS.TX_STATUS, {
           uuid: stakeAllowanceTXID,
-          description: `ALLOW ROUTER TO SPEND YOUR ${pair.symbol}`
+          description: `Allow the router to spend your ${pair.symbol}`
         })
       } else {
         this.emitter.emit(ACTIONS.TX_STATUS, {
           uuid: stakeAllowanceTXID,
-          description: `ALLOWANCE ON ${pair.symbol} SET`,
+          description: `Allowance on ${pair.symbol} sufficient`,
           status: 'DONE'
         })
       }
@@ -2261,15 +2261,15 @@ class Store {
       let allowanceTXID = this.getTXUUID()
       let withdrawTXID = this.getTXUUID()
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `REMOVE LIQUIDITY FROM ${pair.symbol}`, type: 'Liquidity', verb: 'Liquidity Removed', transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `Remove liquidity from ${pair.symbol}`, type: 'Liquidity', verb: 'Liquidity Removed', transactions: [
         {
           uuid: allowanceTXID,
-          description: `CHECKING YOUR ${pair.symbol} ALLOWANCES`,
+          description: `Checking your ${pair.symbol} allowance`,
           status: 'WAITING'
         },
         {
           uuid: withdrawTXID,
-          description: `WITHDRAW TOKENS FROM POOL`,
+          description: `Withdraw tokens from the pool`,
           status: 'WAITING'
         },
       ]})
@@ -2280,12 +2280,12 @@ class Store {
       if(BigNumber(allowance).lt(pair.balance)) {
         this.emitter.emit(ACTIONS.TX_STATUS, {
           uuid: allowanceTXID,
-          description: `ALLOW ROUTER TO SPEND YOUR ${pair.symbol}`
+          description: `Allow the router to spend your ${pair.symbol}`
         })
       } else {
         this.emitter.emit(ACTIONS.TX_STATUS, {
           uuid: allowanceTXID,
-          description: `ALLOWANCE ON ${pair.symbol} SET`,
+          description: `Allowance on ${pair.symbol} sufficient`,
           status: 'DONE'
         })
       }
@@ -2369,20 +2369,20 @@ class Store {
       let unstakeTXID = this.getTXUUID()
 
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `REMOVE LIQUIDITY FROM ${pair.symbol}`, type: 'Liquidity', verb: 'Liquidity Removed', transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `Remove liquidity from ${pair.symbol}`, type: 'Liquidity', verb: 'Liquidity Removed', transactions: [
         {
           uuid: allowanceTXID,
-          description: `CHECKING YOUR ${pair.symbol} ALLOWANCES`,
+          description: `Checking your ${pair.symbol} allowance`,
           status: 'WAITING'
         },
         {
           uuid: unstakeTXID,
-          description: `UNSTAKE POOL TOKENS FROM GAUGE`,
+          description: `Unstake LP tokens from the gauge`,
           status: 'WAITING'
         },
         {
           uuid: withdrawTXID,
-          description: `WITHDRAW TOKENS FROM POOL`,
+          description: `Withdraw tokens from the pool`,
           status: 'WAITING'
         }
       ]})
@@ -2394,12 +2394,12 @@ class Store {
       if(BigNumber(allowance).lt(amount)) {
         this.emitter.emit(ACTIONS.TX_STATUS, {
           uuid: allowanceTXID,
-          description: `ALLOW ROUTER TO SPEND YOUR ${pair.symbol}`
+          description: `Allow the router to spend your ${pair.symbol}`
         })
       } else {
         this.emitter.emit(ACTIONS.TX_STATUS, {
           uuid: allowanceTXID,
-          description: `ALLOWANCE ON ${pair.symbol} SET`,
+          description: `Allowance on ${pair.symbol} sufficient`,
           status: 'DONE'
         })
       }
@@ -2485,10 +2485,10 @@ class Store {
       let unstakeTXID = this.getTXUUID()
 
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `UNSTAKE LIQUIDITY FROM GAUGE`, type: 'Liquidity', verb: 'Liquidity Unstaked', transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `Unstake liquidity from gauge`, type: 'Liquidity', verb: 'Liquidity Unstaked', transactions: [
         {
           uuid: unstakeTXID,
-          description: `UNSTAKE POOL TOKENS FROM GAUGE`,
+          description: `Unstake LP tokens from the gauge`,
           status: 'WAITING'
         }
       ]})
@@ -2583,10 +2583,10 @@ class Store {
       // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
       let createGaugeTXID = this.getTXUUID()
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CREATE LIQUIDITY GAUGE FOR ${pair.token0.symbol}/${pair.token1.symbol}`, type: 'Liquidity', verb: 'Gauge Created', transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `Create liquidity gauge for ${pair.token0.symbol}/${pair.token1.symbol}`, type: 'Liquidity', verb: 'Gauge Created', transactions: [
         {
           uuid: createGaugeTXID,
-          description: `CREATE GAUGE`,
+          description: `Create gauge`,
           status: 'WAITING'
         }
       ]})
@@ -2845,15 +2845,15 @@ class Store {
       let swapTXID = this.getTXUUID()
 
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `SWAP ${fromAsset.symbol} FOR ${toAsset.symbol}`, type: 'Swap', verb: 'Swap Successful', transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `Swap ${fromAsset.symbol} for ${toAsset.symbol}`, type: 'Swap', verb: 'Swap Successful', transactions: [
         {
           uuid: allowanceTXID,
-          description: `CHECKING YOUR ${fromAsset.symbol} ALLOWANCES`,
+          description: `Checking your ${fromAsset.symbol} allowance`,
           status: 'WAITING'
         },
         {
           uuid: swapTXID,
-          description: `SWAP ${formatCurrency(fromAmount)} ${fromAsset.symbol} FOR ${toAsset.symbol}`,
+          description: `Swap ${formatCurrency(fromAmount)} ${fromAsset.symbol} for ${toAsset.symbol}`,
           status: 'WAITING'
         }
       ]})
@@ -2867,12 +2867,12 @@ class Store {
         if(BigNumber(allowance).lt(fromAmount)) {
           this.emitter.emit(ACTIONS.TX_STATUS, {
             uuid: allowanceTXID,
-            description: `ALLOW ROUTER TO SPEND YOUR ${fromAsset.symbol}`
+            description: `Allow the router to spend your ${fromAsset.symbol}`
           })
         } else {
           this.emitter.emit(ACTIONS.TX_STATUS, {
             uuid: allowanceTXID,
-            description: `ALLOWANCE ON ${fromAsset.symbol} SET`,
+            description: `Allowance on ${fromAsset.symbol} sufficient`,
             status: 'DONE'
           })
         }
@@ -2880,7 +2880,7 @@ class Store {
         allowance = MAX_UINT256
         this.emitter.emit(ACTIONS.TX_STATUS, {
           uuid: allowanceTXID,
-          description: `ALLOWANCE ON ${fromAsset.symbol} SET`,
+          description: `Allowance on ${fromAsset.symbol} sufficient`,
           status: 'DONE'
         })
       }
@@ -3032,15 +3032,15 @@ class Store {
 
       const unlockString = moment().add(unlockTime, 'seconds').format('YYYY-MM-DD')
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `VEST ${govToken.symbol} UNTIL ${unlockString}`, type: 'Vest', verb: 'Vest Created', transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `Vest ${govToken.symbol} until ${unlockString}`, type: 'Vest', verb: 'Vest Created', transactions: [
         {
           uuid: allowanceTXID,
-          description: `CHECKING YOUR ${govToken.symbol} ALLOWANCES`,
+          description: `Checking your ${govToken.symbol} allowance`,
           status: 'WAITING'
         },
         {
           uuid: vestTXID,
-          description: `SUBMIT VEST TRANSACTION`,
+          description: `Vesting your tokens`,
           status: 'WAITING'
         }
       ]})
@@ -3052,12 +3052,12 @@ class Store {
       if(BigNumber(allowance).lt(amount)) {
         this.emitter.emit(ACTIONS.TX_STATUS, {
           uuid: allowanceTXID,
-          description: `ALLOW VESTING CONTRACT SPEND YOUR ${govToken.symbol}`
+          description: `Allow the vesting contract to use your ${govToken.symbol}`
         })
       } else {
         this.emitter.emit(ACTIONS.TX_STATUS, {
           uuid: allowanceTXID,
-          description: `ALLOWANCE ON ${govToken.symbol} SET`,
+          description: `Allowance on ${govToken.symbol} sufficient`,
           status: 'DONE'
         })
       }
@@ -3140,15 +3140,15 @@ class Store {
       let allowanceTXID = this.getTXUUID()
       let vestTXID = this.getTXUUID()
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `INCREASE VEST AMOUNT ON TOKEN #${tokenID}`, type: 'Vest', verb: 'Vest Increased', transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `Increase vest amount on token #${tokenID}`, type: 'Vest', verb: 'Vest Increased', transactions: [
         {
           uuid: allowanceTXID,
-          description: `CHECKING YOUR ${govToken.symbol} ALLOWANCES`,
+          description: `Checking your ${govToken.symbol} allowance`,
           status: 'WAITING'
         },
         {
           uuid: vestTXID,
-          description: `SUBMIT VEST TRANSACTION`,
+          description: `Increasing your vest amount`,
           status: 'WAITING'
         }
       ]})
@@ -3160,12 +3160,12 @@ class Store {
       if(BigNumber(allowance).lt(amount)) {
         this.emitter.emit(ACTIONS.TX_STATUS, {
           uuid: allowanceTXID,
-          description: `ALLOW VESTING CONTRACT SPEND YOUR${govToken.symbol}`
+          description: `Allow vesting contract to use your ${govToken.symbol}`
         })
       } else {
         this.emitter.emit(ACTIONS.TX_STATUS, {
           uuid: allowanceTXID,
-          description: `ALLOWANCE ON ${govToken.symbol} SET`,
+          description: `Allowance on ${govToken.symbol} sufficient`,
           status: 'DONE'
         })
       }
@@ -3236,10 +3236,10 @@ class Store {
       // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
       let vestTXID = this.getTXUUID()
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `INCREASE UNLOCK TIME ON TOKEN #${tokenID}`, type: 'Vest', verb: 'Vest Increased', transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `Increase unlock time on token #${tokenID}`, type: 'Vest', verb: 'Vest Increased', transactions: [
         {
           uuid: vestTXID,
-          description: `SUBMIT VEST TRANSACTION`,
+          description: `Increasing your vest duration`,
           status: 'WAITING'
         }
       ]})
@@ -3286,10 +3286,10 @@ class Store {
       // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
       let vestTXID = this.getTXUUID()
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `WITHDRAW VEST AMOUNT ON TOKEN #${tokenID}`, type: 'Vest', verb: 'Vest Withdrawn', transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `Withdraw vest amount on token #${tokenID}`, type: 'Vest', verb: 'Vest Withdrawn', transactions: [
         {
           uuid: vestTXID,
-          description: `SUBMIT WITHDRAW VEST TRANSACTION`,
+          description: `Withdrawing your expired tokens`,
           status: 'WAITING'
         }
       ]})
@@ -3336,10 +3336,10 @@ class Store {
       // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
       let voteTXID = this.getTXUUID()
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CAST VOTES USING TOKEN #${tokenID}`, verb: 'Votes Cast', transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `Cast vote using token #${tokenID}`, verb: 'Votes Cast', transactions: [
         {
           uuid: voteTXID,
-          description: `SUBMIT VOTE TRANSACTION`,
+          description: `Cast votes`,
           status: 'WAITING'
         }
       ]})
@@ -3452,15 +3452,15 @@ class Store {
       let allowanceTXID = this.getTXUUID()
       let bribeTXID = this.getTXUUID()
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CREATE BRIBE ON ${gauge.token0.symbol}/${gauge.token1.symbol}`, verb: 'Bribe Created', transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `Create bribe on ${gauge.token0.symbol}/${gauge.token1.symbol}`, verb: 'Bribe Created', transactions: [
         {
           uuid: allowanceTXID,
-          description: `CHECKING YOUR ${asset.symbol} ALLOWANCES`,
+          description: `Checking your ${asset.symbol} allowance`,
           status: 'WAITING'
         },
         {
           uuid: bribeTXID,
-          description: `SUBMIT BRIBE TRANSACTION`,
+          description: `Create bribe`,
           status: 'WAITING'
         }
       ]})
@@ -3472,12 +3472,12 @@ class Store {
       if(BigNumber(allowance).lt(amount)) {
         this.emitter.emit(ACTIONS.TX_STATUS, {
           uuid: allowanceTXID,
-          description: `ALLOW BRIBE CONTRACT SPEND YOUR ${asset.symbol}`
+          description: `Allow the bribe contract to spend your ${asset.symbol}`
         })
       } else {
         this.emitter.emit(ACTIONS.TX_STATUS, {
           uuid: allowanceTXID,
-          description: `ALLOWANCE ON ${asset.symbol} SET`,
+          description: `Allowance on ${asset.symbol} sufficient`,
           status: 'DONE'
         })
       }
@@ -3671,10 +3671,10 @@ class Store {
       // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
       let claimTXID = this.getTXUUID()
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CLAIM REWARDS FOR ${pair.token0.symbol}/${pair.token1.symbol}`, verb: 'Rewards Claimed', transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `Claim rewards for ${pair.token0.symbol}/${pair.token1.symbol}`, verb: 'Rewards Claimed', transactions: [
         {
           uuid: claimTXID,
-          description: `SUBMIT CLAIM TRANSACTION`,
+          description: `Claiming your bribes`,
           status: 'WAITING'
         }
       ]})
@@ -3722,10 +3722,10 @@ class Store {
       // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
       let claimTXID = this.getTXUUID()
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CLAIM REWARDS FOR ${pairs.length} GAUGES`, verb: 'Rewards Claimed', transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `Claim rewards for ${pairs.length} GAUGES`, verb: 'Rewards Claimed', transactions: [
         {
           uuid: claimTXID,
-          description: `SUBMIT CLAIM TRANSACTION`,
+          description: `Claiming all your bribes`,
           status: 'WAITING'
         }
       ]})
@@ -3777,10 +3777,10 @@ class Store {
       // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
       let claimTXID = this.getTXUUID()
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CLAIM REWARDS FOR ${pair.token0.symbol}/${pair.token1.symbol}`, verb: 'Rewards Claimed', transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `Claim rewards for ${pair.token0.symbol}/${pair.token1.symbol}`, verb: 'Rewards Claimed', transactions: [
         {
           uuid: claimTXID,
-          description: `SUBMIT CLAIM TRANSACTION`,
+          description: `Claiming your rewards`,
           status: 'WAITING'
         }
       ]})
@@ -3828,10 +3828,10 @@ class Store {
       // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
       let claimTXID = this.getTXUUID()
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `CLAIM REWARDS FOR ${pairs.length} GAUGES`, verb: 'Rewards Claimed', transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `Claim rewards for ${pairs.length} GAUGES`, verb: 'Rewards Claimed', transactions: [
         {
           uuid: claimTXID,
-          description: `SUBMIT CLAIM TRANSACTION`,
+          description: `Claiming all your rewards`,
           status: 'WAITING'
         }
       ]})

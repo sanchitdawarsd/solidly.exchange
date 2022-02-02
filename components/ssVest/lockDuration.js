@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Grid, Typography, Button, TextField, CircularProgress, RadioGroup, Radio, FormControlLabel, InputAdornment } from '@material-ui/core';
+import { useRouter } from 'next/router';
 import moment from 'moment';
 import BigNumber from 'bignumber.js';
 import classes from "./ssVest.module.css";
@@ -17,9 +18,12 @@ export default function ffLockDuration({ nft, updateLockDuration }) {
   const [selectedDateError, setSelectedDateError] = useState(false);
   const [selectedValue, setSelectedValue] = useState(null);
 
+  const router = useRouter();
+
   useEffect(() => {
     const lockReturned = () => {
       setLockLoading(false)
+      router.push('/vest')
     }
     const errorReturned = () => {
       setLockLoading(false)

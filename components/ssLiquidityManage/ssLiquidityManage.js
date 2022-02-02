@@ -139,6 +139,8 @@ export default function ssLiquidityManage() {
       setWithdrawAmount0('')
       setWithdrawAmount1('')
       setWithdrawQuote(null)
+
+      onBack()
     }
 
     const createGaugeReturned = () => {

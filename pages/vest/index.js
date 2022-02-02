@@ -61,7 +61,7 @@ function Vesting({ changeTheme }) {
             <div className={classes.contentFloat}>
             <Typography className={classes.mainHeadingNC} variant='h1'>Vesting NFTs</Typography>
             <Typography className={classes.mainDescNC} variant='body2'>
-              Description
+              Lock your Solid to earn rewards and governance rights. Each locked position is created and represented as an NFT, meaning you can hold multiple locked positions.
             </Typography>
             <Button
               disableElevation

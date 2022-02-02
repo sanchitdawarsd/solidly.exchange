@@ -50,6 +50,8 @@ export default function ssBribeCreate() {
     const createReturned = (res) => {
       setCreateLoading(false)
       setAmount('')
+
+      onBack()
     }
 
     const errorReturned = () => {

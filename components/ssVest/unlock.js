@@ -19,6 +19,7 @@ export default function Unlock({ nft, govToken, veToken }) {
   useEffect(() => {
     const lockReturned = () => {
       setLockLoading(false)
+      router.push('/vest')
     }
     const errorReturned = () => {
       setLockLoading(false)

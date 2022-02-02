@@ -61,7 +61,7 @@ function Liquidity({ changeTheme }) {
             <div className={classes.contentFloat}>
               <Typography className={classes.mainHeadingNC} variant='h1'>Liquidity Pools</Typography>
               <Typography className={classes.mainDescNC} variant='body2'>
-              Earn Rewards. Providing liquidity to these LP’s allows you to hedge against USD risk, or simply have exposure in your own preferred currency, while earning LP incentives.
+              Create a pair or add liquidity to existing stable or volatile Liquidity Pairs.
               </Typography>
               <Button
               disableElevation

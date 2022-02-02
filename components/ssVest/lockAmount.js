@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Grid, Typography, Button, TextField, InputAdornment, CircularProgress } from '@material-ui/core';
+import { useRouter } from 'next/router';
 import BigNumber from 'bignumber.js';
 import moment from 'moment';
 import { formatCurrency } from '../../utils';
@@ -17,10 +18,12 @@ export default function ffLockAmount({ nft, govToken, updateLockAmount }) {
   const [amount, setAmount] = useState('');
   const [amountError, setAmountError] = useState(false);
 
+  const router = useRouter();
 
   useEffect(() => {
     const lockReturned = () => {
       setLockLoading(false)
+      router.push('/vest')
     }
 
     const errorReturned = () => {

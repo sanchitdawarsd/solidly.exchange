@@ -61,7 +61,7 @@ function Rewards({ changeTheme }) {
             <div className={classes.contentFloat}>
               <Typography className={classes.mainHeadingNC} variant='h1'>Rewards</Typography>
               <Typography className={classes.mainDescNC} variant='body2'>
-              Earn Rewards. Providing liquidity to these LP’s allows you to hedge against USD risk, or simply have exposure in your own preferred currency, while earning LP incentives.
+                Claim your share of rewards!
               </Typography>
               <Button
               disableElevation
