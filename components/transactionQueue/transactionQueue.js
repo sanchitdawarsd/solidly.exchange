@@ -1,4 +1,4 @@
-import React, { useState, useEffect  } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Typography, Button, CircularProgress, DialogContent, Dialog, Slide, IconButton } from "@material-ui/core";
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import CloseIcon from '@material-ui/icons/Close';
@@ -20,6 +20,8 @@ import stores from '../../stores'
 import { ACTIONS, ETHERSCAN_URL } from '../../stores/constants';
 
 export default function TransactionQueue({ setQueueLength }) {
+
+  const lottieRef = useRef();
 
   const [open, setOpen] = useState(false)
   const [ transactions, setTransactions ] = useState([])
@@ -134,14 +136,17 @@ export default function TransactionQueue({ setQueueLength }) {
   }, [transactions]);
 
   const renderDone = (txs) => {
+    if(!(transactions && transactions.filter((tx) => { return ['DONE', 'CONFIRMED'].includes(tx.status) }).length === transactions.length)) {
+      return null
+    }
 
-    let lottie = <Lottie loop={false} className={classes.animClass} animationData={successAnim} />
+    let lottie = <Lottie lottieRef={lottieRef} loop={false} className={classes.animClass} animationData={successAnim} />
     if(type === 'Liquidity') {
-      lottie = <Lottie loop={false} className={classes.animClass} animationData={pairSuccessAnim} />
+      lottie = <Lottie lottieRef={lottieRef} loop={false} className={classes.animClass} animationData={pairSuccessAnim} />
     } else if (type === 'Swap') {
-      lottie = <Lottie loop={false} className={classes.animClass} animationData={swapSuccessAnim} />
+      lottie = <Lottie lottieRef={lottieRef} loop={false} className={classes.animClass} animationData={swapSuccessAnim} />
     } else if (type === 'Vest') {
-      lottie = <Lottie loop={false} className={classes.animClass} animationData={lockSuccessAnim} />
+      lottie = <Lottie lottieRef={lottieRef} loop={false} className={classes.animClass} animationData={lockSuccessAnim} />
     }
 
     return (
@@ -153,13 +158,33 @@ export default function TransactionQueue({ setQueueLength }) {
           txs && txs.length > 0 && txs.filter((tx) => {
             return tx.txHash != null
           }).map((tx) => {
-            console.log(tx)
             return (<Typography className={ classes.viewDetailsText }>
               <a href={`${ETHERSCAN_URL}tx/${tx?.txHash}`} target="_blank">{ tx && tx.description ? tx.description : 'View in Explorer' } <OpenInNewIcon className={classes.newWindowIcon} /></a>
             </Typography>)
           })
         }
       </div>
+    )
+  }
+
+  const renderTransactions = (transactions) => {
+    if((transactions && transactions.filter((tx) => { return ['DONE', 'CONFIRMED'].includes(tx.status) }).length === transactions.length)) {
+      return null
+    }
+
+    return (
+      <>
+        <div className={ classes.headingContainer }>
+          <Typography className={ classes.heading }>{ purpose ? purpose : 'Pending Transactions'}</Typography>
+        </div>
+        <div className={ classes.transactionsContainer}>
+          {
+            transactions && transactions.map((tx, idx) => {
+              return <Transaction key={ idx } transaction={tx} />
+            })
+          }
+        </div>
+      </>
     )
   }
 
@@ -178,26 +203,8 @@ export default function TransactionQueue({ setQueueLength }) {
           onClick={handleClose}>
           <CloseIcon />
         </IconButton>
-        { (transactions && transactions.filter((tx) => { return ['DONE', 'CONFIRMED'].includes(tx.status) }).length === transactions.length) ?
-          (
-            renderDone(transactions)
-          )
-          :
-          (
-            <>
-              <div className={ classes.headingContainer }>
-                <Typography className={ classes.heading }>{ purpose ? purpose : 'Pending Transactions'}</Typography>
-              </div>
-              <div className={ classes.transactionsContainer}>
-                {
-                  transactions && transactions.map((tx, idx) => {
-                    return <Transaction key={ idx } transaction={tx} />
-                  })
-                }
-              </div>
-            </>
-          )
-        }
+        { renderTransactions(transactions) }
+        { renderDone(transactions) }
       </DialogContent>
     </Dialog>
   );
