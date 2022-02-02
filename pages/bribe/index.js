@@ -1,6 +1,4 @@
-import Head from 'next/head'
 import { Typography, Button, Paper, SvgIcon } from "@material-ui/core"
-import Layout from '../../components/layout/layout.js'
 import SSBribes from '../../components/ssBribes'
 
 import React, { useState, useEffect } from 'react';
@@ -55,36 +53,31 @@ function Bribes({ changeTheme }) {
   };
 
   return (
-    <Layout changeTheme={changeTheme} title={ '' }>
-      <Head>
-        <title>Solidly</title>
-      </Head>
-      <div className={classes.ffContainer}>
-        {account && account.address ?
-          <div className={classes.connected}>
-            <SSBribes />
-          </div>
-           :
-           <Paper className={classes.notConnectedContent}>
-            <BalanceIcon className={ classes.overviewIcon } />
-             <Typography className={classes.mainHeadingNC} variant='h1'>Bribes</Typography>
-             <Typography className={classes.mainDescNC} variant='body2'>
-               Use your veSolid to vote for your selected pool’s rewards distribution or create a bribe to encourage others to do the same.
-             </Typography>
-             <Button
-               disableElevation
-               className={classes.buttonConnect}
-               variant="contained"
-               onClick={onAddressClicked}>
-               {account && account.address && <div className={`${classes.accountIcon} ${classes.metamask}`}></div>}
-               <Typography>Connect Wallet to Continue</Typography>
-             </Button>
-           </Paper>
-         }
-         {unlockOpen && <Unlock modalOpen={unlockOpen} closeModal={closeUnlock} />}
+    <div className={classes.ffContainer}>
+      {account && account.address ?
+        <div className={classes.connected}>
+          <SSBribes />
+        </div>
+         :
+         <Paper className={classes.notConnectedContent}>
+          <BalanceIcon className={ classes.overviewIcon } />
+           <Typography className={classes.mainHeadingNC} variant='h1'>Bribes</Typography>
+           <Typography className={classes.mainDescNC} variant='body2'>
+             Use your veSolid to vote for your selected pool’s rewards distribution or create a bribe to encourage others to do the same.
+           </Typography>
+           <Button
+             disableElevation
+             className={classes.buttonConnect}
+             variant="contained"
+             onClick={onAddressClicked}>
+             {account && account.address && <div className={`${classes.accountIcon} ${classes.metamask}`}></div>}
+             <Typography>Connect Wallet to Continue</Typography>
+           </Button>
+         </Paper>
+       }
+       {unlockOpen && <Unlock modalOpen={unlockOpen} closeModal={closeUnlock} />}
 
-      </div>
-    </Layout>
+    </div>
   );
 }
 

@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import BigNumber from 'bignumber.js';
 import { Typography, Button, Paper, SvgIcon, Grid } from "@material-ui/core";
-import Head from 'next/head';
-import Layout from '../../../components/layout/layout.js';
 import Vesting from '../../../components/ssVest';
 
 import classes from './vest.module.css';
@@ -75,36 +73,31 @@ function Vest({ changeTheme }) {
   }, []);
 
   return (
-    <Layout changeTheme={changeTheme} title={ '' }>
-      <Head>
-        <title>Solidly - Create New Lock</title>
-      </Head>
-      <div className={classes.ffContainer}>
-        {
-          account && account.address ?
-            <div className={classes.connected}>
-              <Vesting />
-            </div>
-            :
-            <Paper className={classes.notConnectedContent}>
-              <BalanceIcon className={ classes.overviewIcon } />
-              <Typography className={classes.mainHeadingNC} variant='h1'>Vest</Typography>
-              <Typography className={classes.mainDescNC} variant='body2'>
-                Lock your Solid to earn rewards and governance rights. Each locked position is created and represented as an NFT, meaning you can hold multiple locked positions.
-              </Typography>
-              <Button
-                disableElevation
-                className={classes.buttonConnect}
-                variant="contained"
-                onClick={onAddressClicked}>
-                {account && account.address && <div className={`${classes.accountIcon} ${classes.metamask}`}></div>}
-                  <Typography>Connect Wallet to Continue</Typography>
-              </Button>
-            </Paper>
-         }
-         {unlockOpen && <Unlock modalOpen={unlockOpen} closeModal={closeUnlock} />}
-      </div>
-    </Layout>
+    <div className={classes.ffContainer}>
+      {
+        account && account.address ?
+          <div className={classes.connected}>
+            <Vesting />
+          </div>
+          :
+          <Paper className={classes.notConnectedContent}>
+            <BalanceIcon className={ classes.overviewIcon } />
+            <Typography className={classes.mainHeadingNC} variant='h1'>Vest</Typography>
+            <Typography className={classes.mainDescNC} variant='body2'>
+              Lock your Solid to earn rewards and governance rights. Each locked position is created and represented as an NFT, meaning you can hold multiple locked positions.
+            </Typography>
+            <Button
+              disableElevation
+              className={classes.buttonConnect}
+              variant="contained"
+              onClick={onAddressClicked}>
+              {account && account.address && <div className={`${classes.accountIcon} ${classes.metamask}`}></div>}
+                <Typography>Connect Wallet to Continue</Typography>
+            </Button>
+          </Paper>
+       }
+       {unlockOpen && <Unlock modalOpen={unlockOpen} closeModal={closeUnlock} />}
+    </div>
   );
 }
 

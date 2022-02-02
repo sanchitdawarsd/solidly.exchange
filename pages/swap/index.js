@@ -1,6 +1,4 @@
-import Head from 'next/head';
 import { Typography, Button, Paper, SvgIcon } from "@material-ui/core";
-import Layout from '../../components/layout/layout.js';
 import SwapComponent from '../../components/ssSwap';
 
 import React, { useState, useEffect } from 'react';
@@ -41,35 +39,30 @@ function Swap({ changeTheme }) {
   };
 
   return (
-    <Layout changeTheme={changeTheme}>
-      <Head>
-        <title>Solidly - Swap</title>
-      </Head>
-      <div className={classes.ffContainer}>
-        {account && account.address ?
-          <SwapComponent />
-           :
-           <Paper className={classes.notConnectedContent}>
-              <div className={classes.sphere}></div>
-              <div className={classes.contentFloat}>
-             <Typography className={classes.mainHeadingNC} variant='h1'>Swap</Typography>
-             <Typography className={classes.mainDescNC} variant='body2'>
-               Swap between Solidly supported stable and volatile assets.
-             </Typography>
-             <Button
-               disableElevation
-               className={classes.buttonConnect}
-               variant="contained"
-               onClick={onAddressClicked}>
-               {account && account.address && <div className={`${classes.accountIcon} ${classes.metamask}`}></div>}
-               <Typography>Connect Wallet to Continue</Typography>
-             </Button>
-             </div>
-           </Paper>
-         }
-         {unlockOpen && <Unlock modalOpen={unlockOpen} closeModal={closeUnlock} />}
-      </div>
-    </Layout>
+    <div className={classes.ffContainer}>
+      {account && account.address ?
+        <SwapComponent />
+         :
+         <Paper className={classes.notConnectedContent}>
+            <div className={classes.sphere}></div>
+            <div className={classes.contentFloat}>
+           <Typography className={classes.mainHeadingNC} variant='h1'>Swap</Typography>
+           <Typography className={classes.mainDescNC} variant='body2'>
+             Swap between Solidly supported stable and volatile assets.
+           </Typography>
+           <Button
+             disableElevation
+             className={classes.buttonConnect}
+             variant="contained"
+             onClick={onAddressClicked}>
+             {account && account.address && <div className={`${classes.accountIcon} ${classes.metamask}`}></div>}
+             <Typography>Connect Wallet to Continue</Typography>
+           </Button>
+           </div>
+         </Paper>
+       }
+       {unlockOpen && <Unlock modalOpen={unlockOpen} closeModal={closeUnlock} />}
+    </div>
   );
 }
 

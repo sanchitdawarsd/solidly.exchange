@@ -1,6 +1,4 @@
-import Head from 'next/head'
 import { Typography, Button, Paper, SvgIcon } from "@material-ui/core"
-import Layout from '../../components/layout/layout.js'
 import LiquidityPairs from '../../components/ssLiquidityPairs'
 
 import React, { useState, useEffect } from 'react';
@@ -55,36 +53,31 @@ function Liquidity({ changeTheme }) {
   };
 
   return (
-    <Layout changeTheme={changeTheme} title={ '' }>
-      <Head>
-        <title>Solidly</title>
-      </Head>
-      <div className={classes.ffContainer}>
-        {account && account.address ?
-          <div className={classes.connected}>
-            <LiquidityPairs />
-          </div>
-           :
-           <Paper className={classes.notConnectedContent}>
-            <BalanceIcon className={ classes.overviewIcon } />
-             <Typography className={classes.mainHeadingNC} variant='h1'>Liquidity Pools</Typography>
-             <Typography className={classes.mainDescNC} variant='body2'>
-               Earn Rewards. Providing liquidity to these LP’s allows you to hedge against USD risk, or simply have exposure in your own preferred currency, while earning LP incentives.
-             </Typography>
-             <Button
-               disableElevation
-               className={classes.buttonConnect}
-               variant="contained"
-               onClick={onAddressClicked}>
-               {account && account.address && <div className={`${classes.accountIcon} ${classes.metamask}`}></div>}
-               <Typography>Connect Wallet to Continue</Typography>
-             </Button>
-           </Paper>
-         }
-         {unlockOpen && <Unlock modalOpen={unlockOpen} closeModal={closeUnlock} />}
+    <div className={classes.ffContainer}>
+      {account && account.address ?
+        <div className={classes.connected}>
+          <LiquidityPairs />
+        </div>
+         :
+         <Paper className={classes.notConnectedContent}>
+          <BalanceIcon className={ classes.overviewIcon } />
+           <Typography className={classes.mainHeadingNC} variant='h1'>Liquidity Pools</Typography>
+           <Typography className={classes.mainDescNC} variant='body2'>
+             Earn Rewards. Providing liquidity to these LP’s allows you to hedge against USD risk, or simply have exposure in your own preferred currency, while earning LP incentives.
+           </Typography>
+           <Button
+             disableElevation
+             className={classes.buttonConnect}
+             variant="contained"
+             onClick={onAddressClicked}>
+             {account && account.address && <div className={`${classes.accountIcon} ${classes.metamask}`}></div>}
+             <Typography>Connect Wallet to Continue</Typography>
+           </Button>
+         </Paper>
+       }
+       {unlockOpen && <Unlock modalOpen={unlockOpen} closeModal={closeUnlock} />}
 
-      </div>
-    </Layout>
+    </div>
   );
 }
 

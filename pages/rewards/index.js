@@ -1,6 +1,4 @@
-import Head from 'next/head'
 import { Typography, Button, Paper, SvgIcon } from "@material-ui/core"
-import Layout from '../../components/layout/layout.js'
 import SSRewards from '../../components/ssRewards'
 
 import React, { useState, useEffect } from 'react';
@@ -46,38 +44,33 @@ function Rewards({ changeTheme }) {
   };
 
   return (
-    <Layout changeTheme={changeTheme} title={ '' }>
-      <Head>
-        <title>Solidly - Rewards</title>
-      </Head>
-      <div className={classes.ffContainer}>
-        {account && account.address ?
-          <div className={classes.connected}>
-            <SSRewards />
+    <div className={classes.ffContainer}>
+      {account && account.address ?
+        <div className={classes.connected}>
+          <SSRewards />
+        </div>
+         :
+        <Paper className={classes.notConnectedContent}>
+          <div className={classes.sphere}></div>
+          <div className={classes.contentFloat}>
+            <Typography className={classes.mainHeadingNC} variant='h1'>Rewards</Typography>
+            <Typography className={classes.mainDescNC} variant='body2'>
+              Claim your share of rewards!
+            </Typography>
+            <Button
+            disableElevation
+            className={classes.buttonConnect}
+            variant="contained"
+            onClick={onAddressClicked}>
+            {account && account.address && <div className={`${classes.accountIcon} ${classes.metamask}`}></div>}
+            <Typography>Connect Wallet to Continue</Typography>
+            </Button>
           </div>
-           :
-          <Paper className={classes.notConnectedContent}>
-            <div className={classes.sphere}></div>
-            <div className={classes.contentFloat}>
-              <Typography className={classes.mainHeadingNC} variant='h1'>Rewards</Typography>
-              <Typography className={classes.mainDescNC} variant='body2'>
-                Claim your share of rewards!
-              </Typography>
-              <Button
-              disableElevation
-              className={classes.buttonConnect}
-              variant="contained"
-              onClick={onAddressClicked}>
-              {account && account.address && <div className={`${classes.accountIcon} ${classes.metamask}`}></div>}
-              <Typography>Connect Wallet to Continue</Typography>
-              </Button>
-            </div>
-          </Paper>
-         }
-         {unlockOpen && <Unlock modalOpen={unlockOpen} closeModal={closeUnlock} />}
+        </Paper>
+       }
+       {unlockOpen && <Unlock modalOpen={unlockOpen} closeModal={closeUnlock} />}
 
-      </div>
-    </Layout>
+    </div>
   );
 }
 
