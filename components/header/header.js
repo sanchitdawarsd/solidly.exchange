@@ -217,10 +217,12 @@ function Header(props) {
   }
 
   const switchChain = async () => {
+    let hexChain = '0x'+Number(process.env.NEXT_PUBLIC_CHAINID).toString(16)
+    console.log(hexChain)
     try {
       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
-        params: [{ chainId:'0xFA2' }],
+        params: [{ chainId: hexChain }],
       });
     } catch (switchError) {
       console.log("switch error",switchError)
@@ -330,7 +332,7 @@ function Header(props) {
           <Typography className={classes.ErrorTxt}>
             The chain you're connected to isn't supported. Please check that your wallet is connected to Fantom Mainnet.
           </Typography>
-          <Button className={classes.switchNetworkBtn} variant="contained" onClick={()=>switchChain()} >Switch to Fantom Mainnet</Button>
+          <Button className={classes.switchNetworkBtn} variant="contained" onClick={()=>switchChain()} >Switch to { process.env.NEXT_PUBLIC_CHAINID == '4002' ? 'Fantom Testnet' : 'Fantom Mainnet' }</Button>
         </div>
       </div>
     ) : null}

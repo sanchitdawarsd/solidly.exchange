@@ -413,6 +413,12 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
       } else {
         return true
       }
+    }).sort((a, b) => {
+      if(a.balance< b.balance) return 1;
+      if(a.balance >b.balance) return -1;
+      if(a.symbol< b.symbol) return -1;
+      if(a.symbol >b.symbol) return 1;
+      return 0;
     })
 
     setFilteredAssetOptions(ao)
@@ -437,6 +443,12 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
       } else {
         return true
       }
+    }).sort((a, b) => {
+      if(a.balance< b.balance) return 1;
+      if(a.balance >b.balance) return -1;
+      if(a.symbol< b.symbol) return -1;
+      if(a.symbol >b.symbol) return 1;
+      return 0;
     })
 
     setFilteredAssetOptions(filteredOptions)
