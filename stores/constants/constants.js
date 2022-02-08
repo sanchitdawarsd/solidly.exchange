@@ -4,7 +4,7 @@ import * as contracts from './contracts'
 import * as actions from './actions'
 
 let isTestnet = process.env.NEXT_PUBLIC_CHAINID == 4002
-
+console.log(isTestnet)
 // URLS
 let scan = 'https://ftmscan.com/'
 let cont = contracts

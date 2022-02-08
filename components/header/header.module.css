@@ -315,6 +315,18 @@
   cursor: pointer;
 }
 
+.testnetDisclaimer {
+}
+
+.testnetDisclaimerText {
+  font-size: 13px !important;
+  font-weight: 200 !important;
+  border: 1px solid rgb(6, 211, 215) !important;
+  border-radius: 10px;
+  background: rgb(23, 52, 72) !important;
+  padding: 16px !important;
+}
+
 @media screen and (max-width: 1200px) {
 
   .accountButton {

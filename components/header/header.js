@@ -249,7 +249,7 @@ function Header(props) {
 
         <div className={classes.logoContainer}>
           <a onClick={() => router.push('/home')}><SiteLogo className={classes.appLogo} /></a>
-          <Typography className={ classes.version}>version 0.0.6</Typography>
+          <Typography className={ classes.version}>version 0.0.7</Typography>
         </div>
         {/*<a onClick={() => router.push('/dashboard')} className={classes.linkz}>
           <svg>
@@ -258,6 +258,13 @@ function Header(props) {
         <Navigation changeTheme={props.changeTheme} />
 
         <div style={{ width: '260px', display: 'flex', justifyContent: 'flex-end' }}>
+
+          { process.env.NEXT_PUBLIC_CHAINID == '4002' &&
+            <div className={ classes.testnetDisclaimer}>
+              <Typography className={ classes.testnetDisclaimerText}>Testnet</Typography>
+            </div>
+          }
+
           { transactionQueueLength > 0 &&
             <IconButton
               className={classes.accountButton}

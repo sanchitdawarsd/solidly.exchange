@@ -1,0 +1,136 @@
+.container {
+  max-width: 1400px;
+  width: calc(100% - 180px);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin: auto;
+  margin-bottom: 60px;
+  padding: 0 0 10px 0px;
+}
+
+.results {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.tokenContainer {
+  padding: 48px;
+  min-width: 600px;
+  display: grid;
+  grid-gap: 24px;
+  margin-top: 48px;
+}
+
+.tokenName {
+  font-size: 24px !important;
+}
+
+.tokenAddress  {
+  cursor: pointer;
+}
+
+.tokenSymbol {
+
+}
+
+.tokenLogo {
+  border-radius: 40px;
+  margin-right: 24px !important;
+}
+
+.inline {
+  display: flex;
+  align-items: center;
+}
+
+.isWhitelist {
+  color: rgb(6, 211, 215) !important;
+}
+
+.notWhitelist {
+
+}
+
+.whitelistStatus {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 24px;
+}
+
+.whitelistContainer {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-gap: 24px;
+}
+
+.buttonOverride {
+  background: rgb(23, 52, 72) !important;
+  color: rgb(6, 211, 215) !important;
+  font-weight: 700 !important;
+  width: 100%;
+  min-width: 200px !important;
+}
+
+.buttonOverride:hover {
+  background: rgb(19, 44, 60) !important;
+}
+
+.loadingCircle {
+  margin-left: 6px !important;
+}
+
+.mediumInputContainer {
+  display: flex;
+  flex-wrap: wrap;
+  border-radius: 10px;
+  width: 100%;
+  align-items: center;
+  background: rgb(33, 43, 72);
+  padding: 0 20px;
+}
+
+.mediumInputAmount {
+  flex: 1;
+  height: 100%;
+  width: 300px;
+}
+
+.mediumInput {
+  font-size: 32px !important;
+}
+
+.menuOption {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: calc(100% - 24px);
+  padding: 6px 12px;
+}
+
+.smallerText {
+  font-size: 12px !important;
+}
+
+.smallText {
+  color: rgba(126,153,176,0.9);
+  margin: 0 15px 0 0 !important;
+  padding: 18px 0;
+}
+
+.searchBar {
+  display: grid;
+  grid-gap: 24px;
+  grid-template-columns: 1fr 530px;
+  width: 100%;
+}
+
+@media screen and (max-width: 1200px) {
+  .container {
+    width: calc(100% - 40px);
+    margin: auto;
+    padding: 80px 0 10px 0px;
+    margin-bottom: 20px;
+  }
+}

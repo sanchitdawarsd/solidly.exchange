@@ -1,0 +1,174 @@
+.ffContainer {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  margin-top: 0px;
+  padding-top: 120px;
+  position: relative;
+}
+
+.gridWrapper {
+  width: calc(100% - 180px) !important;
+  margin: auto;
+  padding: 0 !important;
+}
+
+.xxx {
+  padding-left: 40px !important;
+}
+
+.title {
+  font-size: 20px !important;
+  margin-bottom: 24px !important;
+}
+
+.notConnectedContent {
+  width: calc(100%) !important;
+  background: rgba(17,23,41,0.2) !important;
+  text-align: center;
+  padding: 50px;
+  height: calc(100vh);
+  box-shadow: none !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  flex-direction: column;
+  border-radius: 0 !important;
+  position: fixed;
+  top: 0;
+}
+
+.contentFloat {
+  position: relative;
+  z-index: 9;
+}
+
+.sphere {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 420px;
+  height: 420px;
+  background-image: url('/images/sphere_001.png');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.42;
+}
+
+.overviewIcon {
+  font-size: 100px !important;
+  margin-bottom: 30px;
+  margin-top: -80px;
+}
+
+.mainHeading {
+  margin: 50px auto 0px auto !important;
+  text-align: left !important;
+  font-size: 20px !important;
+  width: calc(100% - 180px) !important;
+}
+
+.mainDesc {
+  margin: 20px auto 0px auto !important;
+  text-align: left !important;
+  color: rgb(104,108,122);
+  font-size: 14px !important;
+  width: calc(100% - 180px) !important;
+}
+
+.mainHeadingNC {
+  text-align: center !important;
+  font-size: 30px !important;
+  font-family: 'Monument' !important;
+  font-weight: 100 !important;
+  color: #FFF;
+}
+
+.mainDescNC {
+  margin: 30px auto !important;
+  text-align: center !important;
+  color: #7E99B0;
+  font-size: 18px !important;
+  max-width: 800px;
+  line-height: 1.8rem !important;
+}
+
+.buttonConnect {
+  background: rgba(6,211,215,0.3) !important;
+  color: rgba(6,211,215,1) !important;
+  border-radius: 60px !important;
+  padding: 12px 24px 14px 24px !important;
+  font-weight: 700 !important;
+  text-transform: none !important;
+  border: 1px solid rgba(6,211,215,1) !important;
+  transform: scale(0.85);
+  -webkit-transition: all 300ms ease-out;
+  -moz-transition: all 300ms ease-out;
+  -ms-transition: all 300ms ease-out;
+  -o-transition: all 300ms ease-out;
+  transition: all 300ms ease-out;
+}
+
+.buttonConnect:hover {
+  background: rgba(6,211,215,1) !important;
+  color: #111729 !important;
+  text-transform: none !important;
+  border: 1px solid rgba(6,211,215,1) !important;
+  transform: scale(0.9);
+  -webkit-transition: all 300ms ease-out;
+  -moz-transition: all 300ms ease-out;
+  -ms-transition: all 300ms ease-out;
+  -o-transition: all 300ms ease-out;
+  transition: all 300ms ease-out;
+}
+
+@media screen and (max-width: 1280px) {
+  .xxx {
+    padding-left: 0px !important;
+  }
+}
+
+@media screen and (max-width: 1200px) {
+
+  .ffContainer {
+    padding-top: 80px;
+  }
+
+  .gridWrapper {
+    width: calc(100% - 80px) !important;
+    margin: 290px auto 60px auto;
+    padding: 0 !important;
+  }
+
+  .xxx {
+    padding-left: 0px !important;
+  }
+
+}
+
+@media screen and (max-width: 960px) {
+  .gridWrapper {
+    margin: 490px auto 60px auto;
+  }
+}
+
+
+@media screen and (max-width: 600px) {
+  .mainHeadingNC {
+    text-align: center !important;
+    font-size: 24px !important;
+  }
+
+  .mainDescNC {
+    font-size: 15px !important;
+    line-height: 1.4rem !important;
+  }
+
+  .overviewIcon {
+    font-size: 80px !important;
+  }
+}

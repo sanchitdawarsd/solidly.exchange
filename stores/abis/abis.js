@@ -3,7 +3,7 @@ import { veTokenABI } from './veTokenABI'
 import { factoryABI } from './factoryABI'
 import { pairABI } from './pairABI'
 import { routerABI } from './routerABI'
-import { gaugesABI } from './gaugesABI'
+import { voterABI } from './voterABI'
 import { gaugeABI } from './gaugeABI'
 import { bribeABI } from './bribeABI'
 import { tokenABI } from './tokenABI'
@@ -17,7 +17,7 @@ export default {
   factoryABI,
   pairABI,
   routerABI,
-  gaugesABI,
+  voterABI,
   bribeABI,
   gaugeABI,
   veDistABI,

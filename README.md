@@ -9,8 +9,8 @@
 - [Solidly: preparation for launch](https://andrecronje.medium.com/solidly-preparation-for-launch-8e653ce8a428)
 
 ## Deployment
-- [Testnet](https://testnet.solidswap.exchange/)
-- [Live](TBD)
+- [Testnet](https://testnet.solidly.exchange/)
+- [Live](https://prod.solidly.exchange/)
 
 ## Getting started
 - Make sure to have nodejs installed. This app is built using [Next.js](https://nextjs.org/learn/basics/create-nextjs-app) and [react](https://reactjs.org/docs/getting-started.html).

@@ -154,8 +154,8 @@ export default function ssVotes() {
                   })}
                 </Select>
               </div>
-              </Grid>
             </Grid>
+          </Grid>
         </div>
       </div>
     )

@@ -1,17 +1,17 @@
 import abis from "../abis";
 
-export const GOV_TOKEN_ADDRESS = '0x0673e1CF8EE91095232CFC98Ee1EbCeF42A1977E'
-export const GOV_TOKEN_NAME = 'BaseV1'
-export const GOV_TOKEN_SYMBOL = 'BaseV1'
+export const GOV_TOKEN_ADDRESS = '0x0DB76C03fFF8F9f8d6600ca1f9aC004FDB73d442'
+export const GOV_TOKEN_NAME = 'Solid'
+export const GOV_TOKEN_SYMBOL = 'SOLID'
 export const GOV_TOKEN_DECIMALS = 18
-export const GOV_TOKEN_LOGO = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGUogFgNz2W978aSwJIxUbMDbujfii-H40Q5K6MiGulaW8z1fqZwrfBY3IiLgFedGIF54&usqp=CAU'
+export const GOV_TOKEN_LOGO = 'https://prod.solidly.exchange/Solidly-O.svg'
 export const GOV_TOKEN_ABI = abis.tokenABI
 
-export const VE_TOKEN_ADDRESS = '0xDd49111B9208bDFaF62dA69fe9799736FF4C4587'
+export const VE_TOKEN_ADDRESS = '0x74a91F1cEe46A20f5a15183aB54AEe89b015C21f'
 export const VE_TOKEN_NAME = 'veNFT'
 export const VE_TOKEN_SYMBOL = 'veNFT'
 export const VE_TOKEN_DECIMALS = 18
-export const VE_TOKEN_LOGO = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGUogFgNz2W978aSwJIxUbMDbujfii-H40Q5K6MiGulaW8z1fqZwrfBY3IiLgFedGIF54&usqp=CAU'
+export const VE_TOKEN_LOGO = 'https://prod.solidly.exchange/Solidly-O.svg'
 export const VE_TOKEN_ABI = abis.veTokenABI
 
 export const WFTM_ADDRESS = '0x27Ce41c3cb9AdB5Edb2d8bE253A1c6A64Db8c96d'
@@ -26,24 +26,20 @@ export const FTM_SYMBOL = 'FTM'
 export const FTM_DECIMALS = 18
 export const FTM_LOGO = 'https://assets.coingecko.com/coins/images/4001/large/Fantom.png'
 
-export const FACTORY_ADDRESS = '0xff81f7b1F18E7B0Af0cE970f3dA7763e7bED3fe5'
+export const FACTORY_ADDRESS = '0x7dbA586e00D868EeFA13fC549B63D62b4a45a244'
 export const FACTORY_ABI = abis.factoryABI
 
-export const ROUTER_ADDRESS = '0xC9f92bF3add3d462b9f0d937Fff4878e076beE09'
+export const ROUTER_ADDRESS = '0xD1D173c5d1de3175B32d3dDCB265BD00Ea9fEDf5'
 export const ROUTER_ABI = abis.routerABI
 
-export const VE_DIST_ADDRESS = '0x7B4Ce50292E57a2a08DaF1AEAEdF53cE3F50c9a7'
+export const VE_DIST_ADDRESS = '0xACCF9d3b4084f85540D24e0aad0bE2c5F13BCDE2'
 export const VE_DIST_ABI = abis.veDistABI
 
-export const GAUGES_ADDRESS = '0x571f572D6046A9CEF7B7f629D79cF8cFf6E164E5'
-export const GAUGES_ABI = abis.gaugesABI
+export const VOTER_ADDRESS = '0xDA0eBF84F7A52A06EaeB0409F139D6442262F056'
+export const VOTER_ABI = abis.voterABI
 
 export const ERC20_ABI = abis.erc20ABI
 export const PAIR_ABI = abis.pairABI
 export const GAUGE_ABI = abis.gaugeABI
 export const BRIBE_ABI = abis.bribeABI
 export const TOKEN_ABI = abis.tokenABI
-
-export const USDT_ADDRESS = '0x8ad96050318043166114884b59E2fc82210273b3'
-export const MIM_ADDRESS = '0xc0a51ac9d548bdcde53fa59448029e41a39feb20'
-export const UST_ADDRESS = '0x976e33b07565b0c05b08b2e13affd3113e3d178d'

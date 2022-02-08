@@ -129,6 +129,14 @@ class Store {
           case ACTIONS.CLAIM_ALL_REWARDS:
             this.claimAllBribes(payload)
             break;
+
+          //WHITELIST
+          case ACTIONS.SEARCH_WHITELIST:
+            this.searchWhitelist(payload)
+            break;
+          case ACTIONS.WHITELIST_TOKEN:
+            this.whitelistToken(payload)
+            break;
           default: {
           }
         }
@@ -307,7 +315,7 @@ class Store {
       }
 
       const pairContract = new web3.eth.Contract(CONTRACTS.PAIR_ABI, pairAddress)
-      const gaugesContract = new web3.eth.Contract(CONTRACTS.GAUGES_ABI, CONTRACTS.GAUGES_ADDRESS)
+      const gaugesContract = new web3.eth.Contract(CONTRACTS.VOTER_ABI, CONTRACTS.VOTER_ADDRESS)
 
       const [ totalWeight ] = await Promise.all([
         gaugesContract.methods.totalWeight().call()
@@ -449,7 +457,7 @@ class Store {
 
     if(pairAddress && pairAddress != ZERO_ADDRESS) {
       const pairContract = new web3.eth.Contract(CONTRACTS.PAIR_ABI, pairAddress)
-      const gaugesContract = new web3.eth.Contract(CONTRACTS.GAUGES_ABI, CONTRACTS.GAUGES_ADDRESS)
+      const gaugesContract = new web3.eth.Contract(CONTRACTS.VOTER_ABI, CONTRACTS.VOTER_ADDRESS)
 
       const [ totalWeight ] = await Promise.all([
         gaugesContract.methods.totalWeight().call()
@@ -602,6 +610,7 @@ class Store {
 
   getBaseAsset = async (address, save, getBalance) => {
     try {
+      const baseAssets = this.getStore('baseAssets')
       let localBaseAssets = []
       const localBaseAssetsString = localStorage.getItem('stableSwap-assets')
 
@@ -609,7 +618,9 @@ class Store {
         localBaseAssets = JSON.parse(localBaseAssetsString)
       }
 
-      const theBaseAsset = localBaseAssets.filter((as) => {
+      let searchableAssets = [...baseAssets, ...localBaseAssets]
+
+      const theBaseAsset = searchableAssets.filter((as) => {
         return as.address.toLowerCase() === address.toLowerCase()
       })
       if(theBaseAsset.length > 0) {
@@ -876,7 +887,7 @@ class Store {
       }
 
       const factoryContract = new web3.eth.Contract(CONTRACTS.FACTORY_ABI, CONTRACTS.FACTORY_ADDRESS)
-      const gaugesContract = new web3.eth.Contract(CONTRACTS.GAUGES_ABI, CONTRACTS.GAUGES_ADDRESS)
+      const gaugesContract = new web3.eth.Contract(CONTRACTS.VOTER_ABI, CONTRACTS.VOTER_ADDRESS)
 
       const [ allPairsLength, totalWeight ] = await Promise.all([
         factoryContract.methods.allPairsLength().call(),
@@ -1265,7 +1276,7 @@ class Store {
         const pairFor = await factoryContract.methods.getPair(tok0, tok1, isStable).call()
 
         // SUBMIT CREATE GAUGE TRANSACTION
-        const gaugesContract = new web3.eth.Contract(CONTRACTS.GAUGES_ABI, CONTRACTS.GAUGES_ADDRESS)
+        const gaugesContract = new web3.eth.Contract(CONTRACTS.VOTER_ABI, CONTRACTS.VOTER_ADDRESS)
         this._callContractWait(web3, gaugesContract, 'createGauge', [pairFor], account, gasPrice, null, null, createGaugeTXID, async (err) => {
           if (err) {
             return this.emitter.emit(ACTIONS.ERROR, err)
@@ -1540,7 +1551,7 @@ class Store {
         const pairFor = await factoryContract.methods.getPair(tok0, tok1, isStable).call()
 
         // SUBMIT CREATE GAUGE TRANSACTION
-        const gaugesContract = new web3.eth.Contract(CONTRACTS.GAUGES_ABI, CONTRACTS.GAUGES_ADDRESS)
+        const gaugesContract = new web3.eth.Contract(CONTRACTS.VOTER_ABI, CONTRACTS.VOTER_ADDRESS)
         this._callContractWait(web3, gaugesContract, 'createGauge', [pairFor], account, gasPrice, null, null, createGaugeTXID, async (err) => {
           if (err) {
             return this.emitter.emit(ACTIONS.ERROR, err)
@@ -2593,7 +2604,7 @@ class Store {
 
       const gasPrice = await stores.accountStore.getGasPrice()
 
-      const gaugesContract = new web3.eth.Contract(CONTRACTS.GAUGES_ABI, CONTRACTS.GAUGES_ADDRESS)
+      const gaugesContract = new web3.eth.Contract(CONTRACTS.VOTER_ABI, CONTRACTS.VOTER_ADDRESS)
       this._callContractWait(web3, gaugesContract, 'createGauge', [pair.address], account, gasPrice, null, null, createGaugeTXID, async (err) => {
         if (err) {
           return this.emitter.emit(ACTIONS.ERROR, err)
@@ -3347,7 +3358,7 @@ class Store {
       const gasPrice = await stores.accountStore.getGasPrice()
 
       // SUBMIT INCREASE TRANSACTION
-      const gaugesContract = new web3.eth.Contract(CONTRACTS.GAUGES_ABI, CONTRACTS.GAUGES_ADDRESS)
+      const gaugesContract = new web3.eth.Contract(CONTRACTS.VOTER_ABI, CONTRACTS.VOTER_ADDRESS)
 
       let onlyVotes = votes.filter((vote) => {
         return BigNumber(vote.value).gt(0)
@@ -3404,7 +3415,7 @@ class Store {
         return pair && pair.gauge && pair.gauge.address
       })
 
-      const gaugesContract = new web3.eth.Contract(CONTRACTS.GAUGES_ABI, CONTRACTS.GAUGES_ADDRESS)
+      const gaugesContract = new web3.eth.Contract(CONTRACTS.VOTER_ABI, CONTRACTS.VOTER_ADDRESS)
 
       const votesCalls = filteredPairs.map((pair) => {
         return gaugesContract.methods.votes(tokenID, pair.address).call()
@@ -3682,7 +3693,7 @@ class Store {
       const gasPrice = await stores.accountStore.getGasPrice()
 
       // SUBMIT CLAIM TRANSACTION
-      const gaugesContract = new web3.eth.Contract(CONTRACTS.GAUGES_ABI, CONTRACTS.GAUGES_ADDRESS)
+      const gaugesContract = new web3.eth.Contract(CONTRACTS.VOTER_ABI, CONTRACTS.VOTER_ADDRESS)
 
       const sendGauges = [ pair.gauge.bribeAddress ]
       const sendTokens = [ pair.gauge.bribesEarned.map((bribe) => {
@@ -3733,7 +3744,7 @@ class Store {
       const gasPrice = await stores.accountStore.getGasPrice()
 
       // SUBMIT CLAIM TRANSACTION
-      const gaugesContract = new web3.eth.Contract(CONTRACTS.GAUGES_ABI, CONTRACTS.GAUGES_ADDRESS)
+      const gaugesContract = new web3.eth.Contract(CONTRACTS.VOTER_ABI, CONTRACTS.VOTER_ADDRESS)
 
       const sendGauges = pairs.map((pair) => {
         return pair.gauge.bribeAddress
@@ -3788,7 +3799,7 @@ class Store {
       const gasPrice = await stores.accountStore.getGasPrice()
 
       // SUBMIT CLAIM TRANSACTION
-      const gaugesContract = new web3.eth.Contract(CONTRACTS.GAUGES_ABI, CONTRACTS.GAUGES_ADDRESS)
+      const gaugesContract = new web3.eth.Contract(CONTRACTS.VOTER_ABI, CONTRACTS.VOTER_ADDRESS)
 
       const sendGauges = [ pair.gauge.address ]
       const sendTokens = [ pair.gauge.bribesEarned.map((bribe) => {
@@ -3839,7 +3850,7 @@ class Store {
       const gasPrice = await stores.accountStore.getGasPrice()
 
       // SUBMIT CLAIM TRANSACTION
-      const gaugesContract = new web3.eth.Contract(CONTRACTS.GAUGES_ABI, CONTRACTS.GAUGES_ADDRESS)
+      const gaugesContract = new web3.eth.Contract(CONTRACTS.VOTER_ABI, CONTRACTS.VOTER_ADDRESS)
 
       const sendGauges = pairs.map((pair) => {
         return pair.gauge.address
@@ -3857,6 +3868,91 @@ class Store {
 
         this.getRewardBalances({ content: { tokenID } })
         this.emitter.emit(ACTIONS.CLAIM_ALL_REWARDS_RETURNED)
+      })
+    } catch(ex) {
+      console.error(ex)
+      this.emitter.emit(ACTIONS.ERROR, ex)
+    }
+  }
+
+  searchWhitelist = async (payload) => {
+    try {
+      const account = stores.accountStore.getStore("account")
+      if (!account) {
+        console.warn('account not found')
+        return null
+      }
+
+      const web3 = await stores.accountStore.getWeb3Provider()
+      if (!web3) {
+        console.warn('web3 not found')
+        return null
+      }
+      const veToken = this.getStore('veToken')
+
+      const { search } = payload.content
+
+
+      const voterContract = new web3.eth.Contract(CONTRACTS.VOTER_ABI, CONTRACTS.VOTER_ADDRESS)
+
+      const [ isWhitelisted, listingFee ] = await Promise.all([
+        voterContract.methods.isWhitelisted(search).call(),
+        voterContract.methods.listing_fee().call()
+      ])
+
+      const token = await this.getBaseAsset(search)
+      token.isWhitelisted = isWhitelisted
+      token.listingFee = BigNumber(listingFee).div(10**veToken.decimals).toFixed(veToken.decimals)
+
+      this.emitter.emit(ACTIONS.SEARCH_WHITELIST_RETURNED, token)
+    } catch(ex) {
+      console.error(ex)
+      this.emitter.emit(ACTIONS.ERROR, ex)
+    }
+  }
+
+  whitelistToken = async (payload) => {
+    try {
+      const account = stores.accountStore.getStore("account")
+      if (!account) {
+        console.warn('account not found')
+        return null
+      }
+
+      const web3 = await stores.accountStore.getWeb3Provider()
+      if (!web3) {
+        console.warn('web3 not found')
+        return null
+      }
+
+      const { token, nft } = payload.content
+
+      // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
+      let whitelistTXID = this.getTXUUID()
+
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `WHITELIST ${token.symbol}`, verb: 'Token Whitelisted', transactions: [
+        {
+          uuid: whitelistTXID,
+          description: `Whitelisting ${token.symbol}`,
+          status: 'WAITING'
+        }
+      ]})
+
+      const gasPrice = await stores.accountStore.getGasPrice()
+
+      // SUBMIT WHITELIST TRANSACTION
+      const voterContract = new web3.eth.Contract(CONTRACTS.VOTER_ABI, CONTRACTS.VOTER_ADDRESS)
+
+      this._callContractWait(web3, voterContract, 'whitelist', [token.address, nft.id], account, gasPrice, null, null, whitelistTXID, async (err) => {
+        if (err) {
+          return this.emitter.emit(ACTIONS.ERROR, err)
+        }
+
+        window.setTimeout(() => {
+          this.dispatcher.dispatch({ type: ACTIONS.SEARCH_WHITELIST, content: { search: token.address } })
+        }, 2)
+
+        this.emitter.emit(ACTIONS.WHITELIST_TOKEN_RETURNED)
       })
     } catch(ex) {
       console.error(ex)
