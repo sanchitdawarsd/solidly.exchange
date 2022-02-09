@@ -60,6 +60,8 @@ export default function ssLiquidityManage() {
   const [ token, setToken ] = useState(null)
   const [ vestNFTs, setVestNFTs ] = useState([])
 
+  const [ slippage, setSlippage ] = useState('2')
+  const [ slippageError, setSlippageError ] = useState(false)
 
   const ssUpdated = async () => {
 
@@ -268,6 +270,12 @@ export default function ssLiquidityManage() {
     setToken(event.target.value);
   }
 
+  const onSlippageChanged = (event) => {
+    if(event.target.value == '' || !isNaN(event.target.value)) {
+      setSlippage(event.target.value)
+    }
+  }
+
   const setAmountPercent = (input, percent) => {
     setAmount0Error(false)
     setAmount1Error(false)
@@ -347,7 +355,8 @@ export default function ssLiquidityManage() {
         token1: asset1,
         amount0: amount0,
         amount1: amount1,
-        minLiquidity: quote ? quote : '0'
+        minLiquidity: quote ? quote : '0',
+        slippage: (slippage && slippage) != '' ? slippage : '2'
       } })
     }
   }
@@ -363,7 +372,8 @@ export default function ssLiquidityManage() {
 
       stores.dispatcher.dispatch({ type: ACTIONS.STAKE_LIQUIDITY, content: {
         pair: pair,
-        token:  token
+        token:  token,
+        slippage: (slippage && slippage) != '' ? slippage : '2'
       } })
     }
   }
@@ -416,7 +426,8 @@ export default function ssLiquidityManage() {
         amount0: amount0,
         amount1: amount1,
         minLiquidity: quote ? quote : '0',
-        token: token
+        token: token,
+        slippage: (slippage && slippage) != '' ? slippage : '2'
       } })
     }
   }
@@ -477,7 +488,8 @@ export default function ssLiquidityManage() {
         amount0: amount0,
         amount1: amount1,
         isStable: stable,
-        token: token
+        token: token,
+        slippage: (slippage && slippage) != '' ? slippage : '2'
       } })
     }
   }
@@ -538,7 +550,8 @@ export default function ssLiquidityManage() {
         amount0: amount0,
         amount1: amount1,
         isStable: stable,
-        token: token
+        token: token,
+        slippage: (slippage && slippage) != '' ? slippage : '2'
       } })
     }
   }
@@ -559,7 +572,8 @@ export default function ssLiquidityManage() {
         pair: pair,
         token0: pair.token0,
         token1: pair.token1,
-        quote: withdrawQuote
+        quote: withdrawQuote,
+        slippage: (slippage && slippage) != '' ? slippage : '2'
       } })
     }
   }
@@ -599,7 +613,8 @@ export default function ssLiquidityManage() {
         amount: withdrawAmount,
         amount0: withdrawAmount0,
         amount1: withdrawAmount1,
-        quote: withdrawQuote
+        quote: withdrawQuote,
+        slippage: (slippage && slippage) != '' ? slippage : '2'
       } })
     }
   }
@@ -613,7 +628,8 @@ export default function ssLiquidityManage() {
       amount: withdrawAmount,
       amount0: withdrawAmount0,
       amount1: withdrawAmount1,
-      quote: withdrawQuote
+      quote: withdrawQuote,
+      slippage: (slippage && slippage) != '' ? slippage : '2'
     } })
   }
 
@@ -837,8 +853,7 @@ export default function ssLiquidityManage() {
               <Typography className={ classes.text } >{ `${pair?.token1?.symbol} per ${pair?.token0?.symbol}` }</Typography>
             </div>
             <div className={ classes.priceInfo }>
-              <Typography className={ classes.title } >{ formatCurrency(quote) }</Typography>
-              <Typography className={ classes.text } >{ `LP Received ` }</Typography>
+              { renderSmallInput('slippage', slippage, slippageError, onSlippageChanged) }
             </div>
           </div>
           <Typography className={ classes.depositInfoHeading } >Your Balances</Typography>
@@ -871,8 +886,7 @@ export default function ssLiquidityManage() {
             <Typography className={ classes.text } >{ `${pair?.token1?.symbol} per ${pair?.token0?.symbol}` }</Typography>
           </div>
           <div className={ classes.priceInfo }>
-            <Typography className={ classes.title } >0.000</Typography>
-            <Typography className={ classes.text } >{ `$ per LP ` }</Typography>
+            { renderSmallInput('slippage', slippage, slippageError, onSlippageChanged) }
           </div>
         </div>
         <Typography className={ classes.depositInfoHeading } >Your Balances</Typography>
@@ -885,6 +899,35 @@ export default function ssLiquidityManage() {
             <Typography className={ classes.title } >{ formatCurrency(pair?.gauge?.reserve1) }</Typography>
             <Typography className={ classes.text } >{ `Staked ${pair?.symbol} ` }</Typography>
           </div>
+        </div>
+      </div>
+    )
+  }
+
+  const renderSmallInput = (type, amountValue, amountError, amountChanged) => {
+    return (
+      <div className={ classes.textField}>
+        <div className={ classes.inputTitleContainerSlippage }>
+          <div className={ classes.inputBalanceSlippage }>
+            <Typography className={ classes.inputBalanceText } noWrap > Slippage </Typography>
+          </div>
+        </div>
+        <div className={ classes.smallInputContainer }>
+          <TextField
+            placeholder='0.00'
+            fullWidth
+            error={ amountError }
+            helperText={ amountError }
+            value={ amountValue }
+            onChange={ amountChanged }
+            disabled={ depositLoading || stakeLoading || depositStakeLoading || createLoading }
+            InputProps={{
+              className: classes.smallInput,
+              endAdornment: <InputAdornment position="end">
+                %
+              </InputAdornment>,
+            }}
+          />
         </div>
       </div>
     )

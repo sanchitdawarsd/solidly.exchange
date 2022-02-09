@@ -1089,7 +1089,7 @@ class Store {
         return null
       }
 
-      const { token0, token1, amount0, amount1, isStable, token } = payload.content
+      const { token0, token1, amount0, amount1, isStable, token, slippage } = payload.content
 
       let toki0 = token0.address
       let toki1 = token1.address
@@ -1246,11 +1246,12 @@ class Store {
 
 
       // SUBMIT DEPOSIT TRANSACTION
+      const sendSlippage = BigNumber(100).minus(slippage).div(100)
       const sendAmount0 = BigNumber(amount0).times(10**token0.decimals).toFixed(0)
       const sendAmount1 = BigNumber(amount1).times(10**token1.decimals).toFixed(0)
       const deadline = ''+moment().add(600, 'seconds').unix()
-      const sendAmount0Min = BigNumber(amount0).times(0.97).times(10**token0.decimals).toFixed(0)
-      const sendAmount1Min = BigNumber(amount1).times(0.97).times(10**token1.decimals).toFixed(0)
+      const sendAmount0Min = BigNumber(amount0).times(sendSlippage).times(10**token0.decimals).toFixed(0)
+      const sendAmount1Min = BigNumber(amount1).times(sendSlippage).times(10**token1.decimals).toFixed(0)
 
 
       let func = 'addLiquidity'
@@ -1373,7 +1374,7 @@ class Store {
         return null
       }
 
-      const { token0, token1, amount0, amount1, isStable } = payload.content
+      const { token0, token1, amount0, amount1, isStable, slippage } = payload.content
 
       let toki0 = token0.address
       let toki1 = token1.address
@@ -1521,11 +1522,12 @@ class Store {
 
 
       // SUBMIT DEPOSIT TRANSACTION
+      const sendSlippage = BigNumber(100).minus(slippage).div(100)
       const sendAmount0 = BigNumber(amount0).times(10**token0.decimals).toFixed(0)
       const sendAmount1 = BigNumber(amount1).times(10**token1.decimals).toFixed(0)
       const deadline = ''+moment().add(600, 'seconds').unix()
-      const sendAmount0Min = BigNumber(amount0).times(0.97).times(10**token0.decimals).toFixed(0)
-      const sendAmount1Min = BigNumber(amount1).times(0.97).times(10**token1.decimals).toFixed(0)
+      const sendAmount0Min = BigNumber(amount0).times(sendSlippage).times(10**token0.decimals).toFixed(0)
+      const sendAmount1Min = BigNumber(amount1).times(sendSlippage).times(10**token1.decimals).toFixed(0)
 
 
       let func = 'addLiquidity'
@@ -1620,7 +1622,7 @@ class Store {
         return null
       }
 
-      const { token0, token1, amount0, amount1, minLiquidity, pair } = payload.content
+      const { token0, token1, amount0, amount1, minLiquidity, pair, slippage } = payload.content
 
       // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
       let allowance0TXID = this.getTXUUID()
@@ -1741,11 +1743,12 @@ class Store {
       const done = await Promise.all(allowanceCallsPromises)
 
       // SUBMIT DEPOSIT TRANSACTION
+      const sendSlippage = BigNumber(100).minus(slippage).div(100)
       const sendAmount0 = BigNumber(amount0).times(10**token0.decimals).toFixed(0)
       const sendAmount1 = BigNumber(amount1).times(10**token1.decimals).toFixed(0)
       const deadline = ''+moment().add(600, 'seconds').unix()
-      const sendAmount0Min = BigNumber(amount0).times(0.97).times(10**token0.decimals).toFixed(0)  //0.97 -> add slipage modifier
-      const sendAmount1Min = BigNumber(amount1).times(0.97).times(10**token1.decimals).toFixed(0)  //0.97 -> add slipage modifier
+      const sendAmount0Min = BigNumber(amount0).times(sendSlippage).times(10**token0.decimals).toFixed(0)
+      const sendAmount1Min = BigNumber(amount1).times(sendSlippage).times(10**token1.decimals).toFixed(0)
 
       const routerContract = new web3.eth.Contract(CONTRACTS.ROUTER_ABI, CONTRACTS.ROUTER_ADDRESS)
 
@@ -1895,7 +1898,7 @@ class Store {
         return null
       }
 
-      const { token0, token1, amount0, amount1, minLiquidity, pair, token } = payload.content
+      const { token0, token1, amount0, amount1, minLiquidity, pair, token, slippage } = payload.content
 
       // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
       let allowance0TXID = this.getTXUUID()
@@ -2062,11 +2065,12 @@ class Store {
 
 
       // SUBMIT DEPOSIT TRANSACTION
+      const sendSlippage = BigNumber(100).minus(slippage).div(100)
       const sendAmount0 = BigNumber(amount0).times(10**token0.decimals).toFixed(0)
       const sendAmount1 = BigNumber(amount1).times(10**token1.decimals).toFixed(0)
       const deadline = ''+moment().add(600, 'seconds').unix()
-      const sendAmount0Min = BigNumber(amount0).times(0.97).times(10**token0.decimals).toFixed(0)
-      const sendAmount1Min = BigNumber(amount1).times(0.97).times(10**token1.decimals).toFixed(0)
+      const sendAmount0Min = BigNumber(amount0).times(sendSlippage).times(10**token0.decimals).toFixed(0)
+      const sendAmount1Min = BigNumber(amount1).times(sendSlippage).times(10**token1.decimals).toFixed(0)
 
       const routerContract = new web3.eth.Contract(CONTRACTS.ROUTER_ABI, CONTRACTS.ROUTER_ADDRESS)
       const gaugeContract = new web3.eth.Contract(CONTRACTS.GAUGE_ABI, pair.gauge.address)
@@ -2276,7 +2280,7 @@ class Store {
         return null
       }
 
-      const { token0, token1, pair } = payload.content
+      const { token0, token1, pair, slippage } = payload.content
 
       // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
       let allowanceTXID = this.getTXUUID()
@@ -2345,9 +2349,10 @@ class Store {
 
       const quoteRemove = await routerContract.methods.quoteRemoveLiquidity(token0.address, token1.address, pair.isStable, sendAmount).call()
 
+      const sendSlippage = BigNumber(100).minus(slippage).div(100)
       const deadline = ''+moment().add(600, 'seconds').unix()
-      const sendAmount0Min = BigNumber(quoteRemove.amountA).times(0.97).toFixed(0)  //0.97 -> add slipage modifier
-      const sendAmount1Min = BigNumber(quoteRemove.amountB).times(0.97).toFixed(0)  //0.97 -> add slipage modifier
+      const sendAmount0Min = BigNumber(quoteRemove.amountA).times(sendSlippage).toFixed(0)
+      const sendAmount1Min = BigNumber(quoteRemove.amountB).times(sendSlippage).toFixed(0)
 
 
       this._callContractWait(web3, routerContract, 'removeLiquidity', [token0.address, token1.address, pair.isStable, sendAmount, sendAmount0Min, sendAmount1Min, account.address, deadline], account, gasPrice, null, null, withdrawTXID, (err) => {
@@ -2382,7 +2387,7 @@ class Store {
         return null
       }
 
-      const { token0, token1, amount, amount0, amount1, pair } = payload.content
+      const { token0, token1, amount, amount0, amount1, pair, slippage } = payload.content
 
       // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
       let allowanceTXID = this.getTXUUID()
@@ -2452,10 +2457,11 @@ class Store {
 
 
       // SUBMIT DEPOSIT TRANSACTION
+      const sendSlippage = BigNumber(100).minus(slippage).div(100)
       const sendAmount = BigNumber(amount).times(10**pair.decimals).toFixed(0)
       const deadline = ''+moment().add(600, 'seconds').unix()
-      const sendAmount0Min = BigNumber(amount0).times(0.97).times(10**token0.decimals).toFixed(0)
-      const sendAmount1Min = BigNumber(amount1).times(0.97).times(10**token1.decimals).toFixed(0)
+      const sendAmount0Min = BigNumber(amount0).times(sendSlippage).times(10**token0.decimals).toFixed(0)
+      const sendAmount1Min = BigNumber(amount1).times(sendSlippage).times(10**token1.decimals).toFixed(0)
 
       const routerContract = new web3.eth.Contract(CONTRACTS.ROUTER_ABI, CONTRACTS.ROUTER_ADDRESS)
       const gaugeContract = new web3.eth.Contract(CONTRACTS.GAUGE_ABI, pair.gauge.address)
@@ -2859,7 +2865,7 @@ class Store {
         return null
       }
 
-      const { fromAsset, toAsset, fromAmount, toAmount, quote } = payload.content
+      const { fromAsset, toAsset, fromAmount, toAmount, quote, slippage } = payload.content
 
       // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
       let allowanceTXID = this.getTXUUID()
@@ -2932,8 +2938,9 @@ class Store {
       const done = await Promise.all(allowanceCallsPromises)
 
       // SUBMIT SWAP TRANSACTION
+      const sendSlippage = BigNumber(100).minus(slippage).div(100)
       const sendFromAmount = BigNumber(fromAmount).times(10**fromAsset.decimals).toFixed(0)
-      const sendMinAmountOut = BigNumber(quote.output.finalValue).times(0.1).toFixed(0)
+      const sendMinAmountOut = BigNumber(quote.output.finalValue).times(sendSlippage).toFixed(0)
       const deadline = ''+moment().add(600, 'seconds').unix()
 
       const routerContract = new web3.eth.Contract(CONTRACTS.ROUTER_ABI, CONTRACTS.ROUTER_ADDRESS)
@@ -2951,8 +2958,6 @@ class Store {
       if(toAsset.address === 'FTM') {
         func = 'swapExactTokensForFTM'
       }
-
-      console.log(sendValue)
 
       this._callContractWait(web3, routerContract, func, params, account, gasPrice, null, null, swapTXID, (err) => {
         if (err) {

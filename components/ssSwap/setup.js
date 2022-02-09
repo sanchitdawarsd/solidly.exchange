@@ -50,6 +50,9 @@ function Setup() {
   const [ toAssetError, setToAssetError ] = useState(false)
   const [ toAssetOptions, setToAssetOptions ] = useState([])
 
+  const [ slippage, setSlippage ] = useState('2')
+  const [ slippageError, setSlippageError ] = useState(false)
+
   const [ quoteError, setQuoteError ] = useState(null)
   const [ quote, setQuote ] = useState(null)
 
@@ -166,6 +169,12 @@ function Setup() {
   const toAmountChanged = (event) => {
   }
 
+  const onSlippageChanged = (event) => {
+    if(event.target.value == '' || !isNaN(event.target.value)) {
+      setSlippage(event.target.value)
+    }
+  }
+
   const calculateReceiveAmount = (amount, from, to) => {
     if(amount !== '' && !isNaN(amount) && to != null) {
 
@@ -221,7 +230,8 @@ function Setup() {
         toAsset: toAssetValue,
         fromAmount: fromAmountValue,
         toAmount: toAmountValue,
-        quote: quote
+        quote: quote,
+        slippage: slippage
       } })
     }
   }
@@ -274,6 +284,9 @@ function Setup() {
             <Typography className={ classes.title } > { formatCurrency(BigNumber(quote.output.finalValue).div(quote.inputs.fromAmount).toFixed(18)) } </Typography>
             <Typography className={ classes.text } >{ `${toAssetValue?.symbol} per ${fromAssetValue?.symbol}` }</Typography>
           </div>
+          <div className={ classes.priceInfo }>
+            { renderSmallInput('slippage', slippage, slippageError, onSlippageChanged) }
+          </div>
         </div>
         <Typography className={ classes.depositInfoHeading } >Route</Typography>
         <div className={ classes.route }>
@@ -311,6 +324,35 @@ function Setup() {
             src={ toAssetValue ? `${toAssetValue.logoURI}` : '' }
             height='40px'
             onError={(e)=>{e.target.onerror = null; e.target.src="/tokens/unknown-logo.png"}}
+          />
+        </div>
+      </div>
+    )
+  }
+
+  const renderSmallInput = (type, amountValue, amountError, amountChanged) => {
+    return (
+      <div className={ classes.textField}>
+        <div className={ classes.inputTitleContainerSlippage }>
+          <div className={ classes.inputBalanceSlippage }>
+            <Typography className={ classes.inputBalanceText } noWrap > Slippage </Typography>
+          </div>
+        </div>
+        <div className={ classes.smallInputContainer }>
+          <TextField
+            placeholder='0.00'
+            fullWidth
+            error={ amountError }
+            helperText={ amountError }
+            value={ amountValue }
+            onChange={ amountChanged }
+            disabled={ loading }
+            InputProps={{
+              className: classes.smallInput,
+              endAdornment: <InputAdornment position="end">
+                %
+              </InputAdornment>,
+            }}
           />
         </div>
       </div>

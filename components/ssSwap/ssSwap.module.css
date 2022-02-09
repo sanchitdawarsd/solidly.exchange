@@ -16,7 +16,7 @@
   display: flex;
   flex-direction: column;
   -webkit-box-shadow: 0 13px 30px 0 rgba(7,9,18,0.1) !important;
-box-shadow: 0 13px 30px 0 rgba(7,9,18,0.1) !important;
+  box-shadow: 0 13px 30px 0 rgba(7,9,18,0.1) !important;
 }
 
 .smallerText {
@@ -29,6 +29,18 @@ box-shadow: 0 13px 30px 0 rgba(7,9,18,0.1) !important;
   display: flex;
   flex-direction: column;
   width: 100%;
+}
+
+.smallInputContainer {
+  display: flex;
+  flex-wrap: wrap;
+  border-radius: 10px;
+  width: 100%;
+  align-items: center;
+  background: rgb(33, 43, 72);
+  max-width: 80px;
+  min-height: 50px;
+  padding: 20px 12px 4px 12px ;
 }
 
 .massiveInputContainer {
@@ -156,6 +168,18 @@ box-shadow: 0 13px 30px 0 rgba(7,9,18,0.1) !important;
   top: 30px;
   right: -5px;
   background: rgb(33, 43, 72);
+}
+
+.inputTitleContainerSlippage {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  position: absolute;
+  top: 0px;
+}
+
+.inputBalanceSlippage {
+  padding-left: 12px;
 }
 
 .inputTitleContainer {
@@ -512,7 +536,7 @@ box-shadow: 0 13px 30px 0 rgba(7,9,18,0.1) !important;
 
 .priceInfos {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   grid-gap: 12px;
   width: 100%;
 }
