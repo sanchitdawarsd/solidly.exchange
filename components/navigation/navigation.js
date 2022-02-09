@@ -142,8 +142,8 @@ function Navigation(props) {
     if(activePath.includes('dashboard')) {
       setActive('dashboard')
     }
-    if(activePath.includes('notifications')) {
-      setActive('notifications')
+    if(activePath.includes('whitelist')) {
+      setActive('whitelist')
     }
   }, [])
 
@@ -174,6 +174,10 @@ function Navigation(props) {
         {renderSubNav(
           'Rewards',
           'rewards',
+        )}
+        {renderSubNav(
+          'Whitelist',
+          'whitelist',
         )}
       </ToggleButtonGroup>
     );
