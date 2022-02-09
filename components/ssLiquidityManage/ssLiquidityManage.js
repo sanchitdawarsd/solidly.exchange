@@ -1069,17 +1069,19 @@ export default function ssLiquidityManage() {
                       <Typography className={ classes.actionButtonText }>{ depositLoading ? `Depositing` : `Deposit` }</Typography>
                       { depositLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
                     </Button>
-                    <Button
-                      variant='contained'
-                      size='large'
-                      className={ (createLoading || depositLoading || stakeLoading || depositStakeLoading) ? classes.multiApprovalButton : classes.buttonOverride }
-                      color='primary'
-                      disabled={ createLoading || depositLoading || stakeLoading || depositStakeLoading }
-                      onClick={ onCreateGauge }
-                      >
-                      <Typography className={ classes.actionButtonText }>{ createLoading ? `Creating` : `Create Gauge` }</Typography>
-                      { createLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
-                    </Button>
+                    { pair.token0.isWhitelisted && pair.token1.isWhitelisted &&
+                      <Button
+                        variant='contained'
+                        size='large'
+                        className={ (createLoading || depositLoading || stakeLoading || depositStakeLoading) ? classes.multiApprovalButton : classes.buttonOverride }
+                        color='primary'
+                        disabled={ createLoading || depositLoading || stakeLoading || depositStakeLoading }
+                        onClick={ onCreateGauge }
+                        >
+                        <Typography className={ classes.actionButtonText }>{ createLoading ? `Creating` : `Create Gauge` }</Typography>
+                        { createLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
+                      </Button>
+                    }
                   </>
               }
               { // There is a Gauge on the pair. Can deposit and stake

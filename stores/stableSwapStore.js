@@ -899,12 +899,14 @@ class Store {
         const token0Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, pair.token0.address)
         const token1Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, pair.token1.address)
 
-        const [ totalSupply, reserves, balanceOf, token0BalanceOf, token1BalanceOf ] = await this._makeBatchRequest(web3, account.address, [
+        const [ totalSupply, reserves, balanceOf, token0BalanceOf, token1BalanceOf, token0Whitelisted, token1Whitelisted ] = await this._makeBatchRequest(web3, account.address, [
           pairContract.methods.totalSupply().call,
           pairContract.methods.getReserves().call,
           pairContract.methods.balanceOf(account.address).call,
           token0Contract.methods.balanceOf(account.address).call,
-          token1Contract.methods.balanceOf(account.address).call
+          token1Contract.methods.balanceOf(account.address).call,
+          gaugesContract.methods.isWhitelisted(pair.token0.address).call,
+          gaugesContract.methods.isWhitelisted(pair.token1.address).call
         ])
 
         pair.balance = BigNumber(balanceOf).div(10**pair.decimals).toFixed(parseInt(pair.decimals))
@@ -913,6 +915,8 @@ class Store {
         pair.reserve1 = BigNumber(reserves._reserve1).div(10**pair.token1.decimals).toFixed(parseInt(pair.token1.decimals))
         pair.token0.balance = BigNumber(token0BalanceOf).div(10**pair.token0.decimals).toFixed(parseInt(pair.token0.decimals))
         pair.token1.balance = BigNumber(token1BalanceOf).div(10**pair.token1.decimals).toFixed(parseInt(pair.token1.decimals))
+        pair.token0.whitelisted = token0Whitelisted
+        pair.token1.whitelisted = token1Whitelisted
 
         callback(null, pair)
       })
@@ -3361,7 +3365,7 @@ class Store {
       const gaugesContract = new web3.eth.Contract(CONTRACTS.VOTER_ABI, CONTRACTS.VOTER_ADDRESS)
 
       let onlyVotes = votes.filter((vote) => {
-        return BigNumber(vote.value).gt(0)
+        return (BigNumber(vote.value).gt(0) || BigNumber(vote.value).lt(0))
       })
 
       let tokens = onlyVotes.map((vote) => {
@@ -3422,17 +3426,20 @@ class Store {
       })
 
       const voteCounts = await Promise.all(votesCalls)
+      console.log(voteCounts)
 
       let votes = []
 
       const totalVotes = voteCounts.reduce((curr, acc) => {
-        return BigNumber(curr).plus(acc)
+        let num = BigNumber(acc).gt(0) ? acc : BigNumber(acc).times(-1).toNumber(0)
+        return BigNumber(curr).plus(num)
       }, 0)
+      console.log(totalVotes)
 
       for(let i = 0; i < voteCounts.length; i++) {
         votes.push({
           address: filteredPairs[i].address,
-          votePercent: BigNumber(totalVotes).gt(0) ? BigNumber(voteCounts[i]).times(100).div(totalVotes).toFixed(0) : '0'
+          votePercent: (BigNumber(totalVotes).gt(0) || BigNumber(totalVotes).lt(0)) ? BigNumber(voteCounts[i]).times(100).div(totalVotes).toFixed(0) : '0'
         })
       }
 

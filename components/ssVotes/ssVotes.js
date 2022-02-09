@@ -105,7 +105,7 @@ export default function ssVotes() {
     stores.dispatcher.dispatch({ type: ACTIONS.VOTE, content: { votes, tokenID: token.id }})
   }
 
-  let totalVotes = votes.reduce((acc, curr) => { return BigNumber(acc).plus(curr.value).toNumber() }, 0 )
+  let totalVotes = votes.reduce((acc, curr) => { return BigNumber(acc).plus(BigNumber(curr.value).lt(0) ? (curr.value*-1) : curr.value).toNumber() }, 0 )
 
   const handleChange = (event) => {
     setToken(event.target.value);

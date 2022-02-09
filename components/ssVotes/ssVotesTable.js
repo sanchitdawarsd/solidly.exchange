@@ -362,6 +362,20 @@ export default function EnhancedTable({ gauges, setParentSliderValues, defaultVo
   }
 
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, gauges.length - page * rowsPerPage);
+  const marks = [
+  {
+    value: -100,
+    label: '-100',
+  },
+  {
+    value: 0,
+    label: '0',
+  },
+  {
+    value: 100,
+    label: '100',
+  },
+];
 
   return (
     <div className={classes.root}>
@@ -376,7 +390,7 @@ export default function EnhancedTable({ gauges, setParentSliderValues, defaultVo
                 return null;
               }
               let sliderValue = sliderValues.find((el) => el.address === row?.address)?.value
-              if(BigNumber(sliderValue).gt(0)) {
+              if(sliderValue) {
                 sliderValue = BigNumber(sliderValue).toNumber(0)
               } else {
                 sliderValue = 0
@@ -457,7 +471,14 @@ export default function EnhancedTable({ gauges, setParentSliderValues, defaultVo
                     </Typography>
                   </TableCell>
                   <TableCell className={classes.cell} align="right">
-                    <PrettoSlider valueLabelDisplay="auto" aria-label="Vote Precednt" value={ sliderValue } onChange={ (event, value) => { onSliderChange(event, value, row) } } />
+                    <PrettoSlider
+                      valueLabelDisplay="auto"
+                      value={ sliderValue }
+                      onChange={ (event, value) => { onSliderChange(event, value, row) } }
+                      min={-100}
+                      max={100}
+                      marks
+                    />
                   </TableCell>
                 </TableRow>
               );
