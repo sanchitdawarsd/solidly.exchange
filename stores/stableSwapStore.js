@@ -915,8 +915,8 @@ class Store {
         pair.reserve1 = BigNumber(reserves._reserve1).div(10**pair.token1.decimals).toFixed(parseInt(pair.token1.decimals))
         pair.token0.balance = BigNumber(token0BalanceOf).div(10**pair.token0.decimals).toFixed(parseInt(pair.token0.decimals))
         pair.token1.balance = BigNumber(token1BalanceOf).div(10**pair.token1.decimals).toFixed(parseInt(pair.token1.decimals))
-        pair.token0.whitelisted = token0Whitelisted
-        pair.token1.whitelisted = token1Whitelisted
+        pair.token0.isWhitelisted = token0Whitelisted
+        pair.token1.isWhitelisted = token1Whitelisted
 
         callback(null, pair)
       })
@@ -981,24 +981,29 @@ class Store {
         return null
       }
 
+      const voterContract = new web3.eth.Contract(CONTRACTS.VOTER_ABI, CONTRACTS.VOTER_ADDRESS)
+
       const baseAssetsBalances = await Promise.all(
         baseAssets.map(async (asset) => {
           try {
             if(asset.address === 'FTM') {
               let bal = await web3.eth.getBalance(account.address)
               return {
-                balanceOf: bal
+                balanceOf: bal,
+                isWhitelisted: true
               }
             }
 
             const assetContract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, asset.address)
 
-            const [ balanceOf ] = await Promise.all([
+            const [ isWhitelisted, balanceOf ] = await Promise.all([
+              voterContract.methods.isWhitelisted(asset.address).call(),
               assetContract.methods.balanceOf(account.address).call(),
             ])
 
             return {
               balanceOf,
+              isWhitelisted
             }
           } catch(ex) {
             console.log(ex)
@@ -1011,6 +1016,7 @@ class Store {
 
       for (let i = 0; i < baseAssets.length; i++) {
         baseAssets[i].balance = BigNumber(baseAssetsBalances[i].balanceOf).div(10 ** baseAssets[i].decimals).toFixed(baseAssets[i].decimals)
+        baseAssets[i].isWhitelisted = baseAssetsBalances[i].isWhitelisted
       }
 
       this.setStore({ baseAssets })

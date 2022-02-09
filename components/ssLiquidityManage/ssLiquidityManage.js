@@ -944,8 +944,6 @@ export default function ssLiquidityManage() {
     setAdvanced(!advanced)
   }
 
-  console.log(pair)
-
   return (
     <div className={classes.retain}>
       <Paper elevation={0} className={ classes.container }>
@@ -1025,7 +1023,7 @@ export default function ssLiquidityManage() {
           {
             activeTab === 'deposit' &&
             <div className={ classes.actionsContainer }>
-              { pair == null &&
+              { pair == null && asset0 && asset0.isWhitelisted == true && asset1 && asset1.isWhitelisted == true &&
                 <>
                   <Button
                     variant='contained'
@@ -1053,6 +1051,21 @@ export default function ssLiquidityManage() {
                         </Button>
                       </>
                   }
+                </>
+              }
+              { pair == null && !(asset0 && asset0.isWhitelisted == true && asset1 && asset1.isWhitelisted == true) &&
+                <>
+                  <Button
+                    variant='contained'
+                    size='large'
+                    className={ (createLoading || depositLoading) ? classes.multiApprovalButton : classes.buttonOverride }
+                    color='primary'
+                    disabled={ createLoading || depositLoading }
+                    onClick={ onCreateAndDeposit }
+                    >
+                    <Typography className={ classes.actionButtonText }>{ depositLoading ? `Depositing` : `Create Pair & Deposit` }</Typography>
+                    { depositLoading && <CircularProgress size={10} className={ classes.loadingCircle } /> }
+                  </Button>
                 </>
               }
               { // There is no Gauge on the pair yet. Can only deposit
