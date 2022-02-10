@@ -41,13 +41,65 @@ function descendingComparator(a, b, orderBy) {
     return 0;
   }
 
-  if (b[orderBy] < a[orderBy]) {
-    return -1;
+  switch (orderBy) {
+    case 'balance':
+
+      if (b?.gauge?.balance < a?.gauge?.balance) {
+        return -1;
+      }
+      if (b?.gauge?.balance > a?.gauge?.balance) {
+        return 1;
+      }
+      return 0;
+
+    case 'liquidity':
+
+      let reserveA = BigNumber(a?.reserve0).plus(a?.reserve1).toNumber()
+      let reserveB = BigNumber(b?.reserve0).plus(b?.reserve1).toNumber()
+
+      if (reserveB < reserveA) {
+        return -1;
+      }
+      if (reserveB > reserveA) {
+        return 1;
+      }
+      return 0;
+
+    case 'totalVotes':
+
+      if (b?.gauge?.weightPercent < a?.gauge?.weightPercent) {
+        return -1;
+      }
+      if (b?.gauge?.weightPercent > a?.gauge?.weightPercent) {
+        return 1;
+      }
+      return 0;
+
+    case 'apy':
+
+      if (b?.gauge?.bribes.length < a?.gauge?.bribes.length) {
+        return -1;
+      }
+      if (b?.gauge?.bribes.length > a?.gauge?.bribes.length) {
+        return 1;
+      }
+      return 0;
+
+    case 'myVotes':
+    case 'mvp':
+
+      if (b?.gauge?.bribes.length < a?.gauge?.bribes.length) {
+        return -1;
+      }
+      if (b?.gauge?.bribes.length > a?.gauge?.bribes.length) {
+        return 1;
+      }
+      return 0;
+
+    default:
+
   }
-  if (b[orderBy] > a[orderBy]) {
-    return 1;
-  }
-  return 0;
+
 }
 
 function getComparator(order, orderBy) {
@@ -70,7 +122,13 @@ const headCells = [
     id: 'balance',
     numeric: true,
     disablePadding: false,
-    label: 'Staked',
+    label: 'My Stake',
+  },
+  {
+    id: 'liquidity',
+    numeric: true,
+    disablePadding: false,
+    label: 'Total Liquidity',
   },
   {
     id: 'totalVotes',
@@ -284,6 +342,11 @@ const useStyles = makeStyles((theme) => ({
     border: '3px solid rgb(25, 33, 56)',
     borderRadius: '30px',
   },
+  inlineEnd: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-end'
+  }
 }));
 
 export default function EnhancedTable({ gauges, setParentSliderValues, defaultVotes, veToken, token }) {
@@ -435,12 +498,40 @@ export default function EnhancedTable({ gauges, setParentSliderValues, defaultVo
                     </div>
                   </TableCell>
                   <TableCell className={classes.cell} align="right">
-                    <Typography variant="h2" className={classes.textSpaced}>
-                      { formatCurrency(row?.gauge?.balance) }
-                    </Typography>
-                    <Typography variant="h5" className={classes.textSpaced} color='textSecondary'>
-                      { row.symbol }
-                    </Typography>
+                    <div className={ classes.inlineEnd }>
+                      <Typography variant='h2' className={classes.textSpaced}>
+                        {formatCurrency(BigNumber(row?.gauge?.balance).div(row?.gauge?.totalSupply).times(row?.reserve0))}
+                      </Typography>
+                      <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                        {row?.token0?.symbol}
+                      </Typography>
+                    </div>
+                    <div className={ classes.inlineEnd }>
+                      <Typography variant='h5' className={classes.textSpaced}>
+                        {formatCurrency(BigNumber(row?.gauge?.balance).div(row?.gauge?.totalSupply).times(row?.reserve1))}
+                      </Typography>
+                      <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                        {row?.token1?.symbol}
+                      </Typography>
+                    </div>
+                  </TableCell>
+                  <TableCell className={classes.cell} align="right">
+                    <div className={ classes.inlineEnd }>
+                      <Typography variant='h2' className={classes.textSpaced}>
+                        {formatCurrency(BigNumber(row?.reserve0))}
+                      </Typography>
+                      <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                        {row?.token0?.symbol}
+                      </Typography>
+                    </div>
+                    <div className={ classes.inlineEnd }>
+                      <Typography variant='h5' className={classes.textSpaced}>
+                        {formatCurrency(BigNumber(row?.reserve1))}
+                      </Typography>
+                      <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                        {row?.token1?.symbol}
+                      </Typography>
+                    </div>
                   </TableCell>
                   <TableCell className={classes.cell} align="right">
                     <Typography variant="h2" className={classes.textSpaced}>
@@ -454,10 +545,10 @@ export default function EnhancedTable({ gauges, setParentSliderValues, defaultVo
                     {
                       row?.gauge?.bribes.map((bribe, idx) => {
                         return (
-                          <>
+                          <div className={ classes.inlineEnd }>
                             <Typography variant="h2" className={classes.textSpaced}>{ formatCurrency(bribe.rewardAmount) }</Typography>
                             <Typography variant="h5" className={classes.textSpaced} color='textSecondary'>{ bribe.token.symbol }</Typography>
-                          </>
+                          </div>
                         )
                       })
                     }
