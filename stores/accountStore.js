@@ -133,7 +133,7 @@ class Store {
 
     window.ethereum.on('chainChanged', function (chainId) {
       const supportedChainIds = [process.env.NEXT_PUBLIC_CHAINID];
-      const parsedChainId = parseInt(chainId, 16);
+      const parsedChainId = (parseInt(chainId+'', 16)+'');
       const isChainSupported = supportedChainIds.includes(parsedChainId);
       that.setStore({ chainInvalid: !isChainSupported });
       that.emitter.emit(ACTIONS.ACCOUNT_CHANGED);

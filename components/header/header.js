@@ -218,7 +218,6 @@ function Header(props) {
 
   const switchChain = async () => {
     let hexChain = '0x'+Number(process.env.NEXT_PUBLIC_CHAINID).toString(16)
-    console.log(hexChain)
     try {
       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
