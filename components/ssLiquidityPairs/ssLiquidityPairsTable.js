@@ -622,6 +622,8 @@ export default function EnhancedTable({ pairs }) {
                 }
                 const labelId = `enhanced-table-checkbox-${index}`;
 
+                console.log(row)
+
                 return (
                   <TableRow
                     key={labelId}
@@ -700,7 +702,7 @@ export default function EnhancedTable({ pairs }) {
                         <>
                           <div className={ classes.inlineEnd }>
                             <Typography variant='h2' className={classes.textSpaced}>
-                              {formatCurrency(BigNumber(row.balance).times(row.reserve0).div(row.reserve1))}
+                              {formatCurrency(BigNumber(row.balance).div(row.totalSupply).times(row.reserve0))}
                             </Typography>
                             <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
                               {row.token0.symbol}
@@ -708,7 +710,7 @@ export default function EnhancedTable({ pairs }) {
                           </div>
                           <div className={ classes.inlineEnd }>
                             <Typography variant='h5' className={classes.textSpaced}>
-                              {formatCurrency(BigNumber(row.balance).times(row.reserve1).div(row.reserve0))}
+                              {formatCurrency(BigNumber(row.balance).div(row.totalSupply).times(row.reserve1))}
                             </Typography>
                             <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
                               {row.token1.symbol}
@@ -729,7 +731,7 @@ export default function EnhancedTable({ pairs }) {
                             <>
                               <div className={ classes.inlineEnd }>
                                 <Typography variant='h2' className={classes.textSpaced}>
-                                  {formatCurrency(BigNumber(row.gauge.balance).times(row.reserve0).div(row.reserve1))}
+                                  {formatCurrency(BigNumber(row.gauge.balance).div(row.gauge.totalSupply).times(row.reserve0))}
                                 </Typography>
                                 <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
                                   {row.token0.symbol}
@@ -737,7 +739,7 @@ export default function EnhancedTable({ pairs }) {
                               </div>
                               <div className={ classes.inlineEnd }>
                                 <Typography variant='h5' className={classes.textSpaced}>
-                                  {formatCurrency(BigNumber(row.gauge.balance).times(row.reserve1).div(row.reserve0))}
+                                  {formatCurrency(BigNumber(row.gauge.balance).div(row.gauge.totalSupply).times(row.reserve1))}
                                 </Typography>
                                 <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
                                   {row.token1.symbol}

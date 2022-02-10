@@ -955,8 +955,8 @@ class Store {
 
           pair.gauge.balance = BigNumber(gaugeBalance).div(10**18).toFixed(18)
           pair.gauge.totalSupply = BigNumber(totalSupply).div(10**18).toFixed(18)
-          pair.gauge.reserve0 = pair.totalSupply > 0 ? BigNumber(pair.reserve0).times(pair.gauge.totalSupply).div(pair.totalSupply) : '0'
-          pair.gauge.reserve1 = pair.totalSupply > 0 ? BigNumber(pair.reserve1).times(pair.gauge.totalSupply).div(pair.totalSupply) : '0'
+          pair.gauge.reserve0 = pair.totalSupply > 0 ? BigNumber(pair.reserve0).times(pair.gauge.totalSupply).div(pair.totalSupply).toFixed(pair.token0.decimals) : '0'
+          pair.gauge.reserve1 = pair.totalSupply > 0 ? BigNumber(pair.reserve1).times(pair.gauge.totalSupply).div(pair.totalSupply).toFixed(pair.token1.decimals) : '0'
           pair.gauge.weight = BigNumber(gaugeWeight).div(10**18).toFixed(18)
           pair.gauge.weightPercent = BigNumber(gaugeWeight).times(100).div(totalWeight).toFixed(2)
           pair.gaugebribes = bribes
