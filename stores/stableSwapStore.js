@@ -294,15 +294,6 @@ class Store {
 
   getPairByAddress = async (pairAddress) => {
     try {
-      const pairs = this.getStore('pairs')
-      let thePair = pairs.filter((pair) => {
-        return (pair.address.toLowerCase() == pairAddress.toLowerCase())
-      })
-
-      if(thePair.length > 0) {
-        return thePair[0]
-      }
-
       const web3 = await stores.accountStore.getWeb3Provider()
       if (!web3) {
         console.warn('web3 not found')
@@ -312,6 +303,30 @@ class Store {
       if (!account) {
         console.warn('account not found')
         return null
+      }
+
+      const pairs = this.getStore('pairs')
+      let thePair = pairs.filter((pair) => {
+        return (pair.address.toLowerCase() == pairAddress.toLowerCase())
+      })
+
+      if(thePair.length > 0) {
+        const pc = new web3.eth.Contract(CONTRACTS.PAIR_ABI, pairAddress)
+
+        const [ totalSupply, reserve0, reserve1, balanceOf ] = await Promise.all([
+          pc.methods.totalSupply().call(),
+          pc.methods.reserve0().call(),
+          pc.methods.reserve1().call(),
+          pc.methods.balanceOf(account.address).call(),
+        ])
+
+        const returnPair = thePair[0]
+        returnPair.balance = BigNumber(balanceOf).div(10**returnPair.decimals).toFixed(parseInt(returnPair.decimals))
+        returnPair.totalSupply = BigNumber(totalSupply).div(10**returnPair.decimals).toFixed(parseInt(returnPair.decimals))
+        returnPair.reserve0 = BigNumber(reserve0).div(10**returnPair.token0.decimals).toFixed(parseInt(returnPair.token0.decimals))
+        returnPair.reserve1 = BigNumber(reserve1).div(10**returnPair.token1.decimals).toFixed(parseInt(returnPair.token1.decimals))
+
+        return returnPair
       }
 
       const pairContract = new web3.eth.Contract(CONTRACTS.PAIR_ABI, pairAddress)
@@ -432,15 +447,6 @@ class Store {
       addressB = CONTRACTS.WFTM_ADDRESS
     }
 
-    const pairs = this.getStore('pairs')
-    let thePair = pairs.filter((pair) => {
-      return ((pair.token0.address.toLowerCase() == addressA.toLowerCase() && pair.token1.address.toLowerCase() == addressB.toLowerCase() && pair.isStable == stab) ||
-      (pair.token0.address.toLowerCase() == addressB.toLowerCase() && pair.token1.address.toLowerCase() == addressA.toLowerCase() && pair.isStable == stab))
-    })
-    if(thePair.length > 0) {
-      return thePair[0]
-    }
-
     const web3 = await stores.accountStore.getWeb3Provider()
     if (!web3) {
       console.warn('web3 not found')
@@ -450,6 +456,31 @@ class Store {
     if (!account) {
       console.warn('account not found')
       return null
+    }
+
+    const pairs = this.getStore('pairs')
+    let thePair = pairs.filter((pair) => {
+      return ((pair.token0.address.toLowerCase() == addressA.toLowerCase() && pair.token1.address.toLowerCase() == addressB.toLowerCase() && pair.isStable == stab) ||
+      (pair.token0.address.toLowerCase() == addressB.toLowerCase() && pair.token1.address.toLowerCase() == addressA.toLowerCase() && pair.isStable == stab))
+    })
+    if(thePair.length > 0) {
+
+      const pc = new web3.eth.Contract(CONTRACTS.PAIR_ABI, thePair.address)
+
+      const [ totalSupply, reserve0, reserve1, balanceOf ] = await Promise.all([
+        pc.methods.totalSupply().call(),
+        pc.methods.reserve0().call(),
+        pc.methods.reserve1().call(),
+        pc.methods.balanceOf(account.address).call(),
+      ])
+
+      const returnPair = thePair[0]
+      returnPair.balance = BigNumber(balanceOf).div(10**returnPair.decimals).toFixed(parseInt(returnPair.decimals))
+      returnPair.totalSupply = BigNumber(totalSupply).div(10**returnPair.decimals).toFixed(parseInt(returnPair.decimals))
+      returnPair.reserve0 = BigNumber(reserve0).div(10**returnPair.token0.decimals).toFixed(parseInt(returnPair.token0.decimals))
+      returnPair.reserve1 = BigNumber(reserve1).div(10**returnPair.token1.decimals).toFixed(parseInt(returnPair.token1.decimals))
+
+      return returnPair
     }
 
     const factoryContract = new web3.eth.Contract(CONTRACTS.FACTORY_ABI, CONTRACTS.FACTORY_ADDRESS)
