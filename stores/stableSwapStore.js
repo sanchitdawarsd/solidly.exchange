@@ -326,6 +326,7 @@ class Store {
         returnPair.reserve0 = BigNumber(reserve0).div(10**returnPair.token0.decimals).toFixed(parseInt(returnPair.token0.decimals))
         returnPair.reserve1 = BigNumber(reserve1).div(10**returnPair.token1.decimals).toFixed(parseInt(returnPair.token1.decimals))
 
+        console.log(returnPair)
         return returnPair
       }
 
@@ -465,7 +466,7 @@ class Store {
     })
     if(thePair.length > 0) {
 
-      const pc = new web3.eth.Contract(CONTRACTS.PAIR_ABI, thePair.address)
+      const pc = new web3.eth.Contract(CONTRACTS.PAIR_ABI, thePair[0].address)
 
       const [ totalSupply, reserve0, reserve1, balanceOf ] = await Promise.all([
         pc.methods.totalSupply().call(),
@@ -480,6 +481,7 @@ class Store {
       returnPair.reserve0 = BigNumber(reserve0).div(10**returnPair.token0.decimals).toFixed(parseInt(returnPair.token0.decimals))
       returnPair.reserve1 = BigNumber(reserve1).div(10**returnPair.token1.decimals).toFixed(parseInt(returnPair.token1.decimals))
 
+      console.log(returnPair)
       return returnPair
     }
 
@@ -925,7 +927,7 @@ class Store {
         gaugesContract.methods.totalWeight().call()
       ])
 
-      const ps = await async.mapLimit(pairs, 10, async (pair, callback) => {
+      const ps = await async.mapLimit(pairs, 5, async (pair, callback) => {
         const pairContract = new web3.eth.Contract(CONTRACTS.PAIR_ABI, pair.address)
         const token0Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, pair.token0.address)
         const token1Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, pair.token1.address)
@@ -957,7 +959,7 @@ class Store {
 
 
 
-      const ps1 = await async.mapLimit(ps, 10, async (pair, callback) => {
+      const ps1 = await async.mapLimit(ps, 5, async (pair, callback) => {
 
         if(pair.gauge && pair.gauge.address !== ZERO_ADDRESS) {
           const gaugeContract = new web3.eth.Contract(CONTRACTS.GAUGE_ABI, pair.gauge.address)
@@ -2971,7 +2973,7 @@ class Store {
       // SUBMIT SWAP TRANSACTION
       const sendSlippage = BigNumber(100).minus(slippage).div(100)
       const sendFromAmount = BigNumber(fromAmount).times(10**fromAsset.decimals).toFixed(0)
-      const sendMinAmountOut = BigNumber(quote.output.finalValue).times(sendSlippage).toFixed(0)
+      const sendMinAmountOut = BigNumber(quote.output.finalValue).times(10**toAsset.decimals).times(sendSlippage).toFixed(0)
       const deadline = ''+moment().add(600, 'seconds').unix()
 
       const routerContract = new web3.eth.Contract(CONTRACTS.ROUTER_ABI, CONTRACTS.ROUTER_ADDRESS)

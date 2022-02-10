@@ -248,7 +248,7 @@ function Header(props) {
 
         <div className={classes.logoContainer}>
           <a onClick={() => router.push('/home')}><SiteLogo className={classes.appLogo} /></a>
-          <Typography className={ classes.version}>version 0.0.10</Typography>
+          <Typography className={ classes.version}>version 0.0.11</Typography>
         </div>
 
         <Navigation changeTheme={props.changeTheme} />
