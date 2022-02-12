@@ -232,7 +232,6 @@ export default function EnhancedTable({ claimable, crv, ibEUR, rKP3R }) {
   };
 
   const onClaim = (asset) => {
-    console.log(asset)
     setClaimLoading(true)
     setClaimedAsset(asset)
 

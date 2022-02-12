@@ -21,7 +21,6 @@ export default function ssBribes() {
       const pairsWithBribes = pairs.filter((pair) => {
         return pair && pair.gauge != null && pair.gauge.address && pair.gauge.bribes && pair.gauge.bribes.length > 0
       })
-      console.log(pairsWithBribes)
       setPairs(pairsWithBribes)
       forceUpdate()
     }

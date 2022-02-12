@@ -208,6 +208,7 @@ function MyComponent(props) {
         web3context: context
       });
       stores.emitter.emit(CONNECTION_CONNECTED);
+      stores.emitter.emit(ACTIONS.ACCOUNT_CONFIGURED);
     }
   }, [account, active, closeModal, context, library]);
 

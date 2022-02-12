@@ -90,7 +90,6 @@ export default function ssWhitelist() {
   }
 
   const renderToken = () => {
-    console.log(token)
     return (
       <Paper className={ classes.tokenContainer }>
         <div className={ classes.inline }>

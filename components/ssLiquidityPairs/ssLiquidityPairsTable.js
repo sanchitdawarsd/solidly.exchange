@@ -622,8 +622,6 @@ export default function EnhancedTable({ pairs }) {
                 }
                 const labelId = `enhanced-table-checkbox-${index}`;
 
-                console.log(row)
-
                 return (
                   <TableRow
                     key={labelId}

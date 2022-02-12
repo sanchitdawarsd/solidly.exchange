@@ -326,7 +326,6 @@ class Store {
         returnPair.reserve0 = BigNumber(reserve0).div(10**returnPair.token0.decimals).toFixed(parseInt(returnPair.token0.decimals))
         returnPair.reserve1 = BigNumber(reserve1).div(10**returnPair.token1.decimals).toFixed(parseInt(returnPair.token1.decimals))
 
-        console.log(returnPair)
         return returnPair
       }
 
@@ -481,7 +480,6 @@ class Store {
       returnPair.reserve0 = BigNumber(reserve0).div(10**returnPair.token0.decimals).toFixed(parseInt(returnPair.token0.decimals))
       returnPair.reserve1 = BigNumber(reserve1).div(10**returnPair.token1.decimals).toFixed(parseInt(returnPair.token1.decimals))
 
-      console.log(returnPair)
       return returnPair
     }
 
@@ -933,7 +931,7 @@ class Store {
           const token0Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, pair.token0.address)
           const token1Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, pair.token1.address)
 
-          const [ totalSupply, reserves, balanceOf, token0BalanceOf, token1BalanceOf, token0Whitelisted, token1Whitelisted ] = await this._makeBatchRequest(web3, account.address, [
+          const [ totalSupply, reserves, balanceOf, token0BalanceOf, token1BalanceOf, token0Whitelisted, token1Whitelisted ] = await Promise.all([
             pairContract.methods.totalSupply().call,
             pairContract.methods.getReserves().call,
             pairContract.methods.balanceOf(account.address).call,
@@ -942,6 +940,16 @@ class Store {
             gaugesContract.methods.isWhitelisted(pair.token0.address).call,
             gaugesContract.methods.isWhitelisted(pair.token1.address).call
           ])
+
+          // const [ totalSupply, reserves, balanceOf, token0BalanceOf, token1BalanceOf, token0Whitelisted, token1Whitelisted ] = await this._makeBatchRequest(web3, account.address, [
+          //   pairContract.methods.totalSupply().call,
+          //   pairContract.methods.getReserves().call,
+          //   pairContract.methods.balanceOf(account.address).call,
+          //   token0Contract.methods.balanceOf(account.address).call,
+          //   token1Contract.methods.balanceOf(account.address).call,
+          //   gaugesContract.methods.isWhitelisted(pair.token0.address).call,
+          //   gaugesContract.methods.isWhitelisted(pair.token1.address).call
+          // ])
 
           pair.balance = BigNumber(balanceOf).div(10**pair.decimals).toFixed(parseInt(pair.decimals))
           pair.totalSupply = BigNumber(totalSupply).div(10**pair.decimals).toFixed(parseInt(pair.decimals))
@@ -972,11 +980,17 @@ class Store {
           if(pair.gauge && pair.gauge.address !== ZERO_ADDRESS) {
             const gaugeContract = new web3.eth.Contract(CONTRACTS.GAUGE_ABI, pair.gauge.address)
 
-            const [ totalSupply, gaugeBalance, gaugeWeight ] = await this._makeBatchRequest(web3, account.address, [
+            const [ totalSupply, gaugeBalance, gaugeWeight ] = await Promise.all([
               gaugeContract.methods.totalSupply().call,
               gaugeContract.methods.balanceOf(account.address).call,
               gaugesContract.methods.weights(pair.address).call
             ])
+
+            // const [ totalSupply, gaugeBalance, gaugeWeight ] = await this._makeBatchRequest(web3, account.address, [
+            //   gaugeContract.methods.totalSupply().call,
+            //   gaugeContract.methods.balanceOf(account.address).call,
+            //   gaugesContract.methods.weights(pair.address).call
+            // ])
 
             const bribeContract = new web3.eth.Contract(CONTRACTS.BRIBE_ABI, pair.gauge.bribeAddress)
 
@@ -1439,7 +1453,6 @@ class Store {
       const factoryContract = new web3.eth.Contract(CONTRACTS.FACTORY_ABI, CONTRACTS.FACTORY_ADDRESS)
       const pairFor = await factoryContract.methods.getPair(toki0, toki1, isStable).call()
 
-      console.log(pairFor)
       if(pairFor && pairFor != ZERO_ADDRESS) {
         await context.updatePairsCall(web3, account)
         this.emitter.emit(ACTIONS.ERROR, 'Pair already exists')
@@ -3487,7 +3500,6 @@ class Store {
       })
 
       const voteCounts = await Promise.all(votesCalls)
-      console.log(voteCounts)
 
       let votes = []
 
@@ -3495,7 +3507,6 @@ class Store {
         let num = BigNumber(acc).gt(0) ? acc : BigNumber(acc).times(-1).toNumber(0)
         return BigNumber(curr).plus(num)
       }, 0)
-      console.log(totalVotes)
 
       for(let i = 0; i < voteCounts.length; i++) {
         votes.push({
@@ -4029,12 +4040,12 @@ class Store {
   }
 
   _callContractWait = (web3, contract, method, params, account, gasPrice, dispatchEvent, dispatchContent, uuid, callback, paddGasCost, sendValue = null) => {
-    console.log(method)
-    console.log(params)
-    if(sendValue) {
-      console.log(sendValue)
-    }
-    console.log(uuid)
+    // console.log(method)
+    // console.log(params)
+    // if(sendValue) {
+    //   console.log(sendValue)
+    // }
+    // console.log(uuid)
     //estimate gas
     this.emitter.emit(ACTIONS.TX_PENDING, { uuid })
 

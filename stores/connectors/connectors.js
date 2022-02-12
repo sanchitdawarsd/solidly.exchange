@@ -27,6 +27,7 @@ export const walletconnect = new WalletConnectConnector({
     250: RPC_URLS[250],
     4002: RPC_URLS[4002]
   },
+  chainId: parseInt(process.env.NEXT_PUBLIC_CHAINID),
   bridge: "https://bridge.walletconnect.org",
   qrcode: true,
   pollingInterval: POLLING_INTERVAL
@@ -34,5 +35,6 @@ export const walletconnect = new WalletConnectConnector({
 
 export const walletlink = new WalletLinkConnector({
   url: RPC_URLS[process.env.NEXT_PUBLIC_CHAINID],
-  appName: "Solidly"
+  appName: "Solidly",
+  chainId: parseInt(process.env.NEXT_PUBLIC_CHAINID),
 });
