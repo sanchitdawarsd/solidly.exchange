@@ -11,9 +11,8 @@ import { useRouter } from "next/router";
 function Route({ changeTheme, ...props }) {
   const router = useRouter();
   const activePath = router.asPath;
-  if (activePath.includes("/")) {
-    return <Swap props={props} changeTheme={changeTheme} />;
-  } else if (activePath.includes("/swap")) {
+  console.log(activePath)
+  if (activePath.includes("/swap")) {
     return <Swap props={props} changeTheme={changeTheme} />;
   } else if (activePath.includes("/liquidity")) {
     return <Liquidity props={props} changeTheme={changeTheme} />;
@@ -27,6 +26,8 @@ function Route({ changeTheme, ...props }) {
     return <Whitelist props={props} changeTheme={changeTheme} />;
   } else if (activePath.includes("/bribe")) {
     return <Bribe props={props} changeTheme={changeTheme} />;
+  } else if (activePath.includes("/")) {
+    return <Swap props={props} changeTheme={changeTheme} />;
   } else {
     return <Swap props={props} changeTheme={changeTheme} />;
   }
