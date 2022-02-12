@@ -932,13 +932,13 @@ class Store {
           const token1Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, pair.token1.address)
 
           const [ totalSupply, reserves, balanceOf, token0BalanceOf, token1BalanceOf, token0Whitelisted, token1Whitelisted ] = await Promise.all([
-            pairContract.methods.totalSupply().call,
-            pairContract.methods.getReserves().call,
-            pairContract.methods.balanceOf(account.address).call,
-            token0Contract.methods.balanceOf(account.address).call,
-            token1Contract.methods.balanceOf(account.address).call,
-            gaugesContract.methods.isWhitelisted(pair.token0.address).call,
-            gaugesContract.methods.isWhitelisted(pair.token1.address).call
+            pairContract.methods.totalSupply().call(),
+            pairContract.methods.getReserves().call(),
+            pairContract.methods.balanceOf(account.address).call(),
+            token0Contract.methods.balanceOf(account.address).call(),
+            token1Contract.methods.balanceOf(account.address).call(),
+            gaugesContract.methods.isWhitelisted(pair.token0.address).call(),
+            gaugesContract.methods.isWhitelisted(pair.token1.address).call()
           ])
 
           // const [ totalSupply, reserves, balanceOf, token0BalanceOf, token1BalanceOf, token0Whitelisted, token1Whitelisted ] = await this._makeBatchRequest(web3, account.address, [
@@ -981,9 +981,9 @@ class Store {
             const gaugeContract = new web3.eth.Contract(CONTRACTS.GAUGE_ABI, pair.gauge.address)
 
             const [ totalSupply, gaugeBalance, gaugeWeight ] = await Promise.all([
-              gaugeContract.methods.totalSupply().call,
-              gaugeContract.methods.balanceOf(account.address).call,
-              gaugesContract.methods.weights(pair.address).call
+              gaugeContract.methods.totalSupply().call(),
+              gaugeContract.methods.balanceOf(account.address).call(),
+              gaugesContract.methods.weights(pair.address).call()
             ])
 
             // const [ totalSupply, gaugeBalance, gaugeWeight ] = await this._makeBatchRequest(web3, account.address, [
