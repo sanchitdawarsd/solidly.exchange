@@ -927,31 +927,38 @@ class Store {
         gaugesContract.methods.totalWeight().call()
       ])
 
-      const ps = await async.mapLimit(pairs, 5, async (pair, callback) => {
-        const pairContract = new web3.eth.Contract(CONTRACTS.PAIR_ABI, pair.address)
-        const token0Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, pair.token0.address)
-        const token1Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, pair.token1.address)
+      const ps = await async.mapLimit(pairs, 3, async (pair, callback) => {
+        try {
+          const pairContract = new web3.eth.Contract(CONTRACTS.PAIR_ABI, pair.address)
+          const token0Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, pair.token0.address)
+          const token1Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, pair.token1.address)
 
-        const [ totalSupply, reserves, balanceOf, token0BalanceOf, token1BalanceOf, token0Whitelisted, token1Whitelisted ] = await this._makeBatchRequest(web3, account.address, [
-          pairContract.methods.totalSupply().call,
-          pairContract.methods.getReserves().call,
-          pairContract.methods.balanceOf(account.address).call,
-          token0Contract.methods.balanceOf(account.address).call,
-          token1Contract.methods.balanceOf(account.address).call,
-          gaugesContract.methods.isWhitelisted(pair.token0.address).call,
-          gaugesContract.methods.isWhitelisted(pair.token1.address).call
-        ])
+          const [ totalSupply, reserves, balanceOf, token0BalanceOf, token1BalanceOf, token0Whitelisted, token1Whitelisted ] = await this._makeBatchRequest(web3, account.address, [
+            pairContract.methods.totalSupply().call,
+            pairContract.methods.getReserves().call,
+            pairContract.methods.balanceOf(account.address).call,
+            token0Contract.methods.balanceOf(account.address).call,
+            token1Contract.methods.balanceOf(account.address).call,
+            gaugesContract.methods.isWhitelisted(pair.token0.address).call,
+            gaugesContract.methods.isWhitelisted(pair.token1.address).call
+          ])
 
-        pair.balance = BigNumber(balanceOf).div(10**pair.decimals).toFixed(parseInt(pair.decimals))
-        pair.totalSupply = BigNumber(totalSupply).div(10**pair.decimals).toFixed(parseInt(pair.decimals))
-        pair.reserve0 = BigNumber(reserves._reserve0).div(10**pair.token0.decimals).toFixed(parseInt(pair.token0.decimals))
-        pair.reserve1 = BigNumber(reserves._reserve1).div(10**pair.token1.decimals).toFixed(parseInt(pair.token1.decimals))
-        pair.token0.balance = BigNumber(token0BalanceOf).div(10**pair.token0.decimals).toFixed(parseInt(pair.token0.decimals))
-        pair.token1.balance = BigNumber(token1BalanceOf).div(10**pair.token1.decimals).toFixed(parseInt(pair.token1.decimals))
-        pair.token0.isWhitelisted = token0Whitelisted
-        pair.token1.isWhitelisted = token1Whitelisted
+          pair.balance = BigNumber(balanceOf).div(10**pair.decimals).toFixed(parseInt(pair.decimals))
+          pair.totalSupply = BigNumber(totalSupply).div(10**pair.decimals).toFixed(parseInt(pair.decimals))
+          pair.reserve0 = BigNumber(reserves._reserve0).div(10**pair.token0.decimals).toFixed(parseInt(pair.token0.decimals))
+          pair.reserve1 = BigNumber(reserves._reserve1).div(10**pair.token1.decimals).toFixed(parseInt(pair.token1.decimals))
+          pair.token0.balance = BigNumber(token0BalanceOf).div(10**pair.token0.decimals).toFixed(parseInt(pair.token0.decimals))
+          pair.token1.balance = BigNumber(token1BalanceOf).div(10**pair.token1.decimals).toFixed(parseInt(pair.token1.decimals))
+          pair.token0.isWhitelisted = token0Whitelisted
+          pair.token1.isWhitelisted = token1Whitelisted
 
-        callback(null, pair)
+          callback(null, pair)
+        } catch (ex) {
+          console.log('EXCEPTION 1')
+          console.log(pair)
+          console.log(ex)
+          callback(null, pair)
+        }
       })
 
       this.setStore({ pairs: ps })
@@ -959,43 +966,51 @@ class Store {
 
 
 
-      const ps1 = await async.mapLimit(ps, 5, async (pair, callback) => {
+      const ps1 = await async.mapLimit(ps, 3, async (pair, callback) => {
+        try {
 
-        if(pair.gauge && pair.gauge.address !== ZERO_ADDRESS) {
-          const gaugeContract = new web3.eth.Contract(CONTRACTS.GAUGE_ABI, pair.gauge.address)
+          if(pair.gauge && pair.gauge.address !== ZERO_ADDRESS) {
+            const gaugeContract = new web3.eth.Contract(CONTRACTS.GAUGE_ABI, pair.gauge.address)
 
-          const [ totalSupply, gaugeBalance, gaugeWeight ] = await this._makeBatchRequest(web3, account.address, [
-            gaugeContract.methods.totalSupply().call,
-            gaugeContract.methods.balanceOf(account.address).call,
-            gaugesContract.methods.weights(pair.address).call
-          ])
+            const [ totalSupply, gaugeBalance, gaugeWeight ] = await this._makeBatchRequest(web3, account.address, [
+              gaugeContract.methods.totalSupply().call,
+              gaugeContract.methods.balanceOf(account.address).call,
+              gaugesContract.methods.weights(pair.address).call
+            ])
 
-          const bribeContract = new web3.eth.Contract(CONTRACTS.BRIBE_ABI, pair.gauge.bribeAddress)
+            const bribeContract = new web3.eth.Contract(CONTRACTS.BRIBE_ABI, pair.gauge.bribeAddress)
 
-          const bribes = await Promise.all(
-            pair.gauge.bribes.map(async (bribe, idx) => {
+            const bribes = await Promise.all(
+              pair.gauge.bribes.map(async (bribe, idx) => {
 
-              const [ rewardRate ] = await Promise.all([
-                bribeContract.methods.rewardRate(bribe.token.address).call(),
-              ])
+                const [ rewardRate ] = await Promise.all([
+                  bribeContract.methods.rewardRate(bribe.token.address).call(),
+                ])
 
-              bribe.rewardRate = BigNumber(rewardRate).div(10**bribe.token.decimals).toFixed(bribe.token.decimals)
-              bribe.rewardAmount = BigNumber(rewardRate).times(604800).div(10**bribe.token.decimals).toFixed(bribe.token.decimals)
+                bribe.rewardRate = BigNumber(rewardRate).div(10**bribe.token.decimals).toFixed(bribe.token.decimals)
+                bribe.rewardAmount = BigNumber(rewardRate).times(604800).div(10**bribe.token.decimals).toFixed(bribe.token.decimals)
 
-              return bribe
-            })
-          )
+                return bribe
+              })
+            )
 
-          pair.gauge.balance = BigNumber(gaugeBalance).div(10**18).toFixed(18)
-          pair.gauge.totalSupply = BigNumber(totalSupply).div(10**18).toFixed(18)
-          pair.gauge.reserve0 = pair.totalSupply > 0 ? BigNumber(pair.reserve0).times(pair.gauge.totalSupply).div(pair.totalSupply).toFixed(pair.token0.decimals) : '0'
-          pair.gauge.reserve1 = pair.totalSupply > 0 ? BigNumber(pair.reserve1).times(pair.gauge.totalSupply).div(pair.totalSupply).toFixed(pair.token1.decimals) : '0'
-          pair.gauge.weight = BigNumber(gaugeWeight).div(10**18).toFixed(18)
-          pair.gauge.weightPercent = BigNumber(gaugeWeight).times(100).div(totalWeight).toFixed(2)
-          pair.gaugebribes = bribes
+            pair.gauge.balance = BigNumber(gaugeBalance).div(10**18).toFixed(18)
+            pair.gauge.totalSupply = BigNumber(totalSupply).div(10**18).toFixed(18)
+            pair.gauge.reserve0 = pair.totalSupply > 0 ? BigNumber(pair.reserve0).times(pair.gauge.totalSupply).div(pair.totalSupply).toFixed(pair.token0.decimals) : '0'
+            pair.gauge.reserve1 = pair.totalSupply > 0 ? BigNumber(pair.reserve1).times(pair.gauge.totalSupply).div(pair.totalSupply).toFixed(pair.token1.decimals) : '0'
+            pair.gauge.weight = BigNumber(gaugeWeight).div(10**18).toFixed(18)
+            pair.gauge.weightPercent = BigNumber(gaugeWeight).times(100).div(totalWeight).toFixed(2)
+            pair.gaugebribes = bribes
+          }
+
+          callback(null, pair)
+
+        } catch (ex) {
+          console.log('EXCEPTION 2')
+          console.log(pair)
+          console.log(ex)
+          callback(null, pair)
         }
-
-        callback(null, pair)
       })
 
       this.setStore({ pairs: ps1 })
@@ -1039,6 +1054,8 @@ class Store {
               isWhitelisted
             }
           } catch(ex) {
+            console.log("EXCEPTION 3")
+            console.log(asset)
             console.log(ex)
             return {
               balanceOf: '0'
