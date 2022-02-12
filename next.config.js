@@ -9,4 +9,5 @@ module.exports = {
 
     return config
   },
+  trailingSlash: true,
 }
