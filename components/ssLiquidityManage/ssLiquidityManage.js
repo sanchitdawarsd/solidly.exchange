@@ -215,16 +215,27 @@ export default function ssLiquidityManage() {
     router.push('/liquidity')
   }
 
-  const callQuoteAddLiquidity = (amountA, amountB, pa, sta, pp) => {
+  const callQuoteAddLiquidity = (amountA, amountB, pa, sta, pp, assetA, assetB) => {
     if(!pp) {
       return null
+    }
+
+    let invert = false
+
+    //TODO: Add check that asset0.address === pp.token0, otherwise we need to invert the calcs
+    if(assetB.address.toLowerCase() == pp.token0.address.toLowerCase() && assetA.address.toLowerCase() == pp.token1.address.toLowerCase()) {
+      invert = true
     }
 
     if(pa == 0) {
       if(amountA == '') {
         setAmount1('')
       } else {
-        amountB = BigNumber(amountA).times(pp.reserve1).div(pp.reserve0).toFixed(pp.token1.decimals>6?6:pp.token1.decimals)
+        if(invert) {
+          amountB = BigNumber(amountA).times(pp.reserve0).div(pp.reserve1).toFixed(pp.token0.decimals>6?6:pp.token0.decimals)
+        } else {
+          amountB = BigNumber(amountA).times(pp.reserve1).div(pp.reserve0).toFixed(pp.token1.decimals>6?6:pp.token1.decimals)
+        }
         setAmount1(amountB)
       }
     }
@@ -232,7 +243,11 @@ export default function ssLiquidityManage() {
       if(amountB == '') {
         setAmount0('')
       } else {
-        amountA = BigNumber(amountB).times(pp.reserve0).div(pp.reserve1).toFixed(pp.token0.decimals>6?6:pp.token0.decimals)
+        if(invert) {
+          amountA = BigNumber(amountB).times(pp.reserve1).div(pp.reserve0).toFixed(pp.token1.decimals>6?6:pp.token1.decimals)
+        } else {
+          amountA = BigNumber(amountB).times(pp.reserve0).div(pp.reserve1).toFixed(pp.token0.decimals>6?6:pp.token0.decimals)
+        }
         setAmount0(amountA)
       }
     }
@@ -651,23 +666,23 @@ export default function ssLiquidityManage() {
   const amount0Changed = (event) => {
     setAmount0Error(false)
     setAmount0(event.target.value)
-    callQuoteAddLiquidity(event.target.value, amount1, priorityAsset, stable, pair)
+    callQuoteAddLiquidity(event.target.value, amount1, priorityAsset, stable, pair, asset0, asset1)
   }
 
   const amount1Changed = (event) => {
     setAmount1Error(false)
     setAmount1(event.target.value)
-    callQuoteAddLiquidity(amount0, event.target.value, priorityAsset, stable, pair)
+    callQuoteAddLiquidity(amount0, event.target.value, priorityAsset, stable, pair, asset0, asset1)
   }
 
   const amount0Focused = (event) => {
     setPriorityAsset(0)
-    callQuoteAddLiquidity(amount0, amount1, 0, stable, pair)
+    callQuoteAddLiquidity(amount0, amount1, 0, stable, pair, asset0, asset1)
   }
 
   const amount1Focused = (event) => {
     setPriorityAsset(1)
-    callQuoteAddLiquidity(amount0, amount1, 1, stable, pair)
+    callQuoteAddLiquidity(amount0, amount1, 1, stable, pair, asset0, asset1)
   }
 
   const onAssetSelect = async (type, value) => {
@@ -675,12 +690,12 @@ export default function ssLiquidityManage() {
       setAsset0(value)
       const p = await stores.stableSwapStore.getPair(value.address, asset1.address, stable)
       setPair(p)
-      callQuoteAddLiquidity(amount0, amount1, priorityAsset, stable, p)
+      callQuoteAddLiquidity(amount0, amount1, priorityAsset, stable, p, value, asset1)
     } else if (type === 'amount1') {
       setAsset1(value)
       const p = await stores.stableSwapStore.getPair(asset0.address, value.address, stable)
       setPair(p)
-      callQuoteAddLiquidity(amount0, amount1, priorityAsset, stable, p)
+      callQuoteAddLiquidity(amount0, amount1, priorityAsset, stable, p, asset0, value)
     } else if (type === 'withdraw') {
       setWithdrawAsset(value)
       const p = await stores.stableSwapStore.getPair(value.token0.address, value.token1.address, value.isStable)
@@ -693,7 +708,7 @@ export default function ssLiquidityManage() {
     setStable(val)
     const p = await stores.stableSwapStore.getPair(asset0.address, asset1.address, val)
     setPair(p)
-    callQuoteAddLiquidity(amount0, amount1, priorityAsset, val, p)
+    callQuoteAddLiquidity(amount0, amount1, priorityAsset, val, p, asset0, asset1)
   }
 
   const withdrawAmountChanged = (event) => {
