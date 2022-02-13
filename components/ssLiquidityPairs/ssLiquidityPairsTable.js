@@ -347,6 +347,9 @@ const useStyles = makeStyles((theme) => ({
     fontSize: '16px',
     marginLeft: '10px',
   },
+  symbol: {
+    minWidth: '40px'
+  }
 }));
 
 const EnhancedTableToolbar = (props) => {
@@ -669,7 +672,7 @@ export default function EnhancedTable({ pairs }) {
                           <Typography variant='h2' className={classes.textSpaced}>
                             { formatCurrency(row.token0.balance) }
                           </Typography>
-                          <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                          <Typography variant='h5' className={`${classes.textSpaced} ${classes.symbol}`} color='textSecondary'>
                             {row.token0.symbol}
                           </Typography>
                         </div>
@@ -684,7 +687,7 @@ export default function EnhancedTable({ pairs }) {
                           <Typography variant='h2' className={classes.textSpaced}>
                             {formatCurrency(row.token1.balance)}
                           </Typography>
-                          <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                          <Typography variant='h5' className={`${classes.textSpaced} ${classes.symbol}`} color='textSecondary'>
                             {row.token1.symbol}
                           </Typography>
                         </div>
@@ -702,7 +705,7 @@ export default function EnhancedTable({ pairs }) {
                             <Typography variant='h2' className={classes.textSpaced}>
                               {formatCurrency(BigNumber(row.balance).div(row.totalSupply).times(row.reserve0))}
                             </Typography>
-                            <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                            <Typography variant='h5' className={`${classes.textSpaced} ${classes.symbol}`} color='textSecondary'>
                               {row.token0.symbol}
                             </Typography>
                           </div>
@@ -710,7 +713,7 @@ export default function EnhancedTable({ pairs }) {
                             <Typography variant='h5' className={classes.textSpaced}>
                               {formatCurrency(BigNumber(row.balance).div(row.totalSupply).times(row.reserve1))}
                             </Typography>
-                            <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                            <Typography variant='h5' className={`${classes.textSpaced} ${classes.symbol}`} color='textSecondary'>
                               {row.token1.symbol}
                             </Typography>
                           </div>
@@ -729,17 +732,17 @@ export default function EnhancedTable({ pairs }) {
                             <>
                               <div className={ classes.inlineEnd }>
                                 <Typography variant='h2' className={classes.textSpaced}>
-                                  {formatCurrency(BigNumber(row.gauge.balance).div(row.gauge.totalSupply).times(row.reserve0))}
+                                  {formatCurrency(BigNumber(row.gauge.balance).div(row.gauge.totalSupply).times(row.gauge.reserve0))}
                                 </Typography>
-                                <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                                <Typography variant='h5' className={`${classes.textSpaced} ${classes.symbol}`} color='textSecondary'>
                                   {row.token0.symbol}
                                 </Typography>
                               </div>
                               <div className={ classes.inlineEnd }>
                                 <Typography variant='h5' className={classes.textSpaced}>
-                                  {formatCurrency(BigNumber(row.gauge.balance).div(row.gauge.totalSupply).times(row.reserve1))}
+                                  {formatCurrency(BigNumber(row.gauge.balance).div(row.gauge.totalSupply).times(row.gauge.reserve1))}
                                 </Typography>
-                                <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                                <Typography variant='h5' className={`${classes.textSpaced} ${classes.symbol}`} color='textSecondary'>
                                   {row.token1.symbol}
                                 </Typography>
                               </div>
@@ -766,7 +769,7 @@ export default function EnhancedTable({ pairs }) {
                           <Typography variant='h2' className={classes.textSpaced}>
                             {formatCurrency(row.reserve0)}
                           </Typography>
-                          <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                          <Typography variant='h5' className={`${classes.textSpaced} ${classes.symbol}`} color='textSecondary'>
                             { row.token0.symbol }
                           </Typography>
                         </div>
@@ -781,7 +784,7 @@ export default function EnhancedTable({ pairs }) {
                           <Typography variant='h2' className={classes.textSpaced}>
                             {formatCurrency(row.reserve1)}
                           </Typography>
-                          <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                          <Typography variant='h5' className={`${classes.textSpaced} ${classes.symbol}`} color='textSecondary'>
                             { row.token1.symbol }
                           </Typography>
                         </div>
@@ -800,7 +803,7 @@ export default function EnhancedTable({ pairs }) {
                               <Typography variant='h2' className={classes.textSpaced}>
                                 {formatCurrency(row.gauge.reserve0)}
                               </Typography>
-                              <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                              <Typography variant='h5' className={`${classes.textSpaced} ${classes.symbol}`} color='textSecondary'>
                                 { row.token0.symbol }
                               </Typography>
                             </div>
@@ -815,7 +818,7 @@ export default function EnhancedTable({ pairs }) {
                               <Typography variant='h2' className={classes.textSpaced}>
                                 {formatCurrency(row.gauge.reserve1)}
                               </Typography>
-                              <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                              <Typography variant='h5' className={`${classes.textSpaced} ${classes.symbol}`} color='textSecondary'>
                                 { row.token1.symbol }
                               </Typography>
                             </div>
