@@ -120,9 +120,9 @@
 }
 
 .searchBar {
-  display: grid;
+  /* display: grid;
   grid-gap: 24px;
-  grid-template-columns: 1fr 530px;
+  grid-template-columns: 1fr 530px; */
   width: 100%;
 }
 

@@ -171,4 +171,8 @@
   .overviewIcon {
     font-size: 80px !important;
   }
+
+  .ffContainer {
+    padding-top: 50px;
+  }
 }

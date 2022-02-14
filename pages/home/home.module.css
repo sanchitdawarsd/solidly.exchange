@@ -213,6 +213,29 @@
     float: right;
   }
 
+  .mainTitle {
+    font-size: 32px !important;
+    margin-bottom: 25px !important;
+  }
+
+  .secTitle {
+    font-size: 20px !important;
+  }
+
+  .mainDescription {
+    font-size: 14px !important;
+    margin-bottom: 20px !important;
+    line-height: 1.4rem !important;
+    color: rgba(255,255,255,0.7) !important;
+  }
+
+  .secDescription {
+    font-size: 13px !important;
+    margin-bottom: 20px !important;
+    line-height: 1.2rem !important;
+    color: #7E99B0 !important;
+  }
+
   .mainHeading {
     margin: 0px 0 0px 0 !important;
     text-align: left !important;

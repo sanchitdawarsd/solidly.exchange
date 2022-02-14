@@ -197,6 +197,8 @@ export default function ssWhitelist() {
   return (
     <div className={ classes.container}>
       <div className={ classes.searchBar }>
+      <Grid container spacing={2}>
+        <Grid item lg={7} md={7} sm={12} xs={12}>
         <TextField
           className={classes.searchContainer}
           variant="outlined"
@@ -212,7 +214,12 @@ export default function ssWhitelist() {
             ),
           }}
         />
-        { renderMediumInput(nft, nfts) }
+        </Grid>
+        <Grid item lg={5} md={5} sm={12} xs={12}>
+          { renderMediumInput(nft, nfts) }
+        </Grid>
+      </Grid>
+
       </div>
       <div className={ classes.results }>
         { loading && <CircularProgress />}

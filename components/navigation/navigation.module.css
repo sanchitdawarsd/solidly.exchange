@@ -455,3 +455,49 @@ a.linkz { cursor: pointer !important; }
     padding: 0 !important;
   }
 }
+
+@media screen and (max-width: 560px) {
+  .navToggles {
+    min-height: 30px;
+  }
+
+  .navButton {
+    border-radius: 10px !important;
+    padding: 8px 10px 8px 10px !important;
+    text-transform: capitalize !important;
+    border: 1px solid rgba(0,0,0,0) !important;
+    color: #7E99B0 !important;
+  }
+
+  .subtitleText {
+    padding-left: 0px;
+    font-size: 12px !important;
+    margin: 0 !important;
+    text-align: center !important;
+  }
+
+  .appLogo {
+    transform: scale(5);
+    position: fixed;
+    left: 70px;
+    top: 18px;
+    cursor: pointer;
+  }
+
+  .testChange {
+    border: 1px solid #06d3d7 !important;
+    background-color: rgba(0,0,0,0) !important;
+    color: #FFF !important;
+  }
+
+  .navigationContent {
+    background: #111729;
+    position: fixed;
+    left: 0;
+    top: 45px;
+    width: 100%;
+    text-align: center;
+    padding: 15px 0;
+    border-bottom: 1px solid rgba(126,153,176,0.2);
+  }
+}
