@@ -38,13 +38,86 @@ function descendingComparator(a, b, orderBy) {
     return 0;
   }
 
-  if (b[orderBy] < a[orderBy]) {
-    return -1;
+  switch (orderBy) {
+    case 'balance':
+
+      let balanceA = BigNumber(a?.token0?.balance).plus(a?.token1?.balance).toNumber()
+      let balanceB = BigNumber(b?.token0?.balance).plus(b?.token1?.balance).toNumber()
+
+      if (balanceB < balanceA) {
+        return -1;
+      }
+      if (balanceB > balanceA) {
+        return 1;
+      }
+      return 0;
+
+    case 'poolBalance':
+
+      if (b?.balance < a?.balance) {
+        return -1;
+      }
+      if (b?.balance > a?.balance) {
+        return 1;
+      }
+      return 0;
+
+    case 'stakedBalance':
+
+      if(!(a && a.gauge)) {
+        return 1
+      }
+
+      if(!(b && b.gauge)) {
+        return -1
+      }
+
+      if (b?.gauge?.balance < a?.gauge?.balance) {
+        return -1;
+      }
+      if (b?.gauge?.balance > a?.gauge?.balance) {
+        return 1;
+      }
+      return 0;
+
+    case 'poolAmount':
+
+      let reserveA = BigNumber(a?.reserve0).plus(a?.reserve1).toNumber()
+      let reserveB = BigNumber(b?.reserve0).plus(b?.reserve1).toNumber()
+
+      if (reserveB < reserveA) {
+        return -1;
+      }
+      if (reserveB > reserveA) {
+        return 1;
+      }
+      return 0;
+
+    case 'stakedAmount':
+
+      if(!(a && a.gauge)) {
+        return 1
+      }
+
+      if(!(b && b.gauge)) {
+        return -1
+      }
+
+      let reserveAA = BigNumber(a?.gauge?.reserve0).plus(a?.gauge?.reserve1).toNumber()
+      let reserveBB = BigNumber(b?.gauge?.reserve0).plus(b?.gauge?.reserve1).toNumber()
+
+      if (reserveBB < reserveAA) {
+        return -1;
+      }
+      if (reserveBB > reserveAA) {
+        return 1;
+      }
+      return 0;
+
+    default:
+      return 0
+
   }
-  if (b[orderBy] > a[orderBy]) {
-    return 1;
-  }
-  return 0;
 }
 
 function getComparator(order, orderBy) {
@@ -82,13 +155,13 @@ const headCells = [
     label: 'My Staked Amount',
   },
   {
-    id: 'reserve0',
+    id: 'poolAmount',
     numeric: true,
     disablePadding: false,
     label: 'Total Pool Amount',
   },
   {
-    id: 'reserve1',
+    id: 'stakedAmount',
     numeric: true,
     disablePadding: false,
     label: 'Total Pool Staked',
