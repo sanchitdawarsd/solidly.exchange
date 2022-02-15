@@ -450,15 +450,37 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const getLocalToggles = () => {
+  let localToggles = {
+    toggleActive: true,
+    toggleActiveGauge: true,
+    toggleVariable: true,
+    toggleStable: true
+  }
+  // get locally saved toggles
+  try {
+    const localToggleString = localStorage.getItem('solidly-pairsToggle-v1')
+    if(localToggleString && localToggleString.length > 0) {
+      localToggles = JSON.parse(localToggleString)
+    }
+  } catch(ex) {
+    console.log(ex)
+  }
+
+  return localToggles
+}
+
 const EnhancedTableToolbar = (props) => {
   const classes = useStyles()
   const router = useRouter()
 
-  const [search, setSearch] = useState('');
-  const [toggleActive, setToggleActive] = useState(false);
-  const [toggleActiveGauge, setToggleActiveGauge] = useState(true);
-  const [toggleStable, setToggleStable] = useState(true);
-  const [toggleVariable, setToggleVariable] = useState(true);
+  const localToggles = getLocalToggles()
+
+  const [search, setSearch] = useState('')
+  const [toggleActive, setToggleActive] = useState(localToggles.toggleActive);
+  const [toggleActiveGauge, setToggleActiveGauge] = useState(localToggles.toggleActiveGauge);
+  const [toggleStable, setToggleStable] = useState(localToggles.toggleStable);
+  const [toggleVariable, setToggleVariable] = useState(localToggles.toggleVariable);
 
   const onSearchChanged = (event) => {
     setSearch(event.target.value);
@@ -466,25 +488,39 @@ const EnhancedTableToolbar = (props) => {
   };
 
   const onToggle = (event) => {
+
+    const localToggles = getLocalToggles()
+
     switch (event.target.name) {
       case 'toggleActive':
         setToggleActive(event.target.checked)
         props.setToggleActive(event.target.checked)
+        localToggles.toggleActive = event.target.checked
         break;
       case 'toggleActiveGauge':
         setToggleActiveGauge(event.target.checked)
         props.setToggleActiveGauge(event.target.checked)
+        localToggles.toggleActiveGauge = event.target.checked
         break;
       case 'toggleStable':
         setToggleStable(event.target.checked)
         props.setToggleStable(event.target.checked)
+        localToggles.toggleStable = event.target.checked
         break;
       case 'toggleVariable':
         setToggleVariable(event.target.checked)
         props.setToggleVariable(event.target.checked)
+        localToggles.toggleVariable = event.target.checked
         break;
       default:
 
+    }
+
+    // set locally saved toggles
+    try {
+      localStorage.setItem('solidly-pairsToggle-v1', JSON.stringify(localToggles))
+    } catch(ex) {
+      console.log(ex)
     }
   }
 
@@ -625,11 +661,13 @@ export default function EnhancedTable({ pairs }) {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [page, setPage] = useState(0);
 
+  const localToggles = getLocalToggles()
+
   const [search, setSearch] = useState('')
-  const [toggleActive, setToggleActive] = useState(false);
-  const [toggleActiveGauge, setToggleActiveGauge] = useState(true);
-  const [toggleStable, setToggleStable] = useState(true);
-  const [toggleVariable, setToggleVariable] = useState(true);
+  const [toggleActive, setToggleActive] = useState(localToggles.toggleActive);
+  const [toggleActiveGauge, setToggleActiveGauge] = useState(localToggles.toggleActiveGauge);
+  const [toggleStable, setToggleStable] = useState(localToggles.toggleStable);
+  const [toggleVariable, setToggleVariable] = useState(localToggles.toggleVariable);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
