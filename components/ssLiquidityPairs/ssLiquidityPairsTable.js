@@ -621,7 +621,7 @@ export default function EnhancedTable({ pairs }) {
   const router = useRouter();
 
   const [order, setOrder] = useState('desc');
-  const [orderBy, setOrderBy] = useState('balance');
+  const [orderBy, setOrderBy] = useState('stakedBalance');
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [page, setPage] = useState(0);
 
@@ -693,7 +693,7 @@ export default function EnhancedTable({ pairs }) {
     if(toggleVariable !== true && pair.isStable === false) {
       return false
     }
-    if(toggleActiveGauge !== true && (!pair.gauge || !pair.gauge.address)) {
+    if(toggleActiveGauge === true && (!pair.gauge || !pair.gauge.address)) {
       return false
     }
     if(toggleActive === true) {

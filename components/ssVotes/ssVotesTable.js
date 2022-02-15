@@ -353,7 +353,7 @@ export default function EnhancedTable({ gauges, setParentSliderValues, defaultVo
   const classes = useStyles();
 
   const [order, setOrder] = useState('desc');
-  const [orderBy, setOrderBy] = useState('balance');
+  const [orderBy, setOrderBy] = useState('totalVotes');
   const [sliderValues, setSliderValues] = useState(defaultVotes)
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [page, setPage] = useState(0);
