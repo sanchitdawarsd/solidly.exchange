@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/router'
 import { Paper, Grid, Typography, Button, TextField, InputAdornment, CircularProgress, Tooltip, IconButton, FormControlLabel, Switch, Select, MenuItem, Dialog  } from '@material-ui/core'
 import BigNumber from 'bignumber.js'
@@ -19,6 +19,8 @@ import {
 export default function ssLiquidityManage() {
 
   const router = useRouter();
+  const amount0Ref = useRef(null);
+  const amount1Ref = useRef(null);
 
   const [ pair, setPair ] = useState(null);
   const [ veToken, setVeToken ] = useState(null)
@@ -295,14 +297,17 @@ export default function ssLiquidityManage() {
     setAmount0Error(false)
     setAmount1Error(false)
 
-
     if(input === 'amount0') {
       let am = BigNumber(asset0.balance).times(percent).div(100).toFixed(asset0.decimals)
       setAmount0(am);
+      amount0Ref.current.focus();
+      callQuoteAddLiquidity(am, amount1, 0, stable, pair, asset0, asset1)
 
     } else if (input === 'amount1') {
       let am = BigNumber(asset1.balance).times(percent).div(100).toFixed(asset1.decimals)
       setAmount1(am);
+      amount1Ref.current.focus();
+      callQuoteAddLiquidity(amount0, am, 1, stable, pair, asset0, asset1)
 
     } else if (input === 'withdraw') {
       let am = ''
@@ -779,7 +784,7 @@ export default function ssLiquidityManage() {
     )
   }
 
-  const renderMassiveInput = (type, amountValue, amountError, amountChanged, assetValue, assetError, assetOptions, onAssetSelect, onFocus) => {
+  const renderMassiveInput = (type, amountValue, amountError, amountChanged, assetValue, assetError, assetOptions, onAssetSelect, onFocus, inputRef) => {
     return (
       <div className={ classes.textField}>
         <div className={ classes.inputTitleContainer }>
@@ -818,6 +823,7 @@ export default function ssLiquidityManage() {
           </div>
           <div className={ classes.massiveInputAmount }>
             <TextField
+              inputRef={inputRef}
               placeholder='0.00'
               fullWidth
               error={ amountError }
@@ -878,7 +884,7 @@ export default function ssLiquidityManage() {
               <Typography className={ classes.text } >{ `Pooled ${pair?.symbol}` }</Typography>
             </div>
             <div className={ classes.priceInfo }>
-              <Typography className={ classes.title } >{ formatCurrency(pair?.gauge?.reserve1) }</Typography>
+              <Typography className={ classes.title } >{ formatCurrency(pair?.gauge?.balance) }</Typography>
               <Typography className={ classes.text } >{ `Staked ${pair?.symbol} ` }</Typography>
             </div>
           </div>
@@ -1034,13 +1040,13 @@ export default function ssLiquidityManage() {
             {
               activeTab === 'deposit' &&
               <>
-                { renderMassiveInput('amount0', amount0, amount0Error, amount0Changed, asset0, null, assetOptions, onAssetSelect, amount0Focused) }
+                { renderMassiveInput('amount0', amount0, amount0Error, amount0Changed, asset0, null, assetOptions, onAssetSelect, amount0Focused, amount0Ref) }
                 <div className={ classes.swapIconContainer }>
                   <div className={ classes.swapIconSubContainer }>
                     <AddIcon className={ classes.swapIcon } />
                   </div>
                 </div>
-                { renderMassiveInput('amount1', amount1, amount1Error, amount1Changed, asset1, null, assetOptions, onAssetSelect, amount1Focused) }
+                { renderMassiveInput('amount1', amount1, amount1Error, amount1Changed, asset1, null, assetOptions, onAssetSelect, amount1Focused, amount1Ref) }
                 { renderMediumInputToggle('stable', stable) }
                 { renderTokenSelect() }
                 { renderDepositInformation() }
@@ -1049,7 +1055,7 @@ export default function ssLiquidityManage() {
             {
               activeTab === 'withdraw' &&
               <>
-                { renderMassiveInput('withdraw', withdrawAmount, withdrawAmountError, withdrawAmountChanged, withdrawAsset, null, withdrawAassetOptions, onAssetSelect, null) }
+                { renderMassiveInput('withdraw', withdrawAmount, withdrawAmountError, withdrawAmountChanged, withdrawAsset, null, withdrawAassetOptions, onAssetSelect, null, null) }
                 <div className={ classes.swapIconContainer }>
                   <div className={ classes.swapIconSubContainer }>
                     <ArrowDownwardIcon className={ classes.swapIcon } />
