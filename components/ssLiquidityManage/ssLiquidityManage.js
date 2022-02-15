@@ -13,7 +13,8 @@ import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline'
 
 import stores from '../../stores'
 import {
-  ACTIONS
+  ACTIONS,
+  CONTRACTS
 } from '../../stores/constants';
 
 export default function ssLiquidityManage() {
@@ -225,7 +226,19 @@ export default function ssLiquidityManage() {
     let invert = false
 
     //TODO: Add check that asset0.address === pp.token0, otherwise we need to invert the calcs
-    if(assetB.address.toLowerCase() == pp.token0.address.toLowerCase() && assetA.address.toLowerCase() == pp.token1.address.toLowerCase()) {
+
+    let addy0 = assetA.address
+    let addy1 = assetB.address
+
+    if(assetA.address === 'FTM') {
+      addy0 = CONTRACTS.WFTM_ADDRESS
+    }
+    if(assetB.address === 'FTM') {
+      addy1 = CONTRACTS.WFTM_ADDRESS
+    }
+
+
+    if(addy1.toLowerCase() == pp.token0.address.toLowerCase() && addy0.toLowerCase() == pp.token1.address.toLowerCase()) {
       invert = true
     }
 
