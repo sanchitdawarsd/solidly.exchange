@@ -15,3 +15,10 @@
     margin-bottom: 60px;
   }
 }
+
+@media screen and (max-width: 560px) {
+  .container {
+    padding-top: 140px;
+    margin-bottom: 60px;
+  }
+}

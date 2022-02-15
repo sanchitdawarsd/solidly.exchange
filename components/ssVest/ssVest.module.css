@@ -524,3 +524,7 @@
     width: calc(100% - 60px);
   }
 }
+
+@media screen and (max-width: 560px) {
+
+}
