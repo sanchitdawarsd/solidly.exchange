@@ -52,7 +52,7 @@
 
 .version {
   position: absolute;
-  top: 3px;
+  top: 12px;
   left: 10px;
   color: #fff !important;
   font-size: 10px !important;
@@ -345,5 +345,14 @@
 
   .userMenuText {
     transform: scale(1);
+  }
+}
+
+@media screen and (max-width: 560px) {
+  .accountButton {
+    min-height: 40px;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    top: 10px !important;
   }
 }

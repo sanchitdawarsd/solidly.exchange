@@ -22,7 +22,7 @@ import {
   Popper,
   Fade,
   Grid,
-  Switch,
+  Switch
 } from '@material-ui/core';
 import { useRouter } from "next/router";
 import BigNumber from 'bignumber.js';
@@ -173,7 +173,10 @@ const useStyles = makeStyles((theme) => ({
   inlineEnd: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'flex-end'
+    justifyContent: 'flex-end',
+    '@media (max-width: 1000px)': {
+        display: 'block',
+      },
   },
   icon: {
     marginRight: '12px',
@@ -263,6 +266,7 @@ const useStyles = makeStyles((theme) => ({
     top: '0px',
     border: '3px solid rgb(25, 33, 56)',
     borderRadius: '30px',
+    background: 'rgb(25, 33, 56)',
   },
   img2Logo: {
     position: 'absolute',
@@ -271,9 +275,13 @@ const useStyles = makeStyles((theme) => ({
     top: '0px',
     border: '3px solid rgb(25, 33, 56)',
     borderRadius: '30px',
+    background: 'rgb(25, 33, 56)',
   },
   overrideTableHead: {
     borderBottom: '1px solid rgba(126,153,176,0.15) !important',
+    '@media (max-width: 1000px)': {
+        display: 'none',
+      },
   },
   doubleImages: {
     display: 'flex',
@@ -349,7 +357,24 @@ const useStyles = makeStyles((theme) => ({
   },
   symbol: {
     minWidth: '40px'
-  }
+  },
+  hiddenMobile: {
+    '@media (max-width: 1000px)': {
+        display: 'none',
+      },
+  },
+  hiddenSmallMobile: {
+    '@media (max-width: 600px)': {
+        display: 'none',
+      },
+  },
+  labelAdd: {
+    display: 'none',
+    fontSize: '12px',
+    '@media (max-width: 1000px)': {
+        display: 'block',
+      },
+  },
 }));
 
 const EnhancedTableToolbar = (props) => {
@@ -357,7 +382,7 @@ const EnhancedTableToolbar = (props) => {
   const router = useRouter()
 
   const [search, setSearch] = useState('');
-  const [toggleActive, setToggleActive] = useState(true);
+  const [toggleActive, setToggleActive] = useState(false);
   const [toggleActiveGauge, setToggleActiveGauge] = useState(true);
   const [toggleStable, setToggleStable] = useState(true);
   const [toggleVariable, setToggleVariable] = useState(true);
@@ -437,7 +462,7 @@ const EnhancedTableToolbar = (props) => {
           }}
         />
       </Grid>
-      <Grid item lg={1} md={true} sm={true} xs={true}>
+      <Grid item lg={1} md={true} sm={2} xs={2}>
         <Tooltip placement="top" title="Filter list">
           <IconButton onClick={handleClick} className={ classes.filterButton } aria-label="filter list">
             <FilterListIcon />
@@ -528,7 +553,7 @@ export default function EnhancedTable({ pairs }) {
   const [page, setPage] = useState(0);
 
   const [search, setSearch] = useState('')
-  const [toggleActive, setToggleActive] = useState(true);
+  const [toggleActive, setToggleActive] = useState(false);
   const [toggleActiveGauge, setToggleActiveGauge] = useState(true);
   const [toggleStable, setToggleStable] = useState(true);
   const [toggleVariable, setToggleVariable] = useState(true);
@@ -666,7 +691,7 @@ export default function EnhancedTable({ pairs }) {
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className={classes.cell} align='right'>
+                    <TableCell className={classes.cell, classes.hiddenMobile} align='right'>
                       { (row && row.token0 && row.token0.balance) &&
                         <div className={ classes.inlineEnd }>
                           <Typography variant='h2' className={classes.textSpaced}>
@@ -698,7 +723,7 @@ export default function EnhancedTable({ pairs }) {
                         </div>
                       }
                     </TableCell>
-                    <TableCell className={classes.cell} align='right'>
+                    <TableCell className={classes.cell, classes.hiddenMobile} align='right'>
                       { (row && row.balance && row.totalSupply) &&
                         <>
                           <div className={ classes.inlineEnd }>
@@ -727,7 +752,7 @@ export default function EnhancedTable({ pairs }) {
                     </TableCell>
                     {
                       (row && row.gauge && row.gauge.address) &&
-                        <TableCell className={classes.cell} align='right'>
+                        <TableCell className={classes.cell, classes.hiddenMobile} align='right'>
                           { (row && row.gauge && row.gauge.balance && row.gauge.totalSupply) &&
                             <>
                               <div className={ classes.inlineEnd }>
@@ -757,15 +782,18 @@ export default function EnhancedTable({ pairs }) {
                     }
                     {
                       !(row && row.gauge && row.gauge.address) &&
-                        <TableCell className={classes.cell} align='right'>
+                        <TableCell className={classes.cell, classes.hiddenMobile} align='right'>
                           <Typography variant='h2' className={classes.textSpaced}>
                             Gauge not available
                           </Typography>
                         </TableCell>
                     }
-                    <TableCell className={classes.cell} align='right'>
+                    <TableCell className={classes.cell, classes.hiddenSmallMobile} align='right'>
                       { (row && row.reserve0 && row.token0) &&
                         <div className={ classes.inlineEnd }>
+                        <Typography variant='h2' className={classes.labelAdd}>
+                          Total Pool Amount:
+                        </Typography>
                           <Typography variant='h2' className={classes.textSpaced}>
                             {formatCurrency(row.reserve0)}
                           </Typography>
@@ -797,7 +825,7 @@ export default function EnhancedTable({ pairs }) {
                     </TableCell>
                     {
                       (row && row.gauge && row.gauge.address) &&
-                        <TableCell className={classes.cell} align='right'>
+                        <TableCell className={classes.cell, classes.hiddenMobile} align='right'>
                           { (row && row.gauge && row.gauge.reserve0 && row.token0) &&
                             <div className={ classes.inlineEnd }>
                               <Typography variant='h2' className={classes.textSpaced}>
@@ -832,7 +860,7 @@ export default function EnhancedTable({ pairs }) {
                     }
                     {
                       !(row && row.gauge && row.gauge.address) &&
-                        <TableCell className={classes.cell} align='right'>
+                        <TableCell className={classes.cell, classes.hiddenMobile} align='right'>
                           <Typography variant='h2' className={classes.textSpaced}>
                             Gauge not available
                           </Typography>
