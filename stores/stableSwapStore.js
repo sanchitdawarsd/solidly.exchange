@@ -26,7 +26,10 @@ class Store {
       veToken: null,
       pairs: [],
       vestNFTs: [],
-      rewards: [],
+      rewards: {
+        bribes: [],
+        fees: []
+      },
     }
 
     dispatcher.register(
@@ -126,8 +129,11 @@ class Store {
           case ACTIONS.CLAIM_REWARD:
             this.claimBribes(payload)
             break
+          case ACTIONS.CLAIM_PAIR_FEES:
+            this.claimPairFees(payload)
+            break
           case ACTIONS.CLAIM_ALL_REWARDS:
-            this.claimAllBribes(payload)
+            this.claimAllRewards(payload)
             break;
 
           //WHITELIST
@@ -336,7 +342,7 @@ class Store {
         gaugesContract.methods.totalWeight().call()
       ])
 
-      const [ token0, token1, totalSupply, symbol, reserve0, reserve1, decimals, balanceOf, stable, gaugeAddress, gaugeWeight ] = await Promise.all([
+      const [ token0, token1, totalSupply, symbol, reserve0, reserve1, decimals, balanceOf, stable, gaugeAddress, gaugeWeight, claimable0, claimable1 ] = await Promise.all([
         pairContract.methods.token0().call(),
         pairContract.methods.token1().call(),
         pairContract.methods.totalSupply().call(),
@@ -347,7 +353,9 @@ class Store {
         pairContract.methods.balanceOf(account.address).call(),
         pairContract.methods.stable().call(),
         gaugesContract.methods.gauges(pairAddress).call(),
-        gaugesContract.methods.weights(pairAddress).call()
+        gaugesContract.methods.weights(pairAddress).call(),
+        pairContract.methods.claimable0(account.address).call(),
+        pairContract.methods.claimable1(account.address).call()
       ])
 
       const token0Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, token0)
@@ -383,6 +391,8 @@ class Store {
         totalSupply: BigNumber(totalSupply).div(10**decimals).toFixed(parseInt(decimals)),
         reserve0: BigNumber(reserve0).div(10**token0Decimals).toFixed(parseInt(token0Decimals)),
         reserve1: BigNumber(reserve1).div(10**token1Decimals).toFixed(parseInt(token1Decimals)),
+        claimable0: BigNumber(claimable0).div(10**token0Decimals).toFixed(parseInt(token0Decimals)),
+        claimable1: BigNumber(claimable1).div(10**token1Decimals).toFixed(parseInt(token1Decimals))
       }
 
       if(gaugeAddress !== ZERO_ADDRESS) {
@@ -494,7 +504,7 @@ class Store {
         gaugesContract.methods.totalWeight().call()
       ])
 
-      const [ token0, token1, totalSupply, symbol, reserve0, reserve1, decimals, balanceOf, stable, gaugeAddress, gaugeWeight ] = await Promise.all([
+      const [ token0, token1, totalSupply, symbol, reserve0, reserve1, decimals, balanceOf, stable, gaugeAddress, gaugeWeight, claimable0, claimable1 ] = await Promise.all([
         pairContract.methods.token0().call(),
         pairContract.methods.token1().call(),
         pairContract.methods.totalSupply().call(),
@@ -505,7 +515,9 @@ class Store {
         pairContract.methods.balanceOf(account.address).call(),
         pairContract.methods.stable().call(),
         gaugesContract.methods.gauges(pairAddress).call(),
-        gaugesContract.methods.weights(pairAddress).call()
+        gaugesContract.methods.weights(pairAddress).call(),
+        pairContract.methods.claimable0(account.address).call(),
+        pairContract.methods.claimable1(account.address).call()
       ])
 
       const token0Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, token0)
@@ -541,6 +553,8 @@ class Store {
         totalSupply: BigNumber(totalSupply).div(10**decimals).toFixed(parseInt(decimals)),
         reserve0: BigNumber(reserve0).div(10**token0Decimals).toFixed(parseInt(token0Decimals)),
         reserve1: BigNumber(reserve1).div(10**token1Decimals).toFixed(parseInt(token1Decimals)),
+        claimable0: BigNumber(claimable0).div(10**token0Decimals).toFixed(parseInt(token0Decimals)),
+        claimable1: BigNumber(claimable1).div(10**token1Decimals).toFixed(parseInt(token1Decimals))
       }
 
       if(gaugeAddress !== ZERO_ADDRESS) {
@@ -931,25 +945,17 @@ class Store {
           const token0Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, pair.token0.address)
           const token1Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, pair.token1.address)
 
-          const [ totalSupply, reserves, balanceOf, token0BalanceOf, token1BalanceOf, token0Whitelisted, token1Whitelisted ] = await Promise.all([
+          const [ totalSupply, reserves, balanceOf, token0BalanceOf, token1BalanceOf, token0Whitelisted, token1Whitelisted, claimable0, claimable1 ] = await Promise.all([
             pairContract.methods.totalSupply().call(),
             pairContract.methods.getReserves().call(),
             pairContract.methods.balanceOf(account.address).call(),
             token0Contract.methods.balanceOf(account.address).call(),
             token1Contract.methods.balanceOf(account.address).call(),
             gaugesContract.methods.isWhitelisted(pair.token0.address).call(),
-            gaugesContract.methods.isWhitelisted(pair.token1.address).call()
+            gaugesContract.methods.isWhitelisted(pair.token1.address).call(),
+            pairContract.methods.claimable0(account.address).call(),
+            pairContract.methods.claimable1(account.address).call()
           ])
-
-          // const [ totalSupply, reserves, balanceOf, token0BalanceOf, token1BalanceOf, token0Whitelisted, token1Whitelisted ] = await this._makeBatchRequest(web3, account.address, [
-          //   pairContract.methods.totalSupply().call,
-          //   pairContract.methods.getReserves().call,
-          //   pairContract.methods.balanceOf(account.address).call,
-          //   token0Contract.methods.balanceOf(account.address).call,
-          //   token1Contract.methods.balanceOf(account.address).call,
-          //   gaugesContract.methods.isWhitelisted(pair.token0.address).call,
-          //   gaugesContract.methods.isWhitelisted(pair.token1.address).call
-          // ])
 
           pair.balance = BigNumber(balanceOf).div(10**pair.decimals).toFixed(parseInt(pair.decimals))
           pair.totalSupply = BigNumber(totalSupply).div(10**pair.decimals).toFixed(parseInt(pair.decimals))
@@ -959,6 +965,8 @@ class Store {
           pair.token1.balance = BigNumber(token1BalanceOf).div(10**pair.token1.decimals).toFixed(parseInt(pair.token1.decimals))
           pair.token0.isWhitelisted = token0Whitelisted
           pair.token1.isWhitelisted = token1Whitelisted
+          pair.claimable0 = BigNumber(claimable0).div(10**pair.token0.decimals).toFixed(pair.token0.decimals)
+          pair.claimable1 = BigNumber(claimable1).div(10**pair.token1.decimals).toFixed(pair.token1.decimals)
 
           callback(null, pair)
         } catch (ex) {
@@ -985,12 +993,6 @@ class Store {
               gaugeContract.methods.balanceOf(account.address).call(),
               gaugesContract.methods.weights(pair.address).call()
             ])
-
-            // const [ totalSupply, gaugeBalance, gaugeWeight ] = await this._makeBatchRequest(web3, account.address, [
-            //   gaugeContract.methods.totalSupply().call,
-            //   gaugeContract.methods.balanceOf(account.address).call,
-            //   gaugesContract.methods.weights(pair.address).call
-            // ])
 
             const bribeContract = new web3.eth.Contract(CONTRACTS.BRIBE_ABI, pair.gauge.bribeAddress)
 
@@ -3731,9 +3733,25 @@ class Store {
 
       let filteredBribes = bribesEarned.filter((pair) => {
         return pair.gauge && pair.gauge.bribesEarned && pair.gauge.bribesEarned.length > 0
+      }).map((pair) => {
+        pair.rewardType = 'Bribe'
+        return pair
       })
 
-      this.setStore({ rewards: filteredBribes })
+
+      const filteredFees = pairs.filter((pair) => {
+        return (BigNumber(pair.claimable0).gt(0) || BigNumber(pair.claimable1).gt(0))
+      }).map((pair) => {
+        pair.rewardType = 'Fees'
+        return pair
+      })
+
+      this.setStore({
+        rewards: {
+          bribes: filteredBribes,
+          fees: filteredFees
+        }
+      })
 
       this.emitter.emit(ACTIONS.REWARD_BALANCES_RETURNED, filteredBribes)
     } catch(ex) {
@@ -3793,8 +3811,9 @@ class Store {
     }
   }
 
-  claimAllBribes = async (payload) => {
+  claimAllRewards = async (payload) => {
     try {
+      const context = this
       const account = stores.accountStore.getStore("account")
       if (!account) {
         console.warn('account not found')
@@ -3811,37 +3830,99 @@ class Store {
 
       // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
       let claimTXID = this.getTXUUID()
+      let feeClaimTXIDs = []
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `Claim rewards for ${pairs.length} GAUGES`, verb: 'Rewards Claimed', transactions: [
-        {
-          uuid: claimTXID,
-          description: `Claiming all your bribes`,
-          status: 'WAITING'
-        }
-      ]})
 
-      const gasPrice = await stores.accountStore.getGasPrice()
+      let bribePairs = pairs.filter((pair) => {
+        return pair.rewardType === 'Bribe'
+      })
 
-      // SUBMIT CLAIM TRANSACTION
-      const gaugesContract = new web3.eth.Contract(CONTRACTS.VOTER_ABI, CONTRACTS.VOTER_ADDRESS)
+      let feePairs = pairs.filter((pair) => {
+        return pair.rewardType === 'Fees'
+      })
 
-      const sendGauges = pairs.map((pair) => {
+      const sendGauges = bribePairs.map((pair) => {
         return pair.gauge.bribeAddress
       })
-      const sendTokens = pairs.map((pair) => {
+      const sendTokens = bribePairs.map((pair) => {
         return pair.gauge.bribesEarned.map((bribe) => {
           return bribe.token.address
         })
       })
 
-      this._callContractWait(web3, gaugesContract, 'claimBribes', [sendGauges, sendTokens, tokenID], account, gasPrice, null, null, claimTXID, async (err) => {
-        if (err) {
-          return this.emitter.emit(ACTIONS.ERROR, err)
-        }
-
-        this.getRewardBalances({ content: { tokenID } })
+      if(bribePairs.length == 0 && feePairs.length == 0) {
+        this.emitter.emit(ACTIONS.ERROR, 'Nothing to claim')
         this.emitter.emit(ACTIONS.CLAIM_ALL_REWARDS_RETURNED)
-      })
+        return
+      }
+
+      let sendOBJ = { title: `Claim all rewards`, verb: 'Rewards Claimed', transactions: [ ]}
+
+      if(bribePairs.length > 0) {
+        sendOBJ.transactions.push({
+          uuid: claimTXID,
+          description: `Claiming all your available bribes`,
+          status: 'WAITING'
+        })
+      }
+
+      if(feePairs.length > 0) {
+        for(let i = 0; i < feePairs.length; i++) {
+          const newClaimTX = this.getTXUUID()
+
+          feeClaimTXIDs.push(newClaimTX)
+          sendOBJ.transactions.push({
+            uuid: newClaimTX,
+            description: `Claiming fees for ${feePairs[i].symbol}`,
+            status: 'WAITING'
+          })
+        }
+      }
+
+      this.emitter.emit(ACTIONS.TX_ADDED, sendOBJ)
+
+      const gasPrice = await stores.accountStore.getGasPrice()
+
+      if(bribePairs.length > 0) {
+        // SUBMIT CLAIM TRANSACTION
+        const gaugesContract = new web3.eth.Contract(CONTRACTS.VOTER_ABI, CONTRACTS.VOTER_ADDRESS)
+
+        const claimPromise = new Promise((resolve, reject) => {
+          context._callContractWait(web3, gaugesContract, 'claimBribes', [sendGauges, sendTokens, tokenID], account, gasPrice, null, null, claimTXID, (err) => {
+            if (err) {
+              reject(err)
+              return
+            }
+
+            resolve()
+          })
+        })
+
+        await Promise.all([claimPromise])
+      }
+
+      if(feePairs.length > 0) {
+        for(let i = 0; i < feePairs.length; i++) {
+          const pairContract = new web3.eth.Contract(CONTRACTS.PAIR_ABI, feePairs[i].address)
+
+          const claimPromise = new Promise((resolve, reject) => {
+            context._callContractWait(web3, pairContract, 'claimFees', [], account, gasPrice, null, null, feeClaimTXIDs[i], (err) => {
+              if (err) {
+                reject(err)
+                return
+              }
+
+              resolve()
+            })
+          })
+
+          await Promise.all([claimPromise])
+        }
+      }
+
+      this.getRewardBalances({ content: { tokenID } })
+      this.emitter.emit(ACTIONS.CLAIM_ALL_REWARDS_RETURNED)
+
     } catch(ex) {
       console.error(ex)
       this.emitter.emit(ACTIONS.ERROR, ex)
@@ -3899,7 +3980,7 @@ class Store {
     }
   }
 
-  claimAllRewards = async (payload) => {
+  claimPairFees = async (payload) => {
     try {
       const account = stores.accountStore.getStore("account")
       if (!account) {
@@ -3913,15 +3994,15 @@ class Store {
         return null
       }
 
-      const { pairs, tokenID } = payload.content
+      const { pair, tokenID } = payload.content
 
       // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
       let claimTXID = this.getTXUUID()
 
-      this.emitter.emit(ACTIONS.TX_ADDED, { title: `Claim rewards for ${pairs.length} GAUGES`, verb: 'Rewards Claimed', transactions: [
+      this.emitter.emit(ACTIONS.TX_ADDED, { title: `Claim fees for ${pair.token0.symbol}/${pair.token1.symbol}`, verb: 'Fees Claimed', transactions: [
         {
           uuid: claimTXID,
-          description: `Claiming all your rewards`,
+          description: `Claiming your fees`,
           status: 'WAITING'
         }
       ]})
@@ -3929,30 +4010,22 @@ class Store {
       const gasPrice = await stores.accountStore.getGasPrice()
 
       // SUBMIT CLAIM TRANSACTION
-      const gaugesContract = new web3.eth.Contract(CONTRACTS.VOTER_ABI, CONTRACTS.VOTER_ADDRESS)
+      const pairContract = new web3.eth.Contract(CONTRACTS.PAIR_ABI, pair.address)
 
-      const sendGauges = pairs.map((pair) => {
-        return pair.gauge.address
-      })
-      const sendTokens = pairs.map((pair) => {
-        return pair.gauge.bribesEarned.map((bribe) => {
-          return bribe.token.address
-        })
-      })
-
-      this._callContractWait(web3, gaugesContract, 'claimRewards', [sendGauges, sendTokens], account, gasPrice, null, null, claimTXID, async (err) => {
+      this._callContractWait(web3, pairContract, 'claimFees', [], account, gasPrice, null, null, claimTXID, async (err) => {
         if (err) {
           return this.emitter.emit(ACTIONS.ERROR, err)
         }
 
         this.getRewardBalances({ content: { tokenID } })
-        this.emitter.emit(ACTIONS.CLAIM_ALL_REWARDS_RETURNED)
+        this.emitter.emit(ACTIONS.CLAIM_REWARD_RETURNED)
       })
     } catch(ex) {
       console.error(ex)
       this.emitter.emit(ACTIONS.ERROR, ex)
     }
   }
+
 
   searchWhitelist = async (payload) => {
     try {

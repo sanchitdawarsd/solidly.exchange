@@ -44,20 +44,20 @@ function descendingComparator(a, b, orderBy) {
       let balanceA = BigNumber(a?.token0?.balance).plus(a?.token1?.balance).toNumber()
       let balanceB = BigNumber(b?.token0?.balance).plus(b?.token1?.balance).toNumber()
 
-      if (balanceB < balanceA) {
+      if (BigNumber(balanceB).lt(balanceA)) {
         return -1;
       }
-      if (balanceB > balanceA) {
+      if (BigNumber(balanceB).gt(balanceA)) {
         return 1;
       }
       return 0;
 
     case 'poolBalance':
 
-      if (b?.balance < a?.balance) {
+      if (BigNumber(b?.balance).lt(a?.balance)) {
         return -1;
       }
-      if (b?.balance > a?.balance) {
+      if (BigNumber(b?.balance).gt(a?.balance)) {
         return 1;
       }
       return 0;
@@ -72,10 +72,10 @@ function descendingComparator(a, b, orderBy) {
         return -1
       }
 
-      if (b?.gauge?.balance < a?.gauge?.balance) {
+      if (BigNumber(b?.gauge?.balance).lt(a?.gauge?.balance)) {
         return -1;
       }
-      if (b?.gauge?.balance > a?.gauge?.balance) {
+      if (BigNumber(b?.gauge?.balance ).gt(a?.gauge?.balance)) {
         return 1;
       }
       return 0;
@@ -85,10 +85,10 @@ function descendingComparator(a, b, orderBy) {
       let reserveA = BigNumber(a?.reserve0).plus(a?.reserve1).toNumber()
       let reserveB = BigNumber(b?.reserve0).plus(b?.reserve1).toNumber()
 
-      if (reserveB < reserveA) {
+      if (BigNumber(reserveB).lt(reserveA)) {
         return -1;
       }
-      if (reserveB > reserveA) {
+      if (BigNumber(reserveB).gt(reserveA)) {
         return 1;
       }
       return 0;
@@ -106,10 +106,10 @@ function descendingComparator(a, b, orderBy) {
       let reserveAA = BigNumber(a?.gauge?.reserve0).plus(a?.gauge?.reserve1).toNumber()
       let reserveBB = BigNumber(b?.gauge?.reserve0).plus(b?.gauge?.reserve1).toNumber()
 
-      if (reserveBB < reserveAA) {
+      if (BigNumber(reserveBB).lt(reserveAA)) {
         return -1;
       }
-      if (reserveBB > reserveAA) {
+      if (BigNumber(reserveBB).gt(reserveAA)) {
         return 1;
       }
       return 0;

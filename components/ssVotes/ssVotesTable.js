@@ -44,10 +44,10 @@ function descendingComparator(a, b, orderBy) {
   switch (orderBy) {
     case 'balance':
 
-      if (b?.gauge?.balance < a?.gauge?.balance) {
+      if (BigNumber(b?.gauge?.balance).lt(a?.gauge?.balance)) {
         return -1;
       }
-      if (b?.gauge?.balance > a?.gauge?.balance) {
+      if (BigNumber(b?.gauge?.balance).gt(a?.gauge?.balance)) {
         return 1;
       }
       return 0;
@@ -57,30 +57,30 @@ function descendingComparator(a, b, orderBy) {
       let reserveA = BigNumber(a?.reserve0).plus(a?.reserve1).toNumber()
       let reserveB = BigNumber(b?.reserve0).plus(b?.reserve1).toNumber()
 
-      if (reserveB < reserveA) {
+      if (BigNumber(reserveB).lt(reserveA)) {
         return -1;
       }
-      if (reserveB > reserveA) {
+      if (BigNumber(reserveB).gt(reserveA)) {
         return 1;
       }
       return 0;
 
     case 'totalVotes':
 
-      if (b?.gauge?.weightPercent < a?.gauge?.weightPercent) {
+      if (BigNumber(b?.gauge?.weightPercent).lt(a?.gauge?.weightPercent)) {
         return -1;
       }
-      if (b?.gauge?.weightPercent > a?.gauge?.weightPercent) {
+      if (BigNumber(b?.gauge?.weightPercent).gt(a?.gauge?.weightPercent)) {
         return 1;
       }
       return 0;
 
     case 'apy':
 
-      if (b?.gauge?.bribes.length < a?.gauge?.bribes.length) {
+      if (BigNumber(b?.gauge?.bribes.length).lt(a?.gauge?.bribes.length)) {
         return -1;
       }
-      if (b?.gauge?.bribes.length > a?.gauge?.bribes.length) {
+      if (BigNumber(b?.gauge?.bribes.length).gt(a?.gauge?.bribes.length)) {
         return 1;
       }
       return 0;
@@ -88,16 +88,16 @@ function descendingComparator(a, b, orderBy) {
     case 'myVotes':
     case 'mvp':
 
-      if (b?.gauge?.bribes.length < a?.gauge?.bribes.length) {
+      if (BigNumber(b?.gauge?.bribes.length).lt(a?.gauge?.bribes.length)) {
         return -1;
       }
-      if (b?.gauge?.bribes.length > a?.gauge?.bribes.length) {
+      if (BigNumber(b?.gauge?.bribes.length).gt(a?.gauge?.bribes.length)) {
         return 1;
       }
       return 0;
 
     default:
-
+      return 0
   }
 
 }

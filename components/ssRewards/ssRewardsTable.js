@@ -39,13 +39,73 @@ function descendingComparator(a, b, orderBy) {
     return 0;
   }
 
-  if (b[orderBy] < a[orderBy]) {
-    return -1;
+  let aAmount = 0
+  let bAmount = 0
+
+  switch (orderBy) {
+    case 'reward':
+
+      if (b.rewardType < a.rewardType) {
+        return -1;
+      }
+      if (b.rewardType > a.rewardType) {
+        return 1;
+      }
+      if (b.symbol < a.symbol) {
+        return -1;
+      }
+      if (b.symbol > a.symbol) {
+        return 1;
+      }
+      return 0;
+
+    case 'balance':
+
+      if(a.rewardType === 'Bribe') {
+        aAmount = a.gauge.balance
+      } else {
+        aAmount = a.balance
+      }
+
+      if(b.rewardType === 'Bribe') {
+        bAmount = b.gauge.balance
+      } else {
+        bAmount = b.balance
+      }
+
+      if (BigNumber(bAmount).lt(aAmount)) {
+        return -1;
+      }
+      if (BigNumber(bAmount).gt(aAmount)) {
+        return 1;
+      }
+      return 0;
+
+    case 'earned':
+
+      if(a.rewardType === 'Bribe') {
+        aAmount = a.gauge.bribes.length
+      } else {
+        aAmount = 2
+      }
+
+      if(b.rewardType === 'Bribe') {
+        bAmount = b.gauge.bribes.length
+      } else {
+        bAmount = 2
+      }
+
+      if (BigNumber(bAmount).lt(aAmount)) {
+        return -1;
+      }
+      if (BigNumber(bAmount).gt(aAmount)) {
+        return 1;
+      }
+      return 0;
+
+    default:
+      return 0
   }
-  if (b[orderBy] > a[orderBy]) {
-    return 1;
-  }
-  return 0;
 }
 
 function getComparator(order, orderBy) {
@@ -65,10 +125,10 @@ function stableSort(array, comparator) {
 const headCells = [
   { id: 'reward', numeric: false, disablePadding: false, label: 'Pool' },
   {
-    id: 'total',
+    id: 'balance',
     numeric: true,
     disablePadding: false,
-    label: 'Total Reward',
+    label: 'Your Position',
   },
   {
     id: 'earned',
@@ -371,7 +431,11 @@ export default function EnhancedTable({ rewards, vestNFTs, tokenID }) {
   }
 
   const onClaim = (reward) => {
-    stores.dispatcher.dispatch({ type: ACTIONS.CLAIM_REWARD, content: { pair: reward, tokenID } })
+    if(reward.type === 'Bribe') {
+      stores.dispatcher.dispatch({ type: ACTIONS.CLAIM_REWARD, content: { pair: reward, tokenID } })
+    } else {
+      stores.dispatcher.dispatch({ type: ACTIONS.CLAIM_PAIR_FEES, content: { pair: reward, tokenID } })
+    }
   };
 
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rewards.length - page * rowsPerPage);
@@ -423,45 +487,63 @@ export default function EnhancedTable({ rewards, vestNFTs, tokenID }) {
                           />
                         </div>
                         <div>
-                          <Typography variant='h2' noWrap>
+                          <Typography variant='h2' noWrap className={classes.textSpaced}>
                             {row?.symbol}
+                          </Typography>
+                          <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                            {row?.rewardType}
                           </Typography>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell className={classes.cell} align='right'>
                       <div>
-                        {
-                          row  && row.gauge.bribesEarned && row.gauge.bribesEarned.map((bribe) => {
-                            return (
-                              <div className={ classes.inlineEnd }>
-                                <img
-                                  className={classes.imgLogo}
-                                  src={ (bribe && bribe.token && bribe.token.logoURI) ? bribe.token.logoURI : `` }
-                                  width='24'
-                                  height='24'
-                                  alt=''
-                                  onError={(e) => {
-                                    e.target.onerror = null;
-                                    e.target.src = '/tokens/unknown-logo.png';
-                                  }}
-                                />
-                                <Typography variant='h2' className={classes.textSpacedPadded}>
-                                  { formatCurrency(bribe.rewardAmount) }
-                                </Typography>
-                                <Typography variant='h5' className={classes.textSpacedPadded} color='textSecondary'>
-                                  { bribe.token?.symbol }
-                                </Typography>
-                              </div>
-                            )
-                          })
+                        { (row && row.rewardType === 'Bribe' && row.gauge && row.gauge.balance && row.gauge.totalSupply) &&
+                          <>
+                            <div className={ classes.inlineEnd }>
+                              <Typography variant='h2' className={classes.textSpaced}>
+                                {formatCurrency(BigNumber(row.gauge.balance).div(row.gauge.totalSupply).times(row.gauge.reserve0))}
+                              </Typography>
+                              <Typography variant='h5' className={`${classes.textSpaced} ${classes.symbol}`} color='textSecondary'>
+                                {row.token0.symbol}
+                              </Typography>
+                            </div>
+                            <div className={ classes.inlineEnd }>
+                              <Typography variant='h5' className={classes.textSpaced}>
+                                {formatCurrency(BigNumber(row.gauge.balance).div(row.gauge.totalSupply).times(row.gauge.reserve1))}
+                              </Typography>
+                              <Typography variant='h5' className={`${classes.textSpaced} ${classes.symbol}`} color='textSecondary'>
+                                {row.token1.symbol}
+                              </Typography>
+                            </div>
+                          </>
+                        }
+                        { (row && row.rewardType === 'Fees' && row.balance && row.totalSupply) &&
+                          <>
+                            <div className={ classes.inlineEnd }>
+                              <Typography variant='h2' className={classes.textSpaced}>
+                                {formatCurrency(BigNumber(row.balance).div(row.totalSupply).times(row.reserve0))}
+                              </Typography>
+                              <Typography variant='h5' className={`${classes.textSpaced} ${classes.symbol}`} color='textSecondary'>
+                                {row.token0.symbol}
+                              </Typography>
+                            </div>
+                            <div className={ classes.inlineEnd }>
+                              <Typography variant='h5' className={classes.textSpaced}>
+                                {formatCurrency(BigNumber(row.balance).div(row.totalSupply).times(row.reserve1))}
+                              </Typography>
+                              <Typography variant='h5' className={`${classes.textSpaced} ${classes.symbol}`} color='textSecondary'>
+                                {row.token1.symbol}
+                              </Typography>
+                            </div>
+                          </>
                         }
                       </div>
                     </TableCell>
                     <TableCell className={classes.cell} align='right'>
                       <div>
                         {
-                          row  && row.gauge.bribesEarned && row.gauge.bribesEarned.map((bribe) => {
+                          row && row.rewardType === 'Bribe' && row.gauge && row.gauge.bribesEarned && row.gauge.bribesEarned.map((bribe) => {
                             return (
                               <div className={ classes.inlineEnd }>
                                 <img
@@ -484,6 +566,49 @@ export default function EnhancedTable({ rewards, vestNFTs, tokenID }) {
                               </div>
                             )
                           })
+                        }
+                        {
+                          row && row.rewardType === 'Fees' &&
+                            <>
+                              <div className={ classes.inlineEnd }>
+                                <img
+                                  className={classes.imgLogo}
+                                  src={ (row.token0 && row.token0.logoURI) ? row.token0.logoURI : `` }
+                                  width='24'
+                                  height='24'
+                                  alt=''
+                                  onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.src = '/tokens/unknown-logo.png';
+                                  }}
+                                />
+                                <Typography variant='h2' className={classes.textSpacedPadded}>
+                                  { formatCurrency(row.claimable0) }
+                                </Typography>
+                                <Typography variant='h5' className={classes.textSpacedPadded} color='textSecondary'>
+                                  { row.token1?.symbol }
+                                </Typography>
+                                </div>
+                              <div className={ classes.inlineEnd }>
+                                <img
+                                  className={classes.imgLogo}
+                                  src={ (row.token1 && row.token1.logoURI) ? row.token1.logoURI : `` }
+                                  width='24'
+                                  height='24'
+                                  alt=''
+                                  onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.src = '/tokens/unknown-logo.png';
+                                  }}
+                                />
+                                <Typography variant='h2' className={classes.textSpacedPadded}>
+                                  { formatCurrency(row.claimable1) }
+                                </Typography>
+                                <Typography variant='h5' className={classes.textSpacedPadded} color='textSecondary'>
+                                  { row.token1?.symbol }
+                                </Typography>
+                              </div>
+                            </>
                         }
                       </div>
                     </TableCell>

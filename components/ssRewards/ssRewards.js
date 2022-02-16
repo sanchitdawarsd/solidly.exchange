@@ -39,9 +39,14 @@ export default function ssRewards() {
 
   const stableSwapUpdated = (rew) => {
     if(rew) {
-      setRewards(rew)
+      if(rew && rew.bribes && rew.fees && rew.bribes.length >= 0 && rew.fees.length >= 0) {
+        setRewards([...rew.bribes, ...rew.fees])
+      }
     } else {
-      setRewards(stores.stableSwapStore.getStore('rewards'))
+      let re = stores.stableSwapStore.getStore('rewards')
+      if(re && re.bribes && re.fees && re.bribes.length >= 0 && re.fees.length >= 0) {
+        setRewards([...re.bribes, ...re.fees])
+      }
     }
     const nfts = stores.stableSwapStore.getStore('vestNFTs')
 
@@ -59,7 +64,10 @@ export default function ssRewards() {
   }
 
   useEffect(() => {
-    setRewards(stores.stableSwapStore.getStore('rewards'))
+    let re = stores.stableSwapStore.getStore('rewards')
+    if(re && re.bribes && re.fees && re.bribes.length >= 0 && re.fees.length >= 0) {
+      setRewards([...re.bribes, ...re.fees])
+    }
     setVestNFTs(stores.stableSwapStore.getStore('vestNFTs'))
 
     stores.emitter.on(ACTIONS.UPDATED, stableSwapUpdated);
@@ -83,9 +91,11 @@ export default function ssRewards() {
     stableSwapUpdated()
 
     stores.emitter.on(ACTIONS.CLAIM_REWARD_RETURNED, claimReturned);
+    stores.emitter.on(ACTIONS.CLAIM_PAIR_FEES_RETURNED, claimReturned);
     stores.emitter.on(ACTIONS.CLAIM_ALL_REWARDS_RETURNED, claimAllReturned);
     return () => {
       stores.emitter.removeListener(ACTIONS.CLAIM_REWARD_RETURNED, claimReturned);
+      stores.emitter.removeListener(ACTIONS.CLAIM_PAIR_FEES_RETURNED, claimReturned);
       stores.emitter.removeListener(ACTIONS.CLAIM_ALL_REWARDS_RETURNED, claimAllReturned);
     };
   }, [])
