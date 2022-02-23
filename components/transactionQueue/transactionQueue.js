@@ -21,8 +21,6 @@ import { ACTIONS, ETHERSCAN_URL } from '../../stores/constants';
 
 export default function TransactionQueue({ setQueueLength }) {
 
-  const lottieRef = useRef();
-
   const [open, setOpen] = useState(false)
   const [ transactions, setTransactions ] = useState([])
   const [ purpose, setPurpose ] = useState(null)
@@ -140,13 +138,13 @@ export default function TransactionQueue({ setQueueLength }) {
       return null
     }
 
-    let lottie = <Lottie lottieRef={lottieRef} loop={false} className={classes.animClass} animationData={successAnim} />
+    let lottie = <Lottie loop={false} className={classes.animClass} animationData={successAnim} />
     if(type === 'Liquidity') {
-      lottie = <Lottie lottieRef={lottieRef} loop={false} className={classes.animClass} animationData={pairSuccessAnim} />
+      lottie = <Lottie loop={false} className={classes.animClass} animationData={pairSuccessAnim} />
     } else if (type === 'Swap') {
-      lottie = <Lottie lottieRef={lottieRef} loop={false} className={classes.animClass} animationData={swapSuccessAnim} />
+      lottie = <Lottie loop={false} className={classes.animClass} animationData={swapSuccessAnim} />
     } else if (type === 'Vest') {
-      lottie = <Lottie lottieRef={lottieRef} loop={false} className={classes.animClass} animationData={lockSuccessAnim} />
+      lottie = <Lottie loop={false} className={classes.animClass} animationData={lockSuccessAnim} />
     }
 
     return (
@@ -157,8 +155,8 @@ export default function TransactionQueue({ setQueueLength }) {
         {
           txs && txs.length > 0 && txs.filter((tx) => {
             return tx.txHash != null
-          }).map((tx) => {
-            return (<Typography className={ classes.viewDetailsText }>
+          }).map((tx, idx) => {
+            return (<Typography className={ classes.viewDetailsText } key={`tx_key_${idx}`}>
               <a href={`${ETHERSCAN_URL}tx/${tx?.txHash}`} target="_blank">{ tx && tx.description ? tx.description : 'View in Explorer' } <OpenInNewIcon className={classes.newWindowIcon} /></a>
             </Typography>)
           })
@@ -180,7 +178,7 @@ export default function TransactionQueue({ setQueueLength }) {
         <div className={ classes.transactionsContainer}>
           {
             transactions && transactions.map((tx, idx) => {
-              return <Transaction key={ idx } transaction={tx} />
+              return <Transaction transaction={tx} />
             })
           }
         </div>

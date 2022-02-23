@@ -1290,7 +1290,6 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
 
   const [ open, setOpen ] = useState(false);
   const [ search, setSearch ] = useState('')
-  const [ withBalance, setWithBalance ] = useState(/*type === 'From' ? true : false*/ true)
   const [ filteredAssetOptions, setFilteredAssetOptions ] = useState([])
 
   const [ manageLocal, setManageLocal ] = useState(false)

@@ -265,7 +265,6 @@ function Header(props) {
             <IconButton
               className={classes.accountButton}
               variant="contained"
-              disableElevation
               color={props.theme.palette.type === 'dark' ? 'primary' : 'secondary'}
               onClick={ () => {
                   stores.emitter.emit(ACTIONS.TX_OPEN)
