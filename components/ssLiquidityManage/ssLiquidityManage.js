@@ -908,15 +908,15 @@ export default function ssLiquidityManage() {
   const renderWithdrawInformation = () => {
     return (
       <div className={ classes.withdrawInfoContainer }>
-        <Typography className={ classes.depositInfoHeading } >Price Info</Typography>
+        <Typography className={ classes.depositInfoHeading } >Reserve Info</Typography>
         <div className={ classes.priceInfos}>
           <div className={ classes.priceInfo }>
-            <Typography className={ classes.title } >{ formatCurrency(BigNumber(pair?.reserve0).div(pair?.reserve1)) }</Typography>
-            <Typography className={ classes.text } >{ `${pair?.token0?.symbol} per ${pair?.token1?.symbol}` }</Typography>
+            <Typography className={ classes.title } >{ formatCurrency(pair?.reserve0) }</Typography>
+            <Typography className={ classes.text } >{ `${pair?.token0?.symbol}` }</Typography>
           </div>
           <div className={ classes.priceInfo }>
-            <Typography className={ classes.title } >{ formatCurrency(BigNumber(pair?.reserve1).div(pair?.reserve0)) }</Typography>
-            <Typography className={ classes.text } >{ `${pair?.token1?.symbol} per ${pair?.token0?.symbol}` }</Typography>
+            <Typography className={ classes.title } >{ formatCurrency(pair?.reserve1) }</Typography>
+            <Typography className={ classes.text } >{ `${pair?.token1?.symbol}` }</Typography>
           </div>
           <div className={ classes.priceInfo }>
             { renderSmallInput('slippage', slippage, slippageError, onSlippageChanged) }
@@ -929,9 +929,12 @@ export default function ssLiquidityManage() {
             <Typography className={ classes.text } >{ `Pooled ${pair?.symbol}` }</Typography>
           </div>
           <div className={ classes.priceInfo }>
-            <Typography className={ classes.title } >{ formatCurrency(pair?.gauge?.reserve1) }</Typography>
+            <Typography className={ classes.title } >{ formatCurrency(pair?.gauge?.balance) }</Typography>
             <Typography className={ classes.text } >{ `Staked ${pair?.symbol} ` }</Typography>
           </div>
+        </div>
+        <div className={ classes.disclaimerContainer }>
+          <Typography className={ classes.disclaimer }>{ 'Please make sure to claim any rewards before withdrawing' }</Typography>
         </div>
       </div>
     )
