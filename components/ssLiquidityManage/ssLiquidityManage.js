@@ -23,6 +23,8 @@ export default function ssLiquidityManage() {
   const amount0Ref = useRef(null);
   const amount1Ref = useRef(null);
 
+  const [ pairReadOnly, setPairReadOnly ] = useState(false)
+
   const [ pair, setPair ] = useState(null);
   const [ veToken, setVeToken ] = useState(null)
 
@@ -67,6 +69,7 @@ export default function ssLiquidityManage() {
   const [ slippageError, setSlippageError ] = useState(false)
 
   const ssUpdated = async () => {
+    console.log(router.query.address)
 
     const storeAssetOptions = stores.stableSwapStore.getStore('baseAssets')
     const nfts = stores.stableSwapStore.getStore('vestNFTs')
@@ -89,19 +92,15 @@ export default function ssLiquidityManage() {
     }
 
     if(router.query.address && router.query.address !== 'create') {
+      setPairReadOnly(true)
+
       const pp = await stores.stableSwapStore.getPairByAddress(router.query.address)
       setPair(pp)
 
-      if(pp && asset0 == null) {
-        setAsset0(pp.token0)
-      }
-      if(pp && asset1 == null) {
-        setAsset1(pp.token1)
-      }
-      if(pp && withdrawAsset == null) {
-        setWithdrawAsset(pp)
-      }
       if(pp) {
+        setWithdrawAsset(pp)
+        setAsset0(pp.token0)
+        setAsset1(pp.token1)
         setStable(pp.isStable)
       }
 
@@ -832,7 +831,7 @@ export default function ssLiquidityManage() {
         </div>
         <div className={ `${classes.massiveInputContainer} ${ (amountError || assetError) && classes.error }` }>
           <div className={ classes.massiveInputAssetSelect }>
-            <AssetSelect type={type} value={ assetValue } assetOptions={ assetOptions } onSelect={ onAssetSelect } />
+            <AssetSelect type={type} value={ assetValue } assetOptions={ assetOptions } onSelect={ onAssetSelect } disabled={ pairReadOnly } />
           </div>
           <div className={ classes.massiveInputAmount }>
             <TextField
@@ -1286,7 +1285,7 @@ export default function ssLiquidityManage() {
 }
 
 
-function AssetSelect({ type, value, assetOptions, onSelect }) {
+function AssetSelect({ type, value, assetOptions, onSelect, disabled }) {
 
   const [ open, setOpen ] = useState(false);
   const [ search, setSearch ] = useState('')
@@ -1295,6 +1294,9 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
   const [ manageLocal, setManageLocal ] = useState(false)
 
   const openSearch = () => {
+    if(disabled) {
+      return false
+    }
     setSearch('')
     setOpen(true)
   };
@@ -1310,10 +1312,10 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
         return true
       }
     }).sort((a, b) => {
-      if(a.balance< b.balance) return 1;
-      if(a.balance >b.balance) return -1;
-      if(a.symbol< b.symbol) return -1;
-      if(a.symbol >b.symbol) return 1;
+      if(BigNumber(a.balance).lt(b.balance)) return 1;
+      if(BigNumber(a.balance).gt(b.balance)) return -1;
+      if(a.symbol<b.symbol) return -1;
+      if(a.symbol>b.symbol) return 1;
       return 0;
     })
 
@@ -1475,7 +1477,13 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
           </div>
           <div className={ classes.assetSearchResults }>
             {
-              filteredAssetOptions ? filteredAssetOptions.map((asset, idx) => {
+              filteredAssetOptions ? filteredAssetOptions.sort((a, b) => {
+                if(BigNumber(a.balance).lt(b.balance)) return 1;
+                if(BigNumber(a.balance).gt(b.balance)) return -1;
+                if(a.symbol.toLowerCase()<b.symbol.toLowerCase()) return -1;
+                if(a.symbol.toLowerCase()>b.symbol.toLowerCase()) return 1;
+                return 0;
+              }).map((asset, idx) => {
                 return renderAssetOption(type, asset, idx)
               }) : []
             }

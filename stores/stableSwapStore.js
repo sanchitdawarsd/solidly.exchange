@@ -4174,10 +4174,10 @@ class Store {
       .then((gasAmount) => {
         const context = this
 
-        let sendGasAmount = gasAmount
-        if (paddGasCost) {
-          sendGasAmount = BigNumber(sendGasAmount).times(1.15).toFixed(0)
-        }
+        let sendGasAmount = BigNumber(sendGasAmount).times(1.5).toFixed(0)
+        // if (paddGasCost) {
+        //   sendGasAmount = BigNumber(sendGasAmount).times(1.15).toFixed(0)
+        // }
         //
         // const sendGasAmount = '3000000'
         // const context = this

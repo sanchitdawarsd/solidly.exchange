@@ -454,12 +454,6 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
       } else {
         return true
       }
-    }).sort((a, b) => {
-      if(a.balance< b.balance) return 1;
-      if(a.balance >b.balance) return -1;
-      if(a.symbol< b.symbol) return -1;
-      if(a.symbol >b.symbol) return 1;
-      return 0;
     })
 
     setFilteredAssetOptions(ao)
@@ -620,7 +614,13 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
           </div>
           <div className={ classes.assetSearchResults }>
             {
-              filteredAssetOptions ? filteredAssetOptions.map((asset, idx) => {
+              filteredAssetOptions ? filteredAssetOptions.sort((a, b) => {
+                if(BigNumber(a.balance).lt(b.balance)) return 1;
+                if(BigNumber(a.balance).gt(b.balance)) return -1;
+                if(a.symbol.toLowerCase()<b.symbol.toLowerCase()) return -1;
+                if(a.symbol.toLowerCase()>b.symbol.toLowerCase()) return 1;
+                return 0;
+              }).map((asset, idx) => {
                 return renderAssetOption(type, asset, idx)
               }) : []
             }

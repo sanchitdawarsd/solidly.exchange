@@ -498,10 +498,10 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
         return true
       }
     }).sort((a, b) => {
-      if(a.balance< b.balance) return 1;
-      if(a.balance >b.balance) return -1;
-      if(a.symbol< b.symbol) return -1;
-      if(a.symbol >b.symbol) return 1;
+      if(BigNumber(a.balance).lt(b.balance)) return 1;
+      if(BigNumber(a.balance).gt(b.balance)) return -1;
+      if(a.symbol<b.symbol) return -1;
+      if(a.symbol>b.symbol) return 1;
       return 0;
     })
 

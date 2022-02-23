@@ -298,50 +298,17 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
       } else {
         return true
       }
-    }).sort((a, b) => {
-      if(a.balance< b.balance) return 1;
-      if(a.balance >b.balance) return -1;
-      if(a.symbol< b.symbol) return -1;
-      if(a.symbol >b.symbol) return 1;
-      return 0;
     })
 
     setFilteredAssetOptions(ao)
 
     return () => {
     }
-  },[assetOptions]);
+  },[assetOptions, search]);
 
 
   const onSearchChanged = async (event) => {
     setSearch(event.target.value)
-
-    if(!assetOptions) {
-      return null
-    }
-
-    let filteredOptions = assetOptions.filter((asset) => {
-      if(event.target.value && event.target.value !== '') {
-        return asset.address.toLowerCase().includes(event.target.value.toLowerCase()) ||
-          asset.symbol.toLowerCase().includes(event.target.value.toLowerCase()) ||
-          asset.name.toLowerCase().includes(event.target.value.toLowerCase())
-      } else {
-        return true
-      }
-    }).sort((a, b) => {
-      if(a.balance< b.balance) return 1;
-      if(a.balance >b.balance) return -1;
-      if(a.symbol< b.symbol) return -1;
-      if(a.symbol >b.symbol) return 1;
-      return 0;
-    })
-
-    setFilteredAssetOptions(filteredOptions)
-
-    //no options in our default list and its an address we search for the address
-    if(filteredOptions.length === 0 && event.target.value && event.target.value.length === 42) {
-      const baseAsset = await stores.stableSwapStore.getBaseAsset(event.target.value, true, true)
-    }
   }
 
   const onLocalSelect = (type, asset) => {
@@ -486,7 +453,13 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
           </div>
           <div className={ classes.assetSearchResults }>
             {
-              filteredAssetOptions ? filteredAssetOptions.map((asset, idx) => {
+              filteredAssetOptions ? filteredAssetOptions.sort((a, b) => {
+                if(BigNumber(a.balance).lt(b.balance)) return 1;
+                if(BigNumber(a.balance).gt(b.balance)) return -1;
+                if(a.symbol.toLowerCase()<b.symbol.toLowerCase()) return -1;
+                if(a.symbol.toLowerCase()>b.symbol.toLowerCase()) return 1;
+                return 0;
+              }).map((asset, idx) => {
                 return renderAssetOption(type, asset, idx)
               }) : []
             }
