@@ -3793,14 +3793,16 @@ class Store {
         return pair
       })
 
+      const rewards = {
+        bribes: filteredBribes,
+        fees: filteredFees
+      }
+
       this.setStore({
-        rewards: {
-          bribes: filteredBribes,
-          fees: filteredFees
-        }
+        rewards
       })
 
-      this.emitter.emit(ACTIONS.REWARD_BALANCES_RETURNED, filteredBribes)
+      this.emitter.emit(ACTIONS.REWARD_BALANCES_RETURNED, rewards)
     } catch(ex) {
       console.error(ex)
       this.emitter.emit(ACTIONS.ERROR, ex)

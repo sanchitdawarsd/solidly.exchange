@@ -58,6 +58,10 @@ export default function ssRewards() {
       window.setTimeout(() => {
         stores.dispatcher.dispatch({ type: ACTIONS.GET_REWARD_BALANCES, content: { tokenID: nfts[0].id } })
       })
+    } else {
+      window.setTimeout(() => {
+        stores.dispatcher.dispatch({ type: ACTIONS.GET_REWARD_BALANCES, content: { tokenID: null } })
+      })
     }
 
     forceUpdate()
@@ -89,10 +93,6 @@ export default function ssRewards() {
     }
 
     stableSwapUpdated()
-
-    window.setTimeout(() => {
-      stores.dispatcher.dispatch({ type: ACTIONS.GET_REWARD_BALANCES, content: { tokenID: null } })
-    })
 
     stores.emitter.on(ACTIONS.CLAIM_REWARD_RETURNED, claimReturned);
     stores.emitter.on(ACTIONS.CLAIM_PAIR_FEES_RETURNED, claimReturned);
