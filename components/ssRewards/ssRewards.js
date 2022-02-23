@@ -38,16 +38,6 @@ export default function ssRewards() {
   const [ loading, setLoading ] = useState(false)
 
   const stableSwapUpdated = (rew) => {
-    if(rew) {
-      if(rew && rew.bribes && rew.fees && rew.bribes.length >= 0 && rew.fees.length >= 0) {
-        setRewards([...rew.bribes, ...rew.fees])
-      }
-    } else {
-      let re = stores.stableSwapStore.getStore('rewards')
-      if(re && re.bribes && re.fees && re.bribes.length >= 0 && re.fees.length >= 0) {
-        setRewards([...re.bribes, ...re.fees])
-      }
-    }
     const nfts = stores.stableSwapStore.getStore('vestNFTs')
 
     setVestNFTs(nfts)
@@ -67,18 +57,28 @@ export default function ssRewards() {
     forceUpdate()
   }
 
-  useEffect(() => {
-    let re = stores.stableSwapStore.getStore('rewards')
-    if(re && re.bribes && re.fees && re.bribes.length >= 0 && re.fees.length >= 0) {
-      setRewards([...re.bribes, ...re.fees])
+  const rewardBalancesReturned = (rew) => {
+    if(rew) {
+      if(rew && rew.bribes && rew.fees && rew.bribes.length >= 0 && rew.fees.length >= 0) {
+        setRewards([...rew.bribes, ...rew.fees])
+      }
+    } else {
+      let re = stores.stableSwapStore.getStore('rewards')
+      if(re && re.bribes && re.fees && re.bribes.length >= 0 && re.fees.length >= 0) {
+        setRewards([...re.bribes, ...re.fees])
+      }
     }
-    setVestNFTs(stores.stableSwapStore.getStore('vestNFTs'))
+  }
+
+  useEffect(() => {
+    rewardBalancesReturned()
+    stableSwapUpdated()
 
     stores.emitter.on(ACTIONS.UPDATED, stableSwapUpdated);
-    stores.emitter.on(ACTIONS.REWARD_BALANCES_RETURNED, stableSwapUpdated);
+    stores.emitter.on(ACTIONS.REWARD_BALANCES_RETURNED, rewardBalancesReturned);
     return () => {
       stores.emitter.removeListener(ACTIONS.UPDATED, stableSwapUpdated);
-      stores.emitter.removeListener(ACTIONS.REWARD_BALANCES_RETURNED, stableSwapUpdated);
+      stores.emitter.removeListener(ACTIONS.REWARD_BALANCES_RETURNED, rewardBalancesReturned);
     };
   }, [token]);
 
