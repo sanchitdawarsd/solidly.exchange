@@ -415,14 +415,16 @@ class Store {
             const tokenAddress = await bribeContract.methods.rewards(idx).call()
             const token = await this.getBaseAsset(tokenAddress)
 
-            const [ earned, rewardForDuration ] = await Promise.all([
-              bribeContract.methods.getRewardForDuration(tokenAddress).call()
+            const [ rewardRate ] = await Promise.all([
+              bribeContract.methods.rewardRate(tokenAddress).call(),
             ])
 
             return {
               token: token,
-              rewardForDuration: BigNumber(rewardForDuration).div(10**token.decimals).toFixed(token.decimals),
+              rewardRate: BigNumber(rewardRate).div(10**token.decimals).toFixed(token.decimals),
+              rewardAmount: BigNumber(rewardRate).times(604800).div(10**token.decimals).toFixed(token.decimals)
             }
+
           })
         )
 
@@ -577,13 +579,14 @@ class Store {
             const tokenAddress = await bribeContract.methods.rewards(idx).call()
             const token = await this.getBaseAsset(tokenAddress)
 
-            const [ earned, rewardForDuration ] = await Promise.all([
-              bribeContract.methods.getRewardForDuration(tokenAddress).call()
+            const [ rewardRate ] = await Promise.all([
+              bribeContract.methods.rewardRate(tokenAddress).call(),
             ])
 
             return {
               token: token,
-              rewardForDuration: BigNumber(rewardForDuration).div(10**token.decimals).toFixed(token.decimals),
+              rewardRate: BigNumber(rewardRate).div(10**token.decimals).toFixed(token.decimals),
+              rewardAmount: BigNumber(rewardRate).times(604800).div(10**token.decimals).toFixed(token.decimals)
             }
           })
         )
@@ -637,7 +640,7 @@ class Store {
     }
   }
 
-  getLocalAssets = async () => {
+  getLocalAssets = () => {
     try {
       let localBaseAssets = []
       const localBaseAssetsString = localStorage.getItem('stableSwap-assets')
@@ -656,16 +659,8 @@ class Store {
   getBaseAsset = async (address, save, getBalance) => {
     try {
       const baseAssets = this.getStore('baseAssets')
-      let localBaseAssets = []
-      const localBaseAssetsString = localStorage.getItem('stableSwap-assets')
 
-      if(localBaseAssetsString && localBaseAssetsString !== '') {
-        localBaseAssets = JSON.parse(localBaseAssetsString)
-      }
-
-      let searchableAssets = [...baseAssets, ...localBaseAssets]
-
-      const theBaseAsset = searchableAssets.filter((as) => {
+      const theBaseAsset = baseAssets.filter((as) => {
         return as.address.toLowerCase() === address.toLowerCase()
       })
       if(theBaseAsset.length > 0) {
@@ -692,6 +687,7 @@ class Store {
         symbol: symbol,
         name: name,
         decimals: parseInt(decimals),
+        logoURI: null,
         local: true
       }
 
@@ -718,7 +714,7 @@ class Store {
       return newBaseAsset
     } catch(ex) {
       console.log(ex)
-      this.emitter.emit(ACTIONS.ERROR, ex)
+      // this.emitter.emit(ACTIONS.ERROR, ex)
       return null
     }
   }
@@ -768,13 +764,7 @@ class Store {
 
       baseAssets.unshift(nativeFTM)
 
-      const localBaseAssetsString = localStorage.getItem('stableSwap-assets')
-
-      if(!localBaseAssetsString || localBaseAssetsString === '') {
-        return baseAssets
-      }
-
-      const localBaseAssets = JSON.parse(localBaseAssetsString)
+      let localBaseAssets = this.getLocalAssets()
 
       return [...baseAssets, ...localBaseAssets]
 
@@ -851,8 +841,8 @@ class Store {
       }
 
       this._getGovTokenInfo(web3, account)
-      this._getBaseAssetInfo(web3, account)
-      this._getPairInfo(web3, account)
+      await this._getBaseAssetInfo(web3, account)
+      await this._getPairInfo(web3, account)
     } catch(ex) {
       console.log(ex)
       this.emitter.emit(ACTIONS.ERROR, ex)
@@ -939,95 +929,109 @@ class Store {
         gaugesContract.methods.totalWeight().call()
       ])
 
-      const ps = await async.mapLimit(pairs, 3, async (pair, callback) => {
-        try {
-          const pairContract = new web3.eth.Contract(CONTRACTS.PAIR_ABI, pair.address)
-          const token0Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, pair.token0.address)
-          const token1Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, pair.token1.address)
 
-          const [ totalSupply, reserves, balanceOf, token0BalanceOf, token1BalanceOf, token0Whitelisted, token1Whitelisted, claimable0, claimable1 ] = await Promise.all([
-            pairContract.methods.totalSupply().call(),
-            pairContract.methods.getReserves().call(),
-            pairContract.methods.balanceOf(account.address).call(),
-            token0Contract.methods.balanceOf(account.address).call(),
-            token1Contract.methods.balanceOf(account.address).call(),
-            gaugesContract.methods.isWhitelisted(pair.token0.address).call(),
-            gaugesContract.methods.isWhitelisted(pair.token1.address).call(),
-            pairContract.methods.claimable0(account.address).call(),
-            pairContract.methods.claimable1(account.address).call()
-          ])
+      const now1 = moment()
+      console.log('startin section 1')
 
-          pair.balance = BigNumber(balanceOf).div(10**pair.decimals).toFixed(parseInt(pair.decimals))
-          pair.totalSupply = BigNumber(totalSupply).div(10**pair.decimals).toFixed(parseInt(pair.decimals))
-          pair.reserve0 = BigNumber(reserves._reserve0).div(10**pair.token0.decimals).toFixed(parseInt(pair.token0.decimals))
-          pair.reserve1 = BigNumber(reserves._reserve1).div(10**pair.token1.decimals).toFixed(parseInt(pair.token1.decimals))
-          pair.token0.balance = BigNumber(token0BalanceOf).div(10**pair.token0.decimals).toFixed(parseInt(pair.token0.decimals))
-          pair.token1.balance = BigNumber(token1BalanceOf).div(10**pair.token1.decimals).toFixed(parseInt(pair.token1.decimals))
-          pair.token0.isWhitelisted = token0Whitelisted
-          pair.token1.isWhitelisted = token1Whitelisted
-          pair.claimable0 = BigNumber(claimable0).div(10**pair.token0.decimals).toFixed(pair.token0.decimals)
-          pair.claimable1 = BigNumber(claimable1).div(10**pair.token1.decimals).toFixed(pair.token1.decimals)
+      const ps = await Promise.all(
+        pairs.map(async (pair) => {
+          try {
+            const pairContract = new web3.eth.Contract(CONTRACTS.PAIR_ABI, pair.address)
+            const token0Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, pair.token0.address)
+            const token1Contract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, pair.token1.address)
 
-          callback(null, pair)
-        } catch (ex) {
-          console.log('EXCEPTION 1')
-          console.log(pair)
-          console.log(ex)
-          callback(null, pair)
-        }
-      })
+            const token0 = await this.getBaseAsset(pair.token0.address, false, true)
+            const token1 = await this.getBaseAsset(pair.token1.address, false, true)
+
+            const [ totalSupply, reserves, balanceOf, claimable0, claimable1 ] = await Promise.all([
+              pairContract.methods.totalSupply().call(),
+              pairContract.methods.getReserves().call(),
+              pairContract.methods.balanceOf(account.address).call(),
+              pairContract.methods.claimable0(account.address).call(),
+              pairContract.methods.claimable1(account.address).call()
+            ])
+
+            pair.token0 = token0 != null ? token0 : pair.token0
+            pair.token1 = token1 != null ? token1 : pair.token1
+            pair.balance = BigNumber(balanceOf).div(10**pair.decimals).toFixed(parseInt(pair.decimals))
+            pair.totalSupply = BigNumber(totalSupply).div(10**pair.decimals).toFixed(parseInt(pair.decimals))
+            pair.reserve0 = BigNumber(reserves._reserve0).div(10**pair.token0.decimals).toFixed(parseInt(pair.token0.decimals))
+            pair.reserve1 = BigNumber(reserves._reserve1).div(10**pair.token1.decimals).toFixed(parseInt(pair.token1.decimals))
+            pair.claimable0 = BigNumber(claimable0).div(10**pair.token0.decimals).toFixed(pair.token0.decimals)
+            pair.claimable1 = BigNumber(claimable1).div(10**pair.token1.decimals).toFixed(pair.token1.decimals)
+
+            return pair
+          } catch (ex) {
+            console.log('EXCEPTION 1')
+            console.log(pair)
+            console.log(ex)
+            return pair
+          }
+        })
+      )
 
       this.setStore({ pairs: ps })
       this.emitter.emit(ACTIONS.UPDATED)
 
 
 
-      const ps1 = await async.mapLimit(ps, 3, async (pair, callback) => {
-        try {
+      const now2 = moment()
+      console.log('startin section 2')
 
-          if(pair.gauge && pair.gauge.address !== ZERO_ADDRESS) {
-            const gaugeContract = new web3.eth.Contract(CONTRACTS.GAUGE_ABI, pair.gauge.address)
 
-            const [ totalSupply, gaugeBalance, gaugeWeight ] = await Promise.all([
-              gaugeContract.methods.totalSupply().call(),
-              gaugeContract.methods.balanceOf(account.address).call(),
-              gaugesContract.methods.weights(pair.address).call()
-            ])
+      const ps1 = await Promise.all(
+        ps.map(async (pair) => {
+          try {
 
-            const bribeContract = new web3.eth.Contract(CONTRACTS.BRIBE_ABI, pair.gauge.bribeAddress)
+            if(pair.gauge && pair.gauge.address !== ZERO_ADDRESS) {
+              const gaugeContract = new web3.eth.Contract(CONTRACTS.GAUGE_ABI, pair.gauge.address)
 
-            const bribes = await Promise.all(
-              pair.gauge.bribes.map(async (bribe, idx) => {
+              const [ totalSupply, gaugeBalance, gaugeWeight ] = await Promise.all([
+                gaugeContract.methods.totalSupply().call(),
+                gaugeContract.methods.balanceOf(account.address).call(),
+                gaugesContract.methods.weights(pair.address).call()
+              ])
 
-                const [ rewardRate ] = await Promise.all([
-                  bribeContract.methods.rewardRate(bribe.token.address).call(),
-                ])
+              const bribeContract = new web3.eth.Contract(CONTRACTS.BRIBE_ABI, pair.gauge.bribeAddress)
 
-                bribe.rewardRate = BigNumber(rewardRate).div(10**bribe.token.decimals).toFixed(bribe.token.decimals)
-                bribe.rewardAmount = BigNumber(rewardRate).times(604800).div(10**bribe.token.decimals).toFixed(bribe.token.decimals)
+              const bribes = await Promise.all(
+                pair.gauge.bribes.map(async (bribe, idx) => {
 
-                return bribe
-              })
-            )
+                  const [ rewardRate ] = await Promise.all([
+                    bribeContract.methods.rewardRate(bribe.token.address).call(),
+                  ])
 
-            pair.gauge.balance = BigNumber(gaugeBalance).div(10**18).toFixed(18)
-            pair.gauge.totalSupply = BigNumber(totalSupply).div(10**18).toFixed(18)
-            pair.gauge.reserve0 = pair.totalSupply > 0 ? BigNumber(pair.reserve0).times(pair.gauge.totalSupply).div(pair.totalSupply).toFixed(pair.token0.decimals) : '0'
-            pair.gauge.reserve1 = pair.totalSupply > 0 ? BigNumber(pair.reserve1).times(pair.gauge.totalSupply).div(pair.totalSupply).toFixed(pair.token1.decimals) : '0'
-            pair.gauge.weight = BigNumber(gaugeWeight).div(10**18).toFixed(18)
-            pair.gauge.weightPercent = BigNumber(gaugeWeight).times(100).div(totalWeight).toFixed(2)
-            pair.gaugebribes = bribes
+                  bribe.rewardRate = BigNumber(rewardRate).div(10**bribe.token.decimals).toFixed(bribe.token.decimals)
+                  bribe.rewardAmount = BigNumber(rewardRate).times(604800).div(10**bribe.token.decimals).toFixed(bribe.token.decimals)
+
+                  return bribe
+                })
+              )
+
+              pair.gauge.balance = BigNumber(gaugeBalance).div(10**18).toFixed(18)
+              pair.gauge.totalSupply = BigNumber(totalSupply).div(10**18).toFixed(18)
+              pair.gauge.reserve0 = pair.totalSupply > 0 ? BigNumber(pair.reserve0).times(pair.gauge.totalSupply).div(pair.totalSupply).toFixed(pair.token0.decimals) : '0'
+              pair.gauge.reserve1 = pair.totalSupply > 0 ? BigNumber(pair.reserve1).times(pair.gauge.totalSupply).div(pair.totalSupply).toFixed(pair.token1.decimals) : '0'
+              pair.gauge.weight = BigNumber(gaugeWeight).div(10**18).toFixed(18)
+              pair.gauge.weightPercent = BigNumber(gaugeWeight).times(100).div(totalWeight).toFixed(2)
+              pair.gaugebribes = bribes
+            }
+
+            return pair
+
+          } catch (ex) {
+            console.log('EXCEPTION 2')
+            console.log(pair)
+            console.log(ex)
+            return pair
           }
+        })
+      )
 
-          callback(null, pair)
 
-        } catch (ex) {
-          console.log('EXCEPTION 2')
-          console.log(pair)
-          console.log(ex)
-          callback(null, pair)
-        }
-      })
+      const now3 = moment()
+      console.log(`First section took - ${now2.diff(now1)}`)
+      console.log(`Second section took - ${now3.diff(now2)}`)
 
       this.setStore({ pairs: ps1 })
       this.emitter.emit(ACTIONS.UPDATED)
@@ -1074,7 +1078,8 @@ class Store {
             console.log(asset)
             console.log(ex)
             return {
-              balanceOf: '0'
+              balanceOf: '0',
+              isWhitelisted: false
             }
           }
         })
@@ -3029,8 +3034,9 @@ class Store {
           return this.emitter.emit(ACTIONS.ERROR, err)
         }
 
+        this._getSpecificAssetInfo(web3, account, fromAsset.address)
+        this._getSpecificAssetInfo(web3, account, toAsset.address)
         this._getPairInfo(web3, account)
-        this._getBaseAssetInfo(web3, account)
 
         this.emitter.emit(ACTIONS.SWAP_RETURNED)
       }, null, sendValue)
@@ -3038,6 +3044,44 @@ class Store {
     } catch(ex) {
       console.error(ex)
       this.emitter.emit(ACTIONS.ERROR, ex)
+    }
+  }
+
+  _getSpecificAssetInfo = async (web3, account, assetAddress) => {
+    try {
+      const baseAssets = this.getStore("baseAssets")
+      if (!baseAssets) {
+        console.warn('baseAssets not found')
+        return null
+      }
+
+      const ba = await Promise.all(
+        baseAssets.map(async (asset) => {
+          if(asset.address.toLowerCase() === assetAddress.toLowerCase()) {
+            if(asset.address === 'FTM') {
+              let bal = await web3.eth.getBalance(account.address)
+              asset.balance = BigNumber(bal).div(10 ** asset.decimals).toFixed(asset.decimals)
+            } else {
+              const assetContract = new web3.eth.Contract(CONTRACTS.ERC20_ABI, asset.address)
+
+              const [ balanceOf ] = await Promise.all([
+                assetContract.methods.balanceOf(account.address).call(),
+              ])
+
+              asset.balance = BigNumber(balanceOf).div(10 ** asset.decimals).toFixed(asset.decimals)
+            }
+          }
+
+          return asset
+        })
+      )
+
+      this.setStore({ baseAssets: ba })
+      this.emitter.emit(ACTIONS.UPDATED)
+
+    } catch (ex) {
+      console.log(ex)
+      return null
     }
   }
 
@@ -3710,34 +3754,37 @@ class Store {
         return pair && pair.gauge
       })
 
-      const bribesEarned = await Promise.all(
-        filteredPairs.map(async (pair) => {
+      let filteredBribes = []
 
-          const bribesEarned = await Promise.all(
-            pair.gauge.bribes.map(async (bribe) => {
-              const bribeContract = new web3.eth.Contract(CONTRACTS.BRIBE_ABI, pair.gauge.bribeAddress)
+      if(tokenID) {
+        const bribesEarned = await Promise.all(
+          filteredPairs.map(async (pair) => {
 
-              const [ earned ] = await Promise.all([
-                bribeContract.methods.earned(bribe.token.address, tokenID).call(),
-              ])
+            const bribesEarned = await Promise.all(
+              pair.gauge.bribes.map(async (bribe) => {
+                const bribeContract = new web3.eth.Contract(CONTRACTS.BRIBE_ABI, pair.gauge.bribeAddress)
 
-              bribe.earned = BigNumber(earned).div(10**bribe.token.decimals).toFixed(bribe.token.decimals)
-              return bribe
-            })
-          )
-          pair.gauge.bribesEarned = bribesEarned
+                const [ earned ] = await Promise.all([
+                  bribeContract.methods.earned(bribe.token.address, tokenID).call(),
+                ])
 
+                bribe.earned = BigNumber(earned).div(10**bribe.token.decimals).toFixed(bribe.token.decimals)
+                return bribe
+              })
+            )
+            pair.gauge.bribesEarned = bribesEarned
+
+            return pair
+          })
+        )
+
+        filteredBribes = bribesEarned.filter((pair) => {
+          return pair.gauge && pair.gauge.bribesEarned && pair.gauge.bribesEarned.length > 0
+        }).map((pair) => {
+          pair.rewardType = 'Bribe'
           return pair
         })
-      )
-
-      let filteredBribes = bribesEarned.filter((pair) => {
-        return pair.gauge && pair.gauge.bribesEarned && pair.gauge.bribesEarned.length > 0
-      }).map((pair) => {
-        pair.rewardType = 'Bribe'
-        return pair
-      })
-
+      }
 
       const filteredFees = pairs.filter((pair) => {
         return (BigNumber(pair.claimable0).gt(0) || BigNumber(pair.claimable1).gt(0))

@@ -90,6 +90,10 @@ export default function ssRewards() {
 
     stableSwapUpdated()
 
+    window.setTimeout(() => {
+      stores.dispatcher.dispatch({ type: ACTIONS.GET_REWARD_BALANCES, content: { tokenID: null } })
+    })
+
     stores.emitter.on(ACTIONS.CLAIM_REWARD_RETURNED, claimReturned);
     stores.emitter.on(ACTIONS.CLAIM_PAIR_FEES_RETURNED, claimReturned);
     stores.emitter.on(ACTIONS.CLAIM_ALL_REWARDS_RETURNED, claimAllReturned);
@@ -106,7 +110,11 @@ export default function ssRewards() {
 
   const onClaimAll = () => {
     setLoading(true)
-    stores.dispatcher.dispatch({ type: ACTIONS.CLAIM_ALL_REWARDS, content: { pairs: rewards, tokenID: token.id } })
+    let sendTokenID = null
+    if(token && token.id) {
+      sendTokenID = token.id
+    }
+    stores.dispatcher.dispatch({ type: ACTIONS.CLAIM_ALL_REWARDS, content: { pairs: rewards, tokenID: sendTokenID } })
   }
 
   const handleClick = (event) => {
@@ -170,7 +178,7 @@ export default function ssRewards() {
               { renderMediumInput(token, vestNFTs) }
             </div>
           </Grid>
-          <Grid item lg={true} md={true} sm={0} xs={0}>
+          <Grid item lg={true} md={true} sm={false} xs={false}>
           </Grid>
           <Grid item lg='auto' md='auto' sm='12' xs='12'>
             <Button

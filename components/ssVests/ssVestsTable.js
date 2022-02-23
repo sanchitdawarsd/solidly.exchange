@@ -289,7 +289,7 @@ const EnhancedTableToolbar = (props) => {
             <Typography className={ classes.actionButtonText }>Create Lock</Typography>
           </Button>
         </Grid>
-        <Grid item lg={true} md={true} sm={0} xs={0}></Grid>
+        <Grid item lg={true} md={true} sm={false} xs={false}></Grid>
       </Grid>
 
 

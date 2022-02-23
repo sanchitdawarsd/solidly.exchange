@@ -876,15 +876,15 @@ export default function ssLiquidityManage() {
     } else {
       return (
         <div className={ classes.depositInfoContainer }>
-          <Typography className={ classes.depositInfoHeading } >Price Info</Typography>
+          <Typography className={ classes.depositInfoHeading } >Reserve Info</Typography>
           <div className={ classes.priceInfos}>
             <div className={ classes.priceInfo }>
-              <Typography className={ classes.title } >{ formatCurrency(BigNumber(pair?.reserve0).div(pair?.reserve1)) }</Typography>
-              <Typography className={ classes.text } >{ `${pair?.token0?.symbol} per ${pair?.token1?.symbol}` }</Typography>
+              <Typography className={ classes.title } >{ formatCurrency(pair?.reserve0) }</Typography>
+              <Typography className={ classes.text } >{ `${pair?.token0?.symbol}` }</Typography>
             </div>
             <div className={ classes.priceInfo }>
-              <Typography className={ classes.title } >{ formatCurrency(BigNumber(pair?.reserve1).div(pair?.reserve0)) }</Typography>
-              <Typography className={ classes.text } >{ `${pair?.token1?.symbol} per ${pair?.token0?.symbol}` }</Typography>
+              <Typography className={ classes.title } >{ formatCurrency(pair?.reserve1) }</Typography>
+              <Typography className={ classes.text } >{ `${pair?.token1?.symbol}` }</Typography>
             </div>
             <div className={ classes.priceInfo }>
               { renderSmallInput('slippage', slippage, slippageError, onSlippageChanged) }
@@ -1295,15 +1295,11 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
   const [ manageLocal, setManageLocal ] = useState(false)
 
   const openSearch = () => {
-    setOpen(true)
     setSearch('')
+    setOpen(true)
   };
 
-  useEffect(function() {
-
-    if(!assetOptions) {
-      return null
-    }
+  useEffect(async function() {
 
     let ao = assetOptions.filter((asset) => {
       if(search && search !== '') {
@@ -1323,40 +1319,18 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
 
     setFilteredAssetOptions(ao)
 
+    //no options in our default list and its an address we search for the address
+    if(ao.length === 0 && search && search.length === 42) {
+      const baseAsset = await stores.stableSwapStore.getBaseAsset(event.target.value, true, true)
+    }
+
     return () => {
     }
-  },[assetOptions]);
+  }, [assetOptions, search]);
 
 
   const onSearchChanged = async (event) => {
     setSearch(event.target.value)
-
-    if(!assetOptions) {
-      return null
-    }
-
-    let filteredOptions = assetOptions.filter((asset) => {
-      if(event.target.value && event.target.value !== '') {
-        return asset.address.toLowerCase().includes(event.target.value.toLowerCase()) ||
-          asset.symbol.toLowerCase().includes(event.target.value.toLowerCase()) ||
-          asset.name.toLowerCase().includes(event.target.value.toLowerCase())
-      } else {
-        return true
-      }
-    }).sort((a, b) => {
-      if(a.balance< b.balance) return 1;
-      if(a.balance >b.balance) return -1;
-      if(a.symbol< b.symbol) return -1;
-      if(a.symbol >b.symbol) return 1;
-      return 0;
-    })
-
-    setFilteredAssetOptions(filteredOptions)
-
-    //no options in our default list and its an address we search for the address
-    if(filteredOptions.length === 0 && event.target.value && event.target.value.length === 42) {
-      const baseAsset = await stores.stableSwapStore.getBaseAsset(event.target.value, true, true)
-    }
   }
 
   const onLocalSelect = (type, asset) => {
@@ -1433,26 +1407,8 @@ function AssetSelect({ type, value, assetOptions, onSelect }) {
           <Typography variant='subtitle1' color='textSecondary'>{ asset ? asset.name : '' }</Typography>
         </div>
         <div className={ classes.assetSelectBalance}>
-          {
-            (type === 'withdraw') &&
-            <>
-              <div className={ classes.nextTo }>
-                <Typography variant='subtitle1' color='textSecondary' className={ classes.paddTiny }>Staked:</Typography>
-                <Typography variant='h5'>{ (asset && asset.gauge && asset.gauge.balance) ? formatCurrency(asset.gauge.balance) : '0.00' }</Typography>
-              </div>
-              <div className={ classes.nextTo }>
-                <Typography variant='subtitle1' color='textSecondary' className={ classes.paddTiny }>LP:</Typography>
-                <Typography variant='h5'>{ (asset && asset.balance) ? formatCurrency(asset.balance) : '0.00' }</Typography>
-              </div>
-            </>
-          }
-          {
-            !(type === 'withdraw') &&
-            <>
-              <Typography variant='h5'>{ (asset && asset.balance) ? formatCurrency(asset.balance) : '0.00' }</Typography>
-              <Typography variant='subtitle1' color='textSecondary'>{ 'Balance' }</Typography>
-            </>
-          }
+          <Typography variant='h5'>{ (asset && asset.balance) ? formatCurrency(asset.balance) : '0.00' }</Typography>
+          <Typography variant='subtitle1' color='textSecondary'>{ 'Balance' }</Typography>
         </div>
       </MenuItem>
     )
