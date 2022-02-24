@@ -50,7 +50,7 @@ export default function ssRewards() {
       })
     } else {
       window.setTimeout(() => {
-        stores.dispatcher.dispatch({ type: ACTIONS.GET_REWARD_BALANCES, content: { tokenID: null } })
+        stores.dispatcher.dispatch({ type: ACTIONS.GET_REWARD_BALANCES, content: { tokenID: 0 } })
       })
     }
 
@@ -59,13 +59,13 @@ export default function ssRewards() {
 
   const rewardBalancesReturned = (rew) => {
     if(rew) {
-      if(rew && rew.bribes && rew.fees && rew.bribes.length >= 0 && rew.fees.length >= 0) {
-        setRewards([...rew.bribes, ...rew.fees])
+      if(rew && rew.bribes && rew.fees && rew.bribes.length >= 0 && rew.fees.length >= 0 && rew.rewards.length >= 0) {
+        setRewards([...rew.bribes, ...rew.fees, ...rew.rewards])
       }
     } else {
       let re = stores.stableSwapStore.getStore('rewards')
-      if(re && re.bribes && re.fees && re.bribes.length >= 0 && re.fees.length >= 0) {
-        setRewards([...re.bribes, ...re.fees])
+      if(re && re.bribes && re.fees && re.bribes.length >= 0 && re.fees.length >= 0 && re.rewards.length >= 0) {
+        setRewards([...re.bribes, ...re.fees, ...re.rewards])
       }
     }
   }
@@ -94,10 +94,12 @@ export default function ssRewards() {
 
     stableSwapUpdated()
 
+    stores.emitter.on(ACTIONS.CLAIM_BRIBE_RETURNED, claimReturned);
     stores.emitter.on(ACTIONS.CLAIM_REWARD_RETURNED, claimReturned);
     stores.emitter.on(ACTIONS.CLAIM_PAIR_FEES_RETURNED, claimReturned);
     stores.emitter.on(ACTIONS.CLAIM_ALL_REWARDS_RETURNED, claimAllReturned);
     return () => {
+      stores.emitter.removeListener(ACTIONS.CLAIM_BRIBE_RETURNED, claimReturned);
       stores.emitter.removeListener(ACTIONS.CLAIM_REWARD_RETURNED, claimReturned);
       stores.emitter.removeListener(ACTIONS.CLAIM_PAIR_FEES_RETURNED, claimReturned);
       stores.emitter.removeListener(ACTIONS.CLAIM_ALL_REWARDS_RETURNED, claimAllReturned);
@@ -110,7 +112,7 @@ export default function ssRewards() {
 
   const onClaimAll = () => {
     setLoading(true)
-    let sendTokenID = null
+    let sendTokenID = 0
     if(token && token.id) {
       sendTokenID = token.id
     }

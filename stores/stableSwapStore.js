@@ -28,7 +28,8 @@ class Store {
       vestNFTs: [],
       rewards: {
         bribes: [],
-        fees: []
+        fees: [],
+        rewards: []
       },
     }
 
@@ -126,11 +127,14 @@ class Store {
           case ACTIONS.GET_REWARD_BALANCES:
             this.getRewardBalances(payload)
             break
-          case ACTIONS.CLAIM_REWARD:
+          case ACTIONS.CLAIM_BRIBE:
             this.claimBribes(payload)
             break
           case ACTIONS.CLAIM_PAIR_FEES:
             this.claimPairFees(payload)
+            break
+          case ACTIONS.CLAIM_REWARD:
+            this.claimRewards(payload)
             break
           case ACTIONS.CLAIM_ALL_REWARDS:
             this.claimAllRewards(payload)
@@ -3750,9 +3754,13 @@ class Store {
 
       const pairs = this.getStore('pairs')
 
-      const filteredPairs = pairs.filter((pair) => {
+      const filteredPairs = [...pairs.filter((pair) => {
         return pair && pair.gauge
-      })
+      })]
+
+      const filteredPairs2 = [...pairs.filter((pair) => {
+        return pair && pair.gauge
+      })]
 
       let filteredBribes = []
 
@@ -3786,16 +3794,46 @@ class Store {
         })
       }
 
-      const filteredFees = pairs.filter((pair) => {
-        return (BigNumber(pair.claimable0).gt(0) || BigNumber(pair.claimable1).gt(0))
-      }).map((pair) => {
-        pair.rewardType = 'Fees'
-        return pair
-      })
+      const filteredFees = []
+      for(let i = 0; i < pairs.length; i++) {
+        let pair = Object.assign({}, pairs[i])
+        if(BigNumber(pair.claimable0).gt(0) || BigNumber(pair.claimable1).gt(0)) {
+          pair.rewardType = 'Fees'
+          filteredFees.push(pair)
+        }
+      }
+
+      const rewardsEarned = await Promise.all(
+        filteredPairs2.map(async (pair) => {
+
+          const gaugeContract = new web3.eth.Contract(CONTRACTS.GAUGE_ABI, pair.gauge.address)
+
+          const [ earned ] = await Promise.all([
+            gaugeContract.methods.earned(CONTRACTS.GOV_TOKEN_ADDRESS, account.address).call(),
+          ])
+
+          pair.gauge.rewardsEarned = BigNumber(earned).div(10**18).toFixed(18)
+          return pair
+        })
+      )
+
+      const filteredRewards = []
+      for(let j = 0; j < rewardsEarned.length; j++) {
+        let pair = Object.assign({}, rewardsEarned[j])
+        if(pair.gauge && pair.gauge.rewardsEarned && BigNumber(pair.gauge.rewardsEarned).gt(0)) {
+          pair.rewardType = 'Reward'
+          filteredRewards.push(pair)
+        }
+      }
+
+      console.log(filteredBribes)
+      console.log(filteredFees)
+      console.log(filteredRewards)
 
       const rewards = {
         bribes: filteredBribes,
-        fees: filteredFees
+        fees: filteredFees,
+        rewards: filteredRewards,
       }
 
       this.setStore({
@@ -3880,6 +3918,7 @@ class Store {
       // ADD TRNASCTIONS TO TRANSACTION QUEUE DISPLAY
       let claimTXID = this.getTXUUID()
       let feeClaimTXIDs = []
+      let rewardClaimTXIDs = []
 
 
       let bribePairs = pairs.filter((pair) => {
@@ -3888,6 +3927,10 @@ class Store {
 
       let feePairs = pairs.filter((pair) => {
         return pair.rewardType === 'Fees'
+      })
+
+      let rewardPairs = pairs.filter((pair) => {
+        return pair.rewardType === 'Reward'
       })
 
       const sendGauges = bribePairs.map((pair) => {
@@ -3899,7 +3942,7 @@ class Store {
         })
       })
 
-      if(bribePairs.length == 0 && feePairs.length == 0) {
+      if(bribePairs.length == 0 && feePairs.length == 0 && rewardPairs.length == 0) {
         this.emitter.emit(ACTIONS.ERROR, 'Nothing to claim')
         this.emitter.emit(ACTIONS.CLAIM_ALL_REWARDS_RETURNED)
         return
@@ -3923,6 +3966,19 @@ class Store {
           sendOBJ.transactions.push({
             uuid: newClaimTX,
             description: `Claiming fees for ${feePairs[i].symbol}`,
+            status: 'WAITING'
+          })
+        }
+      }
+
+      if(rewardPairs.length > 0) {
+        for(let i = 0; i < rewardPairs.length; i++) {
+          const newClaimTX = this.getTXUUID()
+
+          rewardClaimTXIDs.push(newClaimTX)
+          sendOBJ.transactions.push({
+            uuid: newClaimTX,
+            description: `Claiming reward for ${rewardPairs[i].symbol}`,
             status: 'WAITING'
           })
         }
@@ -3969,6 +4025,26 @@ class Store {
         }
       }
 
+      if(rewardPairs.length > 0) {
+        for(let i = 0; i < rewardPairs.length; i++) {
+          const gaugeContract = new web3.eth.Contract(CONTRACTS.gaugeABI, rewardPairs[i].gauge.address)
+          const sendTok = [ CONTRACTS.GOV_TOKEN_ADDRESS ]
+
+          const rewardPromise = new Promise((resolve, reject) => {
+            context._callContractWait(web3, gaugeContract, 'getReward', [account.address, sendTok], account, gasPrice, null, null, rewardClaimTXIDs[i], (err) => {
+              if (err) {
+                reject(err)
+                return
+              }
+
+              resolve()
+            })
+          })
+
+          await Promise.all([rewardPromise])
+        }
+      }
+
       this.getRewardBalances({ content: { tokenID } })
       this.emitter.emit(ACTIONS.CLAIM_ALL_REWARDS_RETURNED)
 
@@ -4008,14 +4084,11 @@ class Store {
       const gasPrice = await stores.accountStore.getGasPrice()
 
       // SUBMIT CLAIM TRANSACTION
-      const gaugesContract = new web3.eth.Contract(CONTRACTS.VOTER_ABI, CONTRACTS.VOTER_ADDRESS)
+      const gaugeContract = new web3.eth.Contract(CONTRACTS.GAUGE_ABI, pair.gauge.address)
 
-      const sendGauges = [ pair.gauge.address ]
-      const sendTokens = [ pair.gauge.bribesEarned.map((bribe) => {
-        return bribe.token.address
-      }) ]
+      const sendTokens = [ CONTRACTS.GOV_TOKEN_ADDRESS ]
 
-      this._callContractWait(web3, gaugesContract, 'claimRewards', [sendGauges, sendTokens], account, gasPrice, null, null, claimTXID, async (err) => {
+      this._callContractWait(web3, gaugeContract, 'getReward', [account.address, sendTokens], account, gasPrice, null, null, claimTXID, async (err) => {
         if (err) {
           return this.emitter.emit(ACTIONS.ERROR, err)
         }

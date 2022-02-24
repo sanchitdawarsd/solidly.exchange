@@ -431,10 +431,12 @@ export default function EnhancedTable({ rewards, vestNFTs, tokenID }) {
   }
 
   const onClaim = (reward) => {
-    if(reward.type === 'Bribe') {
-      stores.dispatcher.dispatch({ type: ACTIONS.CLAIM_REWARD, content: { pair: reward, tokenID } })
-    } else {
+    if(reward.rewardType === 'Bribe') {
+      stores.dispatcher.dispatch({ type: ACTIONS.CLAIM_BRIBE, content: { pair: reward, tokenID } })
+    } else if (reward.rewardType === 'Fees') {
       stores.dispatcher.dispatch({ type: ACTIONS.CLAIM_PAIR_FEES, content: { pair: reward, tokenID } })
+    } else if (reward.rewardType === 'Reward') {
+      stores.dispatcher.dispatch({ type: ACTIONS.CLAIM_REWARD, content: { pair: reward, tokenID } })
     }
   };
 
@@ -538,6 +540,26 @@ export default function EnhancedTable({ rewards, vestNFTs, tokenID }) {
                             </div>
                           </>
                         }
+                        { (row && row.rewardType === 'Reward' && row.gauge && row.gauge.balance && row.gauge.totalSupply) &&
+                          <>
+                            <div className={ classes.inlineEnd }>
+                              <Typography variant='h2' className={classes.textSpaced}>
+                                {formatCurrency(BigNumber(row.gauge.balance).div(row.gauge.totalSupply).times(row.gauge.reserve0))}
+                              </Typography>
+                              <Typography variant='h5' className={`${classes.textSpaced} ${classes.symbol}`} color='textSecondary'>
+                                {row.token0.symbol}
+                              </Typography>
+                            </div>
+                            <div className={ classes.inlineEnd }>
+                              <Typography variant='h5' className={classes.textSpaced}>
+                                {formatCurrency(BigNumber(row.gauge.balance).div(row.gauge.totalSupply).times(row.gauge.reserve1))}
+                              </Typography>
+                              <Typography variant='h5' className={`${classes.textSpaced} ${classes.symbol}`} color='textSecondary'>
+                                {row.token1.symbol}
+                              </Typography>
+                            </div>
+                          </>
+                        }
                       </div>
                     </TableCell>
                     <TableCell className={classes.cell} align='right'>
@@ -586,7 +608,7 @@ export default function EnhancedTable({ rewards, vestNFTs, tokenID }) {
                                   { formatCurrency(row.claimable0) }
                                 </Typography>
                                 <Typography variant='h5' className={classes.textSpacedPadded} color='textSecondary'>
-                                  { row.token1?.symbol }
+                                  { row.token0?.symbol }
                                 </Typography>
                                 </div>
                               <div className={ classes.inlineEnd }>
@@ -609,6 +631,18 @@ export default function EnhancedTable({ rewards, vestNFTs, tokenID }) {
                                 </Typography>
                               </div>
                             </>
+                        }
+                        { (row && row.rewardType === 'Reward') &&
+                          <>
+                            <div className={ classes.inlineEnd }>
+                              <Typography variant='h2' className={classes.textSpaced}>
+                                {formatCurrency(row.gauge.rewardsEarned)}
+                              </Typography>
+                              <Typography variant='h5' className={`${classes.textSpaced} ${classes.symbol}`} color='textSecondary'>
+                                SOLID
+                              </Typography>
+                            </div>
+                          </>
                         }
                       </div>
                     </TableCell>
