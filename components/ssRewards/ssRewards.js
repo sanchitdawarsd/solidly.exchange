@@ -43,10 +43,16 @@ export default function ssRewards() {
     setVeToken(stores.stableSwapStore.getStore('veToken'))
 
     if(nfts && nfts.length > 0) {
-      setToken(nfts[0])
-      window.setTimeout(() => {
-        stores.dispatcher.dispatch({ type: ACTIONS.GET_REWARD_BALANCES, content: { tokenID: nfts[0].id } })
-      })
+      if(!token) {
+        setToken(nfts[0])
+        window.setTimeout(() => {
+          stores.dispatcher.dispatch({ type: ACTIONS.GET_REWARD_BALANCES, content: { tokenID: nfts[0].id } })
+        })
+      } else {
+        window.setTimeout(() => {
+          stores.dispatcher.dispatch({ type: ACTIONS.GET_REWARD_BALANCES, content: { tokenID: token.id } })
+        })
+      }
     } else {
       window.setTimeout(() => {
         stores.dispatcher.dispatch({ type: ACTIONS.GET_REWARD_BALANCES, content: { tokenID: 0 } })
