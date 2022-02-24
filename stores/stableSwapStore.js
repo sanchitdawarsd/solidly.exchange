@@ -4027,7 +4027,7 @@ class Store {
 
       if(rewardPairs.length > 0) {
         for(let i = 0; i < rewardPairs.length; i++) {
-          const gaugeContract = new web3.eth.Contract(CONTRACTS.gaugeABI, rewardPairs[i].gauge.address)
+          const gaugeContract = new web3.eth.Contract(CONTRACTS.GAUGE_ABI, rewardPairs[i].gauge.address)
           const sendTok = [ CONTRACTS.GOV_TOKEN_ADDRESS ]
 
           const rewardPromise = new Promise((resolve, reject) => {
