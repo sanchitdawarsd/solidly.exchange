@@ -3787,7 +3787,19 @@ class Store {
         )
 
         filteredBribes = bribesEarned.filter((pair) => {
-          return pair.gauge && pair.gauge.bribesEarned && pair.gauge.bribesEarned.length > 0
+          if(pair.gauge && pair.gauge.bribesEarned && pair.gauge.bribesEarned.length > 0) {
+            let shouldReturn = false
+
+            for(let i = 0; i < pair.gauge.bribesEarned.length; i++) {
+              if(BigNumber(pair.gauge.bribesEarned[i].earned).gt(0)) {
+                shouldReturn = true
+              }
+            }
+
+            return shouldReturn
+          }
+
+          return false
         }).map((pair) => {
           pair.rewardType = 'Bribe'
           return pair

@@ -39,11 +39,10 @@ export default function ssRewards() {
 
   const stableSwapUpdated = (rew) => {
     const nfts = stores.stableSwapStore.getStore('vestNFTs')
-
     setVestNFTs(nfts)
     setVeToken(stores.stableSwapStore.getStore('veToken'))
 
-    if(nfts && nfts.length > 0 && !token) {
+    if(nfts && nfts.length > 0) {
       setToken(nfts[0])
       window.setTimeout(() => {
         stores.dispatcher.dispatch({ type: ACTIONS.GET_REWARD_BALANCES, content: { tokenID: nfts[0].id } })
