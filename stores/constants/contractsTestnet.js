@@ -43,3 +43,5 @@ export const PAIR_ABI = abis.pairABI
 export const GAUGE_ABI = abis.gaugeABI
 export const BRIBE_ABI = abis.bribeABI
 export const TOKEN_ABI = abis.tokenABI
+
+export const MULTICALL_ADDRESS = ''

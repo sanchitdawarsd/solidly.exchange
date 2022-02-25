@@ -124,6 +124,21 @@
 .tokenIDContainer {
 }
 
+.disclaimerContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.disclaimer {
+  font-size: 13px !important;
+  font-weight: 200 !important;
+  border: 1px solid rgb(6, 211, 215) !important;
+  border-radius: 10px;
+  background: rgb(23, 52, 72) !important;
+  padding: 21.5px !important;
+}
+
 @media screen and (max-width: 1200px) {
   .container {
     width: calc(100% - 40px);

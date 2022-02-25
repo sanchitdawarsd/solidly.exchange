@@ -1,7 +1,9 @@
 import async from 'async';
 import {
-  ACTIONS
+  ACTIONS,
+  CONTRACTS
 } from './constants';
+import Multicall from '@dopex-io/web3-multicall';
 
 import {
   injected,
@@ -79,7 +81,7 @@ class Store {
           .then((a) => {
             this.setStore({
               account: { address: a.account },
-              web3context: { library: { provider: a.provider } },
+              web3context: { library: { provider: a.provider } }
             });
             this.emitter.emit(ACTIONS.ACCOUNT_CONFIGURED);
           })
@@ -90,7 +92,7 @@ class Store {
             });
           })
           .catch((e) => {
-            this.emitter.emit(ERROR, e);
+            this.emitter.emit(ACTIONS.ERROR, e);
             this.emitter.emit(ACTIONS.ACCOUNT_CONFIGURED);
 
             this.dispatcher.dispatch({
@@ -120,7 +122,7 @@ class Store {
     const res = window.ethereum.on('accountsChanged', function (accounts) {
       that.setStore({
         account: { address: accounts[0] },
-        web3context: { library: { provider: window.ethereum } },
+        web3context: { library: { provider: window.ethereum } }
       });
       that.emitter.emit(ACTIONS.ACCOUNT_CHANGED);
       that.emitter.emit(ACTIONS.ACCOUNT_CONFIGURED);
@@ -205,6 +207,15 @@ class Store {
       return null;
     }
     return new Web3(provider);
+  };
+
+  getMulticall = async () => {
+    const web3 = await this.getWeb3Provider()
+    const multicall = new Multicall({
+      multicallAddress: CONTRACTS.MULTICALL_ADDRESS,
+      provider: web3,
+    })
+    return multicall
   };
 }
 

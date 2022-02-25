@@ -705,11 +705,12 @@ class Store {
 
       //only save when a user adds it. don't for when we lookup a pair and find he asset.
       if(save) {
+        let localBaseAssets = this.getLocalAssets()
         localBaseAssets = [...localBaseAssets, newBaseAsset]
         localStorage.setItem('stableSwap-assets', JSON.stringify(localBaseAssets))
 
         const baseAssets = this.getStore('baseAssets')
-        const storeBaseAssets = [...baseAssets, ...localBaseAssets]
+        const storeBaseAssets = [...baseAssets, ...newBaseAsset]
 
         this.setStore({ baseAssets: storeBaseAssets })
         this.emitter.emit(ACTIONS.BASE_ASSETS_UPDATED, storeBaseAssets)
@@ -917,6 +918,8 @@ class Store {
 
   _getPairInfo = async (web3, account, overridePairs) => {
     try {
+      const multicall = await stores.accountStore.getMulticall()
+
       let pairs = []
 
       if(overridePairs) {
@@ -933,10 +936,6 @@ class Store {
         gaugesContract.methods.totalWeight().call()
       ])
 
-
-      const now1 = moment()
-      console.log('startin section 1')
-
       const ps = await Promise.all(
         pairs.map(async (pair) => {
           try {
@@ -947,20 +946,22 @@ class Store {
             const token0 = await this.getBaseAsset(pair.token0.address, false, true)
             const token1 = await this.getBaseAsset(pair.token1.address, false, true)
 
-            const [ totalSupply, reserves, balanceOf, claimable0, claimable1 ] = await Promise.all([
-              pairContract.methods.totalSupply().call(),
-              pairContract.methods.getReserves().call(),
-              pairContract.methods.balanceOf(account.address).call(),
-              pairContract.methods.claimable0(account.address).call(),
-              pairContract.methods.claimable1(account.address).call()
+            const [ totalSupply, reserves, balanceOf, claimable0, claimable1 ] = await multicall.aggregate([
+              pairContract.methods.totalSupply(),
+              pairContract.methods.getReserves(),
+              pairContract.methods.balanceOf(account.address),
+              pairContract.methods.claimable0(account.address),
+              pairContract.methods.claimable1(account.address)
             ])
+
+            console.log(reserves)
 
             pair.token0 = token0 != null ? token0 : pair.token0
             pair.token1 = token1 != null ? token1 : pair.token1
             pair.balance = BigNumber(balanceOf).div(10**pair.decimals).toFixed(parseInt(pair.decimals))
             pair.totalSupply = BigNumber(totalSupply).div(10**pair.decimals).toFixed(parseInt(pair.decimals))
-            pair.reserve0 = BigNumber(reserves._reserve0).div(10**pair.token0.decimals).toFixed(parseInt(pair.token0.decimals))
-            pair.reserve1 = BigNumber(reserves._reserve1).div(10**pair.token1.decimals).toFixed(parseInt(pair.token1.decimals))
+            pair.reserve0 = BigNumber(reserves[0]).div(10**pair.token0.decimals).toFixed(parseInt(pair.token0.decimals))
+            pair.reserve1 = BigNumber(reserves[1]).div(10**pair.token1.decimals).toFixed(parseInt(pair.token1.decimals))
             pair.claimable0 = BigNumber(claimable0).div(10**pair.token0.decimals).toFixed(pair.token0.decimals)
             pair.claimable1 = BigNumber(claimable1).div(10**pair.token1.decimals).toFixed(pair.token1.decimals)
 
@@ -978,11 +979,6 @@ class Store {
       this.emitter.emit(ACTIONS.UPDATED)
 
 
-
-      const now2 = moment()
-      console.log('startin section 2')
-
-
       const ps1 = await Promise.all(
         ps.map(async (pair) => {
           try {
@@ -990,10 +986,10 @@ class Store {
             if(pair.gauge && pair.gauge.address !== ZERO_ADDRESS) {
               const gaugeContract = new web3.eth.Contract(CONTRACTS.GAUGE_ABI, pair.gauge.address)
 
-              const [ totalSupply, gaugeBalance, gaugeWeight ] = await Promise.all([
-                gaugeContract.methods.totalSupply().call(),
-                gaugeContract.methods.balanceOf(account.address).call(),
-                gaugesContract.methods.weights(pair.address).call()
+              const [ totalSupply, gaugeBalance, gaugeWeight ] = await multicall.aggregate([
+                gaugeContract.methods.totalSupply(),
+                gaugeContract.methods.balanceOf(account.address),
+                gaugesContract.methods.weights(pair.address)
               ])
 
               const bribeContract = new web3.eth.Contract(CONTRACTS.BRIBE_ABI, pair.gauge.bribeAddress)
@@ -1031,11 +1027,6 @@ class Store {
           }
         })
       )
-
-
-      const now3 = moment()
-      console.log(`First section took - ${now2.diff(now1)}`)
-      console.log(`Second section took - ${now3.diff(now2)}`)
 
       this.setStore({ pairs: ps1 })
       this.emitter.emit(ACTIONS.UPDATED)
@@ -3545,11 +3536,13 @@ class Store {
 
       const gaugesContract = new web3.eth.Contract(CONTRACTS.VOTER_ABI, CONTRACTS.VOTER_ADDRESS)
 
-      const votesCalls = filteredPairs.map((pair) => {
-        return gaugesContract.methods.votes(tokenID, pair.address).call()
+      const multicall = await stores.accountStore.getMulticall()
+
+      const calls = filteredPairs.map((pair) => {
+        return gaugesContract.methods.votes(tokenID, pair.address)
       })
 
-      const voteCounts = await Promise.all(votesCalls)
+      const voteCounts = await multicall.aggregate(calls);
 
       let votes = []
 
@@ -4336,6 +4329,10 @@ class Store {
 
     return Promise.all(promises)
   }
+  //
+  // _getMulticallWatcher = (web3, calls) => {
+  //
+  // }
 }
 
 export default Store
