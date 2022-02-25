@@ -326,6 +326,12 @@ function Setup() {
             onError={(e)=>{e.target.onerror = null; e.target.src="/tokens/unknown-logo.png"}}
           />
         </div>
+        {
+          BigNumber(quote.priceImpact).gt(0.5) &&
+            <div className={ classes.warningContainer }>
+              <Typography className={ BigNumber(quote.priceImpact).gt(5) ? classes.warningError : classes.warningWarning } align='center'>Price impact { formatCurrency(quote.priceImpact) }%</Typography>
+            </div>
+        }
       </div>
     )
   }
