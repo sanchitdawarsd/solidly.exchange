@@ -64,6 +64,12 @@ function Setup() {
     }
 
     const quoteReturned = (val) => {
+      if(!val) {
+        setQuoteLoading(false)
+        setQuote(null)
+        setToAmountValue('')
+        setQuoteError('Insufficient liquidity or no route available to complete swap')
+      }
       if(val && val.inputs && val.inputs.fromAmount === fromAmountValue && val.inputs.fromAsset.address === fromAssetValue.address && val.inputs.toAsset.address === toAssetValue.address) {
         setQuoteLoading(false)
         if(BigNumber(val.output.finalValue).eq(0)) {
@@ -75,11 +81,6 @@ function Setup() {
 
         setToAmountValue(BigNumber(val.output.finalValue).toFixed(8))
         setQuote(val)
-      } else {
-        setQuoteLoading(false)
-        setQuote(null)
-        setToAmountValue('')
-        setQuoteError('Insufficient liquidity or no route available to complete swap')
       }
     }
 

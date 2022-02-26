@@ -2701,6 +2701,8 @@ class Store {
   }
 
   quoteSwap = async (payload) => {
+    const txUUID = this.getTXUUID()
+    console.log(`Entered Quote: ${txUUID}`)
     try {
       const web3 = await stores.accountStore.getWeb3Provider()
       if (!web3) {
@@ -2869,9 +2871,11 @@ class Store {
         priceImpact: priceImpact
       }
 
+      console.log(`Returned Quote: ${txUUID} : ${JSON.stringify(returnValue)}`)
       this.emitter.emit(ACTIONS.QUOTE_SWAP_RETURNED, returnValue)
 
     } catch(ex) {
+    console.log(`Exception Quote: ${txUUID}`)
       console.error(ex)
       this.emitter.emit(ACTIONS.QUOTE_SWAP_RETURNED, null)
       this.emitter.emit(ACTIONS.ERROR, ex)
