@@ -583,6 +583,19 @@
   border-bottom: 1px dashed rgba(126,153,176,0.6);
   text-align: center;
   margin-top: -4px;
+  position: relative;
+}
+
+.stabIndicatorContainer {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.stabIndicator {
+  font-size: 13px !important;
+  color: #06D3D7;
 }
 
 .routeArrow {

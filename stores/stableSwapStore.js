@@ -710,7 +710,7 @@ class Store {
         localStorage.setItem('stableSwap-assets', JSON.stringify(localBaseAssets))
 
         const baseAssets = this.getStore('baseAssets')
-        const storeBaseAssets = [...baseAssets, ...newBaseAsset]
+        const storeBaseAssets = [...baseAssets, newBaseAsset]
 
         this.setStore({ baseAssets: storeBaseAssets })
         this.emitter.emit(ACTIONS.BASE_ASSETS_UPDATED, storeBaseAssets)
@@ -2736,149 +2736,86 @@ class Store {
       let amountOuts = []
 
       if(includesRouteAddress.length === 0) {
-        const amountsOutStable = await Promise.all(routeAssets.map(async (routeAsset) => {
-          try {
-            const routes = [{
-              from: addy0,
-              to: routeAsset.address,
-              stable: true
-            },{
-              from: routeAsset.address,
-              to: addy1,
-              stable: true
-            }]
-            const receiveAmounts = await routerContract.methods.getAmountsOut(sendFromAmount, routes).call()
-            const returnVal = {
-              routes: routes,
-              routeAsset: routeAsset,
-              receiveAmounts: receiveAmounts,
-              finalValue: BigNumber(receiveAmounts[receiveAmounts.length-1]).div(10**toAsset.decimals).toFixed(toAsset.decimals)
+        amountOuts = routeAssets.map((routeAsset) => {
+          return [
+            {
+              routes: [{
+                from: addy0,
+                to: routeAsset.address,
+                stable: true
+              },{
+                from: routeAsset.address,
+                to: addy1,
+                stable: true
+              }],
+              routeAsset: routeAsset
+            },
+            {
+              routes: [{
+                from: addy0,
+                to: routeAsset.address,
+                stable: false
+              },{
+                from: routeAsset.address,
+                to: addy1,
+                stable: false
+              }],
+              routeAsset: routeAsset
+            },
+            {
+              routes: [{
+                from: addy0,
+                to: routeAsset.address,
+                stable: true
+              },{
+                from: routeAsset.address,
+                to: addy1,
+                stable: false
+              }],
+              routeAsset: routeAsset
+            },
+            {
+              routes: [{
+                from: addy0,
+                to: routeAsset.address,
+                stable: false
+              },{
+                from: routeAsset.address,
+                to: addy1,
+                stable: true
+              }],
+              routeAsset: routeAsset
             }
-            return returnVal
-          } catch(ex) {
-            console.error(ex)
-            return null
-          }
-        }))
-
-        const amountsOutVariable = await Promise.all(routeAssets.map(async (routeAsset) => {
-          try {
-            const routes = [{
-              from: addy0,
-              to: routeAsset.address,
-              stable: false
-            },{
-              from: routeAsset.address,
-              to: addy1,
-              stable: false
-            }]
-            const receiveAmounts = await routerContract.methods.getAmountsOut(sendFromAmount, routes).call()
-            const returnVal = {
-              routes: routes,
-              routeAsset: routeAsset,
-              receiveAmounts: receiveAmounts,
-              finalValue: BigNumber(receiveAmounts[receiveAmounts.length-1]).div(10**toAsset.decimals).toFixed(toAsset.decimals)
-            }
-            return returnVal
-          } catch(ex) {
-            console.error(ex)
-            return null
-          }
-        }))
-
-        const amountsOutStableVariable = await Promise.all(routeAssets.map(async (routeAsset) => {
-          try {
-            const routes = [{
-              from: addy0,
-              to: routeAsset.address,
-              stable: true
-            },{
-              from: routeAsset.address,
-              to: addy1,
-              stable: false
-            }]
-            const receiveAmounts = await routerContract.methods.getAmountsOut(sendFromAmount, routes).call()
-            const returnVal = {
-              routes: routes,
-              routeAsset: routeAsset,
-              receiveAmounts: receiveAmounts,
-              finalValue: BigNumber(receiveAmounts[receiveAmounts.length-1]).div(10**toAsset.decimals).toFixed(toAsset.decimals)
-            }
-            return returnVal
-          } catch(ex) {
-            console.error(ex)
-            return null
-          }
-        }))
-
-        const amountsOutVariableStable = await Promise.all(routeAssets.map(async (routeAsset) => {
-          try {
-            const routes = [{
-              from: addy0,
-              to: routeAsset.address,
-              stable: false
-            },{
-              from: routeAsset.address,
-              to: addy1,
-              stable: true
-            }]
-            const receiveAmounts = await routerContract.methods.getAmountsOut(sendFromAmount, routes).call()
-            const returnVal = {
-              routes: routes,
-              routeAsset: routeAsset,
-              receiveAmounts: receiveAmounts,
-              finalValue: BigNumber(receiveAmounts[receiveAmounts.length-1]).div(10**toAsset.decimals).toFixed(toAsset.decimals)
-            }
-            return returnVal
-          } catch(ex) {
-            console.error(ex)
-            return null
-          }
-        }))
-
-        amountOuts = [...amountsOutStable, ...amountsOutVariable, ...amountsOutStableVariable, ...amountsOutVariableStable]
+          ]
+        }).flat()
       }
 
-      try {
-        // also do a direct swap check.
-        const routes = [{
+      amountOuts.push({
+        routes: [{
           from: addy0,
           to: addy1,
           stable: true
-        }]
-        const receiveAmounts = await routerContract.methods.getAmountsOut(sendFromAmount, routes).call()
-        const returnVal = {
-          routes: routes,
-          routeAsset: null,
-          receiveAmounts: receiveAmounts,
-          finalValue: BigNumber(receiveAmounts[receiveAmounts.length-1]).div(10**toAsset.decimals).toFixed(toAsset.decimals)
-        }
+        }],
+        routeAsset: null
+      })
 
-        amountOuts.push(returnVal)
-      } catch(ex) {
-        //asuming there will be exceptions thrown when no route exists
-        console.error(ex)
-      }
-
-      try {
-        // also do a direct swap check.
-        const routes = [{
+      amountOuts.push({
+        routes: [{
           from: addy0,
           to: addy1,
           stable: false
-        }]
-        const receiveAmounts = await routerContract.methods.getAmountsOut(sendFromAmount, routes).call()
-        const returnVal = {
-          routes: routes,
-          routeAsset: null,
-          receiveAmounts: receiveAmounts,
-          finalValue: BigNumber(receiveAmounts[receiveAmounts.length-1]).div(10**toAsset.decimals).toFixed(toAsset.decimals)
-        }
+        }],
+        routeAsset: null
+      })
 
-        amountOuts.push(returnVal)
-      } catch(ex) {
-        //asuming there will be exceptions thrown when no route exists
-        console.error(ex)
+      const multicall = await stores.accountStore.getMulticall()
+      const receiveAmounts = await multicall.aggregate(amountOuts.map((route) => {
+        return routerContract.methods.getAmountsOut(sendFromAmount, route.routes)
+      }))
+
+      for(let i = 0; i < receiveAmounts.length; i++) {
+        amountOuts[i].receiveAmounts = receiveAmounts[i]
+        amountOuts[i].finalValue = BigNumber(receiveAmounts[i][receiveAmounts[i].length-1]).div(10**toAsset.decimals).toFixed(toAsset.decimals)
       }
 
       const bestAmountOut = amountOuts.filter((ret) => {
@@ -2920,8 +2857,6 @@ class Store {
         }
       }
 
-      console.log(`totalRatio: ${totalRatio}`)
-
       const priceImpact = BigNumber(1).minus(totalRatio).times(100).toFixed(18)
 
       const returnValue = {
@@ -2938,6 +2873,7 @@ class Store {
 
     } catch(ex) {
       console.error(ex)
+      this.emitter.emit(ACTIONS.QUOTE_SWAP_RETURNED, null)
       this.emitter.emit(ACTIONS.ERROR, ex)
     }
   }

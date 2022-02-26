@@ -174,7 +174,7 @@ export default function ssBribeCreate() {
                       </div>
                       <div>
                         <Typography className={ classes.fillerText }>{option.token0.symbol}/{option.token1.symbol}</Typography>
-                        <Typography color='textSecondary' className={ classes.smallerText }>{ option?.isStable ? 'Stable Pool' : 'Variable Pool' }</Typography>
+                        <Typography color='textSecondary' className={ classes.smallerText }>{ option?.isStable ? 'Stable Pool' : 'Volatile Pool' }</Typography>
                       </div>
                     </div>
                   </MenuItem>

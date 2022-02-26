@@ -492,7 +492,7 @@ export default function EnhancedTable({ gauges, setParentSliderValues, defaultVo
                           { row?.symbol }
                         </Typography>
                         <Typography variant="h5" className={classes.textSpaced} color='textSecondary'>
-                          { row?.isStable ? 'Stable Pool' : 'Variable Pool' }
+                          { row?.isStable ? 'Stable Pool' : 'Volatile Pool' }
                         </Typography>
                       </div>
                     </div>

@@ -279,7 +279,7 @@ export default function SSLiquidityCreate() {
               <Typography className={ classes.toggleOptionText }>Stable</Typography>
             </div>
             <div className={ `${classes.toggleOption} ${!stable && classes.active}` } onClick={ () => { setStab(false) } }>
-              <Typography className={ classes.toggleOptionText }>Variable</Typography>
+              <Typography className={ classes.toggleOptionText }>Volatile</Typography>
             </div>
           </div>
         </div>

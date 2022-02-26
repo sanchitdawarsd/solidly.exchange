@@ -75,6 +75,11 @@ function Setup() {
 
         setToAmountValue(BigNumber(val.output.finalValue).toFixed(8))
         setQuote(val)
+      } else {
+        setQuoteLoading(false)
+        setQuote(null)
+        setToAmountValue('')
+        setQuoteError('Insufficient liquidity or no route available to complete swap')
       }
     }
 
@@ -301,6 +306,9 @@ function Setup() {
             <div className={classes.routeArrow}>
               <ArrowForwardIosIcon className={classes.routeArrowIcon} />
             </div>
+            <div className={ classes.stabIndicatorContainer }>
+              <Typography className={ classes.stabIndicator }>{ quote.output.routes[0].stable ? 'Stable' : 'Volatile' }</Typography>
+            </div>
           </div>
           { quote && quote.output && quote.output.routeAsset &&
             <>
@@ -314,6 +322,9 @@ function Setup() {
               <div className={ classes.line }>
                 <div className={classes.routeArrow}>
                   <ArrowForwardIosIcon className={classes.routeArrowIcon} />
+                </div>
+                <div className={ classes.stabIndicatorContainer }>
+                  <Typography className={ classes.stabIndicator }>{ quote.output.routes[1].stable ? 'Stable' : 'Volatile' }</Typography>
                 </div>
               </div>
             </>

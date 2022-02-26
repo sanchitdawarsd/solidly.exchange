@@ -631,7 +631,7 @@ const EnhancedTableToolbar = (props) => {
 
               <Grid container spacing={0}>
                 <Grid item lg={9} className={classes.labelColumn}>
-                  <Typography className={classes.filterLabel} variant="body1">Show Variable Pools</Typography>
+                  <Typography className={classes.filterLabel} variant="body1">Show Volatile Pools</Typography>
                 </Grid>
                 <Grid item lg={3} className={classes.alignContentRight}>
                   <Switch
@@ -797,7 +797,7 @@ export default function EnhancedTable({ pairs }) {
                             { row?.symbol }
                           </Typography>
                           <Typography variant='h2' className={classes.textSpaced} noWrap color='textSecondary'>
-                            { row?.isStable ? 'Stable Pool' : 'Variable Pool' }
+                            { row?.isStable ? 'Stable Pool' : 'Volatile Pool' }
                           </Typography>
                         </div>
                       </div>
