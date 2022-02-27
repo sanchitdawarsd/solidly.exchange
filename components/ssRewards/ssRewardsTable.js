@@ -391,6 +391,9 @@ const useStyles = makeStyles((theme) => ({
     fontSize: '16px',
     marginLeft: '10px',
   },
+  symbol: {
+    minWidth: '40px'
+  },
 }));
 
 export default function EnhancedTable({ rewards, vestNFTs, tokenID }) {
@@ -437,6 +440,8 @@ export default function EnhancedTable({ rewards, vestNFTs, tokenID }) {
       stores.dispatcher.dispatch({ type: ACTIONS.CLAIM_PAIR_FEES, content: { pair: reward, tokenID } })
     } else if (reward.rewardType === 'Reward') {
       stores.dispatcher.dispatch({ type: ACTIONS.CLAIM_REWARD, content: { pair: reward, tokenID } })
+    } else if (reward.rewardType === 'Distribution') {
+      stores.dispatcher.dispatch({ type: ACTIONS.CLAIM_VE_DIST, content: { tokenID } })
     }
   };
 
@@ -463,40 +468,67 @@ export default function EnhancedTable({ rewards, vestNFTs, tokenID }) {
                     className={classes.assetTableRow}
                   >
                     <TableCell className={classes.cell}>
-                      <div className={classes.inline}>
-                        <div className={ classes.doubleImages}>
-                          <img
-                            className={classes.img1Logo}
-                            src={ (row && row.token0 && row.token0.logoURI) ? row.token0.logoURI : `` }
-                            width='37'
-                            height='37'
-                            alt=''
-                            onError={(e) => {
-                              e.target.onerror = null;
-                              e.target.src = '/tokens/unknown-logo.png';
-                            }}
-                          />
-                          <img
-                            className={classes.img2Logo}
-                            src={ (row && row.token1 && row.token1.logoURI) ? row.token1.logoURI : `` }
-                            width='37'
-                            height='37'
-                            alt=''
-                            onError={(e) => {
-                              e.target.onerror = null;
-                              e.target.src = '/tokens/unknown-logo.png';
-                            }}
-                          />
+                      { ['Bribe', 'Fees', 'Reward'].includes(row.rewardType) &&
+                        <div className={classes.inline}>
+                          <div className={ classes.doubleImages}>
+                            <img
+                              className={classes.img1Logo}
+                              src={ (row && row.token0 && row.token0.logoURI) ? row.token0.logoURI : `` }
+                              width='37'
+                              height='37'
+                              alt=''
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = '/tokens/unknown-logo.png';
+                              }}
+                            />
+                            <img
+                              className={classes.img2Logo}
+                              src={ (row && row.token1 && row.token1.logoURI) ? row.token1.logoURI : `` }
+                              width='37'
+                              height='37'
+                              alt=''
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = '/tokens/unknown-logo.png';
+                              }}
+                            />
+                          </div>
+                          <div>
+                            <Typography variant='h2' noWrap className={classes.textSpaced}>
+                              {row?.symbol}
+                            </Typography>
+                            <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                              {row?.rewardType}
+                            </Typography>
+                          </div>
                         </div>
-                        <div>
-                          <Typography variant='h2' noWrap className={classes.textSpaced}>
-                            {row?.symbol}
-                          </Typography>
-                          <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
-                            {row?.rewardType}
-                          </Typography>
+                      }
+                      { ['Distribution'].includes(row.rewardType) &&
+                        <div className={classes.inline}>
+                          <div className={ classes.doubleImages}>
+                            <img
+                              className={classes.img1Logo}
+                              src={ (row && row.lockToken && row.lockToken.logoURI) ? row.lockToken.logoURI : `` }
+                              width='37'
+                              height='37'
+                              alt=''
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = '/tokens/unknown-logo.png';
+                              }}
+                            />
+                          </div>
+                          <div>
+                            <Typography variant='h2' noWrap className={classes.textSpaced}>
+                              {row?.lockToken?.symbol}
+                            </Typography>
+                            <Typography variant='h5' className={classes.textSpaced} color='textSecondary'>
+                              {row?.rewardType}
+                            </Typography>
+                          </div>
                         </div>
-                      </div>
+                      }
                     </TableCell>
                     <TableCell className={classes.cell} align='right'>
                       <div>
@@ -556,6 +588,18 @@ export default function EnhancedTable({ rewards, vestNFTs, tokenID }) {
                               </Typography>
                               <Typography variant='h5' className={`${classes.textSpaced} ${classes.symbol}`} color='textSecondary'>
                                 {row.token1.symbol}
+                              </Typography>
+                            </div>
+                          </>
+                        }
+                        { (row && row.rewardType === 'Distribution') &&
+                          <>
+                            <div className={ classes.inlineEnd }>
+                              <Typography variant='h5' className={classes.textSpaced}>
+                                {formatCurrency(row.token?.lockValue)}
+                              </Typography>
+                              <Typography variant='h5' className={`${classes.textSpaced} ${classes.symbol}`} color='textSecondary'>
+                                {row.lockToken.symbol}
                               </Typography>
                             </div>
                           </>
@@ -640,6 +684,18 @@ export default function EnhancedTable({ rewards, vestNFTs, tokenID }) {
                               </Typography>
                               <Typography variant='h5' className={`${classes.textSpaced} ${classes.symbol}`} color='textSecondary'>
                                 SOLID
+                              </Typography>
+                            </div>
+                          </>
+                        }
+                        { (row && row.rewardType === 'Distribution') &&
+                          <>
+                            <div className={ classes.inlineEnd }>
+                              <Typography variant='h5' className={classes.textSpaced}>
+                                {formatCurrency(row.earned)}
+                              </Typography>
+                              <Typography variant='h5' className={`${classes.textSpaced} ${classes.symbol}`} color='textSecondary'>
+                                {row.rewardToken.symbol}
                               </Typography>
                             </div>
                           </>

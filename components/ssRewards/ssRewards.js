@@ -64,13 +64,13 @@ export default function ssRewards() {
 
   const rewardBalancesReturned = (rew) => {
     if(rew) {
-      if(rew && rew.bribes && rew.fees && rew.bribes.length >= 0 && rew.fees.length >= 0 && rew.rewards.length >= 0) {
-        setRewards([...rew.bribes, ...rew.fees, ...rew.rewards])
+      if(rew && rew.bribes && rew.fees && rew.rewards && rew.veDist && rew.bribes.length >= 0 && rew.fees.length >= 0 && rew.rewards.length >= 0) {
+        setRewards([...rew.bribes, ...rew.fees, ...rew.rewards, ...rew.veDist])
       }
     } else {
       let re = stores.stableSwapStore.getStore('rewards')
-      if(re && re.bribes && re.fees && re.bribes.length >= 0 && re.fees.length >= 0 && re.rewards.length >= 0) {
-        setRewards([...re.bribes, ...re.fees, ...re.rewards])
+      if(re && re.bribes && re.fees && re.rewards && re.veDist && re.bribes.length >= 0 && re.fees.length >= 0 && re.rewards.length >= 0) {
+        setRewards([...re.bribes, ...re.fees, ...re.rewards, ...re.veDist])
       }
     }
   }
@@ -102,11 +102,13 @@ export default function ssRewards() {
     stores.emitter.on(ACTIONS.CLAIM_BRIBE_RETURNED, claimReturned);
     stores.emitter.on(ACTIONS.CLAIM_REWARD_RETURNED, claimReturned);
     stores.emitter.on(ACTIONS.CLAIM_PAIR_FEES_RETURNED, claimReturned);
+    stores.emitter.on(ACTIONS.CLAIM_VE_DIST_RETURNED, claimReturned);
     stores.emitter.on(ACTIONS.CLAIM_ALL_REWARDS_RETURNED, claimAllReturned);
     return () => {
       stores.emitter.removeListener(ACTIONS.CLAIM_BRIBE_RETURNED, claimReturned);
       stores.emitter.removeListener(ACTIONS.CLAIM_REWARD_RETURNED, claimReturned);
       stores.emitter.removeListener(ACTIONS.CLAIM_PAIR_FEES_RETURNED, claimReturned);
+      stores.emitter.removeListener(ACTIONS.CLAIM_VE_DIST_RETURNED, claimReturned);
       stores.emitter.removeListener(ACTIONS.CLAIM_ALL_REWARDS_RETURNED, claimAllReturned);
     };
   }, [])

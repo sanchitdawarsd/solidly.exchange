@@ -53,7 +53,7 @@ function Home({ changeTheme }) {
 
         <Grid container spacing={2} className={classes.homeContentMain}>
           <Grid item lg={12} md={12} sm={12} xs={12}>
-            <Typography variant="h1" className={classes.preTitle}>0.001% fee</Typography>
+            <Typography variant="h1" className={classes.preTitle}>0.01% fee</Typography>
           </Grid>
           <Grid item lg={12} md={12} sm={12} xs={12}>
             <Typography variant="h1" className={classes.mainTitle}>Low cost stable coin swaps</Typography>
