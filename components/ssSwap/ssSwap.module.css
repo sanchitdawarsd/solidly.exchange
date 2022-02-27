@@ -665,6 +665,9 @@
 }
 
 @media screen and (max-width: 576px) {
+  .newSwapContainer {
+    margin-top: -100px;
+  }
   .swapContainer {
     padding: 12px;
   }
